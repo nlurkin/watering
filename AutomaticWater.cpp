@@ -196,6 +196,7 @@ void AutomaticWater::runMonitorMode(LCDWaterDisplay::button button){
 		if(button==LCDWaterDisplay::btnRIGHT){
 			_gSubMode = MODE_MONITOR_IDLE;
 			pump1.run(false);
+			sensor1.setMeasureInterval(LONG_INTERVAL);
 		}
 
 		if(sensor1.getRawMoisture()>LEVEL_WATER){
