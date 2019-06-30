@@ -48,8 +48,6 @@ private:
 		           MODE_CALIB_WATER, MODE_CALIB_WATER_W, MODE_CALIB_DRY, MODE_CALIB_DRY_W, //Sub modes for CALIB
 				   MODE_SHOW_CONST}; //Sub modes for SHOW                                   /** enum to identify the sub modes */
 
-	MainMode checkMainModeChange(LCDWaterDisplay::button button);
-
 	const int      PIN_VALVE1         = 32;                 /** Digital PIN number ?? Not used ?? */
 	const int      LEVEL_WATER        = 600;                /** Value returned by the sensor below which watering is needed */
 	const int      LONG_INTERVAL      = 3600000;            /** Long interval between measurements */

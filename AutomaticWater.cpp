@@ -245,7 +245,3 @@ void AutomaticWater::tick() {
 		break;
 	}
 }
-
-AutomaticWater::MainMode AutomaticWater::checkMainModeChange(LCDWaterDisplay::button button) {
-
-}
