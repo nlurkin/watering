@@ -147,7 +147,7 @@ void AutomaticWater::runShowMode(LCDWaterDisplay::button button){
 	}
 
 	switch(_gSubMode) {
-	case MODE_SHOW_CONST:
+	case MODE_SHOW_CONST: // Mode SHOW
 		//Display the calibration constants on the LCD
 		lcdDisplay.displayShowConstants(sensor1.getWaterValue(), sensor1.getDryValue());
 		if(button==LCDWaterDisplay::btnLEFT){ // If left button pressed again, go back to MONITOR mode
@@ -161,7 +161,7 @@ void AutomaticWater::runShowMode(LCDWaterDisplay::button button){
 
 /**
  * Method called at tick when in Show mode.
- * It will  evaluate the current sub state and pressed button
+ * It will evaluate the current sub state and pressed button
  * and execute actions accordingly.
  *
  * The MONITOR mode is the main running mode of this program.
@@ -171,29 +171,39 @@ void AutomaticWater::runShowMode(LCDWaterDisplay::button button){
  * @param button: Eventual button pressed on the LCD display
  */
 void AutomaticWater::runMonitorMode(LCDWaterDisplay::button button){
+	// If current sub mode is not one of the MONITOR mode, we are coming to MONITOR
+	// mode from another mode
 	if( _gSubMode!=MODE_MONITOR_IDLE &&
 		_gSubMode!=MODE_MONITOR_RUN){
+		// Set sub mode as the default monitor mode and set the display accordingly
 		lcdDisplay.initMonitorMode();
 		_gSubMode = defaultMonitorMode;
 	}
 
+	// Display the moisture level and the percentage
 	lcdDisplay.displayRunValues(sensor1.getRawMoisture(), sensor1.getPercentageMoisture());
 
 	switch(_gSubMode){
-	case MODE_MONITOR_IDLE:
+	case MODE_MONITOR_IDLE: // Mode IDLE
+		// In this case we only monitor the moisture level without taking any action
+		// LCD does not display the running symbol
 		lcdDisplay.initRunning(false);
-		if(button==LCDWaterDisplay::btnSELECT)
+
+		// Check what are the possible button pressed
+		if(button==LCDWaterDisplay::btnSELECT) // If Select was pressed, move to CALIB mode
 			_gMainMode = MAIN_MODE_CALIB;
-		else if(button==LCDWaterDisplay::btnLEFT){
+		else if(button==LCDWaterDisplay::btnLEFT) // If Left was pressed, move to SHOW mode
 			_gMainMode = MAIN_MODE_SHOW;
-		}
-		else if(button==LCDWaterDisplay::btnRIGHT)
+		else if(button==LCDWaterDisplay::btnRIGHT) // If Right was pressed, move to RUNNING sub mode
 			_gSubMode = MODE_MONITOR_RUN;
 		break;
-	case MODE_MONITOR_RUN:
+	case MODE_MONITOR_RUN: // Mode IDLE
+		// In this mode we monitor the moisture level and start watering if it drops too low
+		// LCD does display the running symbol
 		lcdDisplay.initRunning(true);
 
-		if(button==LCDWaterDisplay::btnRIGHT){
+		if(button==LCDWaterDisplay::btnRIGHT){ // If Right button was pressed, move to IDLE sub mode
+			// Ensure the pump is not running and reset measurement interval to LONG_INTERVAL
 			_gSubMode = MODE_MONITOR_IDLE;
 			pump1.run(false);
 			sensor1.setMeasureInterval(LONG_INTERVAL);
@@ -201,14 +211,18 @@ void AutomaticWater::runMonitorMode(LCDWaterDisplay::button button){
 
 		if(sensor1.getRawMoisture()>LEVEL_WATER){
 			//Need water
+			// Display the watering symbol and shorten the measurement interval to SHORT_INTERVAL.
 			lcdDisplay.initWatering(true);
 			sensor1.setMeasureInterval(SHORT_INTERVAL);
+			// Enable the pump
 			pump1.run(true);
 		}
 		else{
 			//Does not need water
+			// Remove the watering symbol and reset the measurement interval to LONG_INTERVAL.
 			lcdDisplay.initWatering(false);
 			sensor1.setMeasureInterval(LONG_INTERVAL);
+			// Disable the pump
 			pump1.run(false);
 		}
 		break;
@@ -217,17 +231,26 @@ void AutomaticWater::runMonitorMode(LCDWaterDisplay::button button){
 	}
 }
 
-void AutomaticWater::runIdleMode(LCDWaterDisplay::button button) {
-}
-
+/**
+ * This is the tick method called at every clock tick from the main
+ * It will read the button information from the LCD and forward it to the
+ * main mode methods. It actually runs every 10 clock ticks, or when a button
+ * is pressed.
+ * It also call the tick methods of the sensor and the pump.
+ */
 void AutomaticWater::tick() {
+	//Reads the button info from the LCD
 	LCDWaterDisplay::button button = lcdDisplay.read_LCD_buttons();
 
+	// Pass to the rest of the function only every 10 ticks, or when a button is pressed
 	if(++_currentCounter<10 && button==LCDWaterDisplay::btnNONE) return;
 	_currentCounter = 0;
+
+	// Tick the sub classes
 	sensor1.tick();
 	pump1.tick();
 
+	// Run the method associated to the current main mode
 	switch(_gMainMode) {
 	case MAIN_MODE_MONITOR: //MONITORING MODE
 		runMonitorMode(button);
@@ -237,9 +260,6 @@ void AutomaticWater::tick() {
 		break;
 	case MAIN_MODE_SHOW: //SHOW MODE
 		runShowMode(button);
-		break;
-	case MAIN_MODE_IDLE: //IDLE MODE
-		runIdleMode(button);
 		break;
 	default:
 		break;
