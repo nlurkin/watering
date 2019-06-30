@@ -34,7 +34,7 @@ AutomaticWater::~AutomaticWater() {
  */
 void AutomaticWater::initSystem(){
    //Setup sensor 1, reading every hour
-   sensor1.setMeasureInterval(3600000);
+   sensor1.setMeasureInterval(LONG_INTERVAL);
    sensor1.setTickInterval(_gTickInterval);
 
    //Setup pump
@@ -118,7 +118,7 @@ void AutomaticWater::runCalibrationMode(LCDWaterDisplay::button button){
 		if(calibOver){
 			// If this is finished, return to the main MONITOR mode and reset the monitoring
 			// interval of the sensor to slow
-			sensor1.setMeasureInterval(3600000);
+			sensor1.setMeasureInterval(LONG_INTERVAL);
 			_gMainMode = MAIN_MODE_MONITOR;
 		}
 		break;
@@ -201,13 +201,13 @@ void AutomaticWater::runMonitorMode(LCDWaterDisplay::button button){
 		if(sensor1.getRawMoisture()>LEVEL_WATER){
 			//Need water
 			lcdDisplay.initWatering(true);
-			sensor1.setMeasureInterval(1000);
+			sensor1.setMeasureInterval(SHORT_INTERVAL);
 			pump1.run(true);
 		}
 		else{
 			//Does not need water
 			lcdDisplay.initWatering(false);
-			sensor1.setMeasureInterval(3600000);
+			sensor1.setMeasureInterval(LONG_INTERVAL);
 			pump1.run(false);
 		}
 		break;
