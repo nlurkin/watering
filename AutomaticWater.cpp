@@ -2,7 +2,7 @@
  * AutomaticWater.cpp
  *
  *  Created on: 4 Nov 2017
- *      Author: nicol
+ *      Author: Nicolas Lurkin
  */
 
 #include "AutomaticWater.h"
