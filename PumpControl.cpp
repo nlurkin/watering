@@ -44,11 +44,11 @@ PumpControl::~PumpControl() {
 void PumpControl::tick() {
 	// Increment the internal tick counter
 	++_currentCounter;
-	int runningTimeInTick = _runningTime/_tickInterval;
-	int deadTimeInTick = _deadTime/_tickInterval;
+
 	if(_on==RUNNING){
 		// If the pump is currently running, compute the amount of time it is
 		// supposed to be running, in unit of tick.
+		int runningTimeInTick = _runningTime/_tickInterval;
 		if(_currentCounter > runningTimeInTick){
 			// We have been running long enough, stop the pump
 			// Move to DEAD state and reset the tick counter.
@@ -60,6 +60,7 @@ void PumpControl::tick() {
 	else if(_on==DEAD){
 		// If the pump is currently in DEAD state, compute the amount of time
 		// it is supposed to stay in that state, in unit of tick.
+		int deadTimeInTick = _deadTime/_tickInterval;
 		if(_currentCounter > deadTimeInTick){
 			// We have been dead for long enough, move back to IDLE state
 			// and reset the tick counter
