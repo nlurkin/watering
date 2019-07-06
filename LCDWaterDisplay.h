@@ -11,7 +11,7 @@
 #include <LiquidCrystal.h>
 
 /**
- * This class handles the LCD display and buttons (1602 LCD Keypad shield).
+ * \brief This class handles the LCD display and buttons (1602 LCD Keypad shield).
  *
  * The predefined messages are encoded in this class and simply enabled from outside,
  * passing the required dynamic parameters.
