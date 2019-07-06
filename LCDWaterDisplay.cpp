@@ -80,7 +80,7 @@ void LCDWaterDisplay::initShowMode(){
  * Clear the specified line and returns the cursor at the beginning of the line.
  * @param l: Display line to clear
  */
-void LCDWaterDisplay::lcd_clear_line(int l){
+void LCDWaterDisplay::lcd_clear_line(uint8_t l){
 	_lcd.setCursor(0, l);
 	_lcd.print("                ");
 	_lcd.setCursor(0,l);

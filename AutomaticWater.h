@@ -36,7 +36,7 @@ public:
 	 * Set the tickInterval
 	 * @param tickInterval: tick interval value
 	 */
-	void setTickInterval(int tickInterval) {
+	void setTickInterval(unsigned int tickInterval) {
 		_gTickInterval = tickInterval;
 	}
 
@@ -48,7 +48,7 @@ private:
 		           MODE_CALIB_WATER, MODE_CALIB_WATER_W, MODE_CALIB_DRY, MODE_CALIB_DRY_W, //Sub modes for CALIB
 				   MODE_SHOW_CONST}; //Sub modes for SHOW                                   /** enum to identify the sub modes */
 
-	const int      PIN_VALVE1         = 32;                 /** Digital PIN number ?? Not used ?? */
+	const short    PIN_VALVE1         = 32;                 /** Digital PIN number ?? Not used ?? */
 	const int      LEVEL_WATER        = 600;                /** Value returned by the sensor below which watering is needed */
 	const long int LONG_INTERVAL      = 3600000;            /** Long interval between measurements */
 	const long int SHORT_INTERVAL     = 1000;               /** Long interval between measurements */
@@ -56,8 +56,8 @@ private:
 
 	MainMode       _gMainMode         = MAIN_MODE_MONITOR;  /** Main mode currently running (defaults to MONITOR) */
 	SubMode        _gSubMode          = defaultMonitorMode; /** Sub mode currently running (defaults to defaultMonitorMode) */
-	int            _gTickInterval;                          /** Tick interval to be set to all classes used */
-	int            _currentCounter;                         /** Internal tick counter */
+	unsigned int   _gTickInterval;                          /** Tick interval to be set to all classes used */
+	unsigned int   _currentCounter;                         /** Internal tick counter */
 
 	MoistureSensor  sensor1;    /** Moisture sensor controller */
 	PumpControl     pump1;      /** Pump controller */

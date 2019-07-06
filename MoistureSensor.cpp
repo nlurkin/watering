@@ -6,7 +6,6 @@
  */
 
 #include "MoistureSensor.h"
-#include <Arduino.h>
 
 /**
  * Constructor. It initialises the internal values of the moisture sensor.
@@ -14,7 +13,7 @@
  * @param pin: Analog pin on which moisture values are read.
  * @param powerPin: Digital pin used to power the sensor.
  */
-MoistureSensor::MoistureSensor(int pin, int powerPin) :
+MoistureSensor::MoistureSensor(uint8_t pin, uint8_t powerPin) :
 	_pin(pin),
 	_powerPin(powerPin),
 	_measureInterval(-1),
@@ -138,7 +137,7 @@ void MoistureSensor::resetCalibration() {
  *
  * @param pin: Digital pin used for powering the sensor
  */
-void MoistureSensor::setPowerPin(int pin) {
+void MoistureSensor::setPowerPin(uint8_t pin) {
 	// Reset the previous pin to input
 	pinMode(_powerPin, INPUT);
 

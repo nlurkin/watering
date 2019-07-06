@@ -6,7 +6,6 @@
  */
 
 #include "PumpControl.h"
-#include <Arduino.h>
 
 /**
  * Constructor. Initialise the pin in output mode and value HIGH (corresponding to
@@ -14,7 +13,7 @@
  *
  * @param pin: Digital pin on which the pump is connected
  */
-PumpControl::PumpControl(int pin) :
+PumpControl::PumpControl(uint8_t pin) :
 	_pin(pin),
 	_deadTime(-1),
 	_runningTime(-1),
@@ -103,7 +102,7 @@ void PumpControl::run(bool state) {
  * Change the digital pin on which the pump is connected
  * @param pin: Digital pin on which the pump is connected
  */
-void PumpControl::setPin(int pin) {
+void PumpControl::setPin(uint8_t pin) {
 	//Unset previous pin
 	pinMode(_pin, INPUT);
 	digitalWrite(_pin, LOW);

@@ -31,7 +31,7 @@ public:
 	void initWatering(bool watering);
 	void initRunning(bool running);
 
-	void lcd_clear_line(int l);
+	void lcd_clear_line(uint8_t l);
 	int read_LCD_buttons();
 
 	void displayCalibMode(calibType type);

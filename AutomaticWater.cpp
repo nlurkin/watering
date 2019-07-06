@@ -194,8 +194,9 @@ void AutomaticWater::runMonitorMode(LCDWaterDisplay::button button){
 			_gMainMode = MAIN_MODE_CALIB;
 		else if(button==LCDWaterDisplay::btnLEFT) // If Left was pressed, move to SHOW mode
 			_gMainMode = MAIN_MODE_SHOW;
-		else if(button==LCDWaterDisplay::btnRIGHT) // If Right was pressed, move to RUNNING sub mode
+		else if(button==LCDWaterDisplay::btnRIGHT) { // If Right was pressed, move to RUNNING sub mode
 			_gSubMode = MODE_MONITOR_RUN;
+		}
 		break;
 	case MODE_MONITOR_RUN: // Mode IDLE
 		// In this mode we monitor the moisture level and start watering if it drops too low
