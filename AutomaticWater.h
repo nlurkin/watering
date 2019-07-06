@@ -58,7 +58,8 @@ private:
 	SubMode        _gSubMode          = defaultMonitorMode; /** Sub mode currently running (defaults to defaultMonitorMode) */
 	unsigned int   _gTickInterval;                          /** Tick interval to be set to all classes used */
 	unsigned int   _currentCounter;                         /** Internal tick counter */
-
+	bool           _isWatering;                             /** True if currently watering else false */
+	
 	MoistureSensor  sensor1;    /** Moisture sensor controller */
 	PumpControl     pump1;      /** Pump controller */
 	LCDWaterDisplay lcdDisplay; /** LCD Display and buttons controller */
