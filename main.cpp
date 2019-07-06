@@ -15,6 +15,7 @@ void setup(){
 
    // Set tick at 1s - used for pump and sensor, not for display and buttons
    waterSystem.setTickInterval(1000);
+   waterSystem.addSensor(10, 40);
    waterSystem.initSystem();
 }
 
