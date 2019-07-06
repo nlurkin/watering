@@ -23,6 +23,7 @@
  */
 class AutomaticWater {
 public:
+	static const short MAX_SENSORS = 5;
 	AutomaticWater();
 	virtual ~AutomaticWater();
 
@@ -31,6 +32,8 @@ public:
 	void runCalibrationMode(LCDWaterDisplay::button button);
 	void runShowMode(LCDWaterDisplay::button button);
 	void runMonitorMode(LCDWaterDisplay::button button);
+
+	bool addSensor(unsigned short pin, unsigned short powerPin);
 
 	/**
 	 * Set the tickInterval
@@ -41,8 +44,14 @@ public:
 	}
 
 	void tick();
+	void loopActiveSensor(short delta);
+	void setActiveSensor(unsigned short sensorID);
 
 private:
+	void tickSensors();
+	void setSensorsMeasureInterval(unsigned long int interval);
+	bool monitorCircuits();
+
 	enum MainMode {MAIN_MODE_MONITOR, MAIN_MODE_CALIB, MAIN_MODE_SHOW};     /** enum to identify the main modes */
 	enum SubMode  {MODE_MONITOR_IDLE, MODE_MONITOR_RUN,  //Sub modes for MONITOR
 		           MODE_CALIB_WATER, MODE_CALIB_WATER_W, MODE_CALIB_DRY, MODE_CALIB_DRY_W, //Sub modes for CALIB
@@ -58,9 +67,11 @@ private:
 	SubMode        _gSubMode          = defaultMonitorMode; /** Sub mode currently running (defaults to defaultMonitorMode) */
 	unsigned int   _gTickInterval;                          /** Tick interval to be set to all classes used */
 	unsigned int   _currentCounter;                         /** Internal tick counter */
+	unsigned short _nSensors;                               /** Number of monitored sensors */
+	unsigned short _currentSensor;                          /** Index of the currently active sensor. Active is defined as the one that is being displayed/calibrated */
 	bool           _isWatering;                             /** True if currently watering else false */
-	
-	MoistureSensor  sensor1;    /** Moisture sensor controller */
+
+	MoistureSensor *sensors[MAX_SENSORS];    /** Moisture sensor controller */
 	PumpControl     pump1;      /** Pump controller */
 	LCDWaterDisplay lcdDisplay; /** LCD Display and buttons controller */
 };
