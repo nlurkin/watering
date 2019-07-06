@@ -50,8 +50,8 @@ private:
 
 	const int      PIN_VALVE1         = 32;                 /** Digital PIN number ?? Not used ?? */
 	const int      LEVEL_WATER        = 600;                /** Value returned by the sensor below which watering is needed */
-	const int      LONG_INTERVAL      = 3600000;            /** Long interval between measurements */
-	const int      SHORT_INTERVAL     = 1000;               /** Long interval between measurements */
+	const long int LONG_INTERVAL      = 3600000;            /** Long interval between measurements */
+	const long int SHORT_INTERVAL     = 1000;               /** Long interval between measurements */
 	const SubMode  defaultMonitorMode = MODE_MONITOR_RUN;   /** Default starting sub mode of the monitoring mode when switching to the monitor mode (Running) */
 
 	MainMode       _gMainMode         = MAIN_MODE_MONITOR;  /** Main mode currently running (defaults to MONITOR) */

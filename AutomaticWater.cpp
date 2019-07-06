@@ -208,22 +208,23 @@ void AutomaticWater::runMonitorMode(LCDWaterDisplay::button button){
 			pump1.run(false);
 			sensor1.setMeasureInterval(LONG_INTERVAL);
 		}
-
-		if(sensor1.getRawMoisture()>LEVEL_WATER){
-			//Need water
-			// Display the watering symbol and shorten the measurement interval to SHORT_INTERVAL.
-			lcdDisplay.initWatering(true);
-			sensor1.setMeasureInterval(SHORT_INTERVAL);
-			// Enable the pump
-			pump1.run(true);
-		}
 		else{
-			//Does not need water
-			// Remove the watering symbol and reset the measurement interval to LONG_INTERVAL.
-			lcdDisplay.initWatering(false);
-			sensor1.setMeasureInterval(LONG_INTERVAL);
-			// Disable the pump
-			pump1.run(false);
+			if(sensor1.getRawMoisture()>LEVEL_WATER){
+				//Need water
+				// Display the watering symbol and shorten the measurement interval to SHORT_INTERVAL.
+				lcdDisplay.initWatering(true);
+				sensor1.setMeasureInterval(SHORT_INTERVAL);
+				// Enable the pump
+				pump1.run(true);
+			}
+			else{
+				//Does not need water
+				// Remove the watering symbol and reset the measurement interval to LONG_INTERVAL.
+				lcdDisplay.initWatering(false);
+				sensor1.setMeasureInterval(LONG_INTERVAL);
+				// Disable the pump
+				pump1.run(false);
+			}
 		}
 		break;
 	default:
