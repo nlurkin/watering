@@ -15,7 +15,7 @@ AutomaticWater::AutomaticWater() :
 	_gMainMode(MAIN_MODE_MONITOR),
 	_gSubMode(defaultMonitorMode),
 	_gTickInterval(500),
-	_nSensors(0),
+	_nCircuits(0),
 	_currentSensor(0),
 	pump1(30),
 	_currentCounter(0)
@@ -32,7 +32,7 @@ AutomaticWater::AutomaticWater() :
  * Make sure we delete all the sensor pointers
  */
 AutomaticWater::~AutomaticWater() {
-	for(unsigned short i=0; i<_nSensors; ++i){
+	for(unsigned short i=0; i<_nCircuits; ++i){
 		delete sensors[i];
 		sensors[i] = nullptr;
 	}
@@ -198,7 +198,7 @@ void AutomaticWater::runMonitorMode(LCDWaterDisplay::button button){
 	}
 
 	// Display the moisture level and the percentage
-	if(_nSensors>0)
+	if(_nCircuits>0)
 		lcdDisplay.displayRunValues(sensors[_currentSensor]->getRawMoisture(), sensors[_currentSensor]->getPercentageMoisture());
 
 	//We can change active sensor in all cases
@@ -268,13 +268,13 @@ void AutomaticWater::runMonitorMode(LCDWaterDisplay::button button){
  */
 bool AutomaticWater::addSensor(uint8_t pin, uint8_t powerPin) {
 	// Not more than MAX_SENSORS
-	if(_nSensors>=MAX_SENSORS) return false;
-	sensors[_nSensors] = new MoistureSensor(pin, powerPin);
+	if(_nCircuits>=MAX_SENSORS) return false;
+	sensors[_nCircuits] = new MoistureSensor(pin, powerPin);
 
 	//Setup sensor 1, reading every hour
-	sensors[_nSensors]->setMeasureInterval(LONG_INTERVAL);
-	sensors[_nSensors]->setTickInterval(_gTickInterval);
-	++_nSensors;
+	sensors[_nCircuits]->setMeasureInterval(LONG_INTERVAL);
+	sensors[_nCircuits]->setTickInterval(_gTickInterval);
+	++_nCircuits;
 
 	return true;
 }
@@ -324,10 +324,10 @@ void AutomaticWater::tick() {
 void AutomaticWater::loopActiveSensor(short delta) {
 	// Only delta of +1 or -1 are allowed, just for simplicity.
 	// Also no sense to loop if there are no sensors.
-	if(abs(delta)!=1 || _nSensors==0) return;
+	if(abs(delta)!=1 || _nCircuits==0) return;
 
-	if(delta<0 && _currentSensor==0) _currentSensor = _nSensors-1;
-	else if(delta>0 && _currentSensor==_nSensors-1) _currentSensor = 0;
+	if(delta<0 && _currentSensor==0) _currentSensor = _nCircuits-1;
+	else if(delta>0 && _currentSensor==_nCircuits-1) _currentSensor = 0;
 	else _currentSensor += delta;
 }
 
@@ -335,7 +335,7 @@ void AutomaticWater::loopActiveSensor(short delta) {
  * Call the tick method of all the existing sensors.
  */
 void AutomaticWater::tickSensors() {
-	for(unsigned short i=0; i<_nSensors; ++i) sensors[i]->tick();
+	for(unsigned short i=0; i<_nCircuits; ++i) sensors[i]->tick();
 }
 
 /**
@@ -345,7 +345,7 @@ void AutomaticWater::tickSensors() {
  * @param sensorID: ID of the sensor to set active
  */
 void AutomaticWater::setActiveSensor(unsigned short sensorID) {
-	if(sensorID<_nSensors) _currentSensor = sensorID;
+	if(sensorID<_nCircuits) _currentSensor = sensorID;
 }
 
 /**
@@ -354,11 +354,11 @@ void AutomaticWater::setActiveSensor(unsigned short sensorID) {
  * @param interval: Measure interval to set
  */
 void AutomaticWater::setSensorsMeasureInterval(unsigned long int interval) {
-	for(unsigned short i=0; i<_nSensors; ++i) sensors[i]->setMeasureInterval(interval);
+	for(unsigned short i=0; i<_nCircuits; ++i) sensors[i]->setMeasureInterval(interval);
 }
 
 bool AutomaticWater::monitorCircuits() {
-	for (unsigned short i = 0; i < _nSensors; ++i) {
+	for (unsigned short i = 0; i < _nCircuits; ++i) {
 		if (sensors[i]->getRawMoisture() > LEVEL_WATER && !_isWatering[i]) {
 			// Need water
 			_isWatering[i] = true;

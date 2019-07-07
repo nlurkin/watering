@@ -68,7 +68,7 @@ private:
 	SubMode        _gSubMode          = defaultMonitorMode; /** Sub mode currently running (defaults to defaultMonitorMode) */
 	unsigned int   _gTickInterval;                          /** Tick interval to be set to all classes used */
 	unsigned int   _currentCounter;                         /** Internal tick counter */
-	unsigned short _nSensors;                               /** Number of monitored sensors */
+	unsigned short _nCircuits;                              /** Number of circuits (sensors + valve couples)*/
 	unsigned short _currentSensor;                          /** Index of the currently active sensor. Active is defined as the one that is being displayed/calibrated */
 	bool           _isWatering[MAX_SENSORS];                /** True if associated sensor is currently watering else false */
 
