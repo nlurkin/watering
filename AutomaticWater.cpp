@@ -236,7 +236,7 @@ void AutomaticWater::runMonitorMode(LCDWaterDisplay::button button){
 			setSensorsMeasureInterval(LONG_INTERVAL);
 		}
 		else{
-			bool currentIsWatering = isWatering();
+			bool currentIsWatering = ( pump1.getStatus() == PumpControl::RUNNING);
 			bool needWater = monitorCircuits();
 			if(needWater && !currentIsWatering){
 				// Need watering state changed
@@ -358,11 +358,9 @@ void AutomaticWater::setSensorsMeasureInterval(unsigned long int interval) {
 }
 
 bool AutomaticWater::monitorCircuits() {
-	bool needWater = false;
 	for (unsigned short i = 0; i < _nSensors; ++i) {
 		if (sensors[i]->getRawMoisture() > LEVEL_WATER && !_isWatering[i]) {
 			// Need water
-			needWater = true;
 			_isWatering[i] = true;
 			// Shorten the measurement interval to SHORT_INTERVAL for that sensor.
 			sensors[i]->setMeasureInterval(SHORT_INTERVAL);
@@ -373,7 +371,7 @@ bool AutomaticWater::monitorCircuits() {
 			sensors[i]->setMeasureInterval(LONG_INTERVAL);
 		}
 	}
-	return needWater;
+	return isWatering();
 }
 
 /**

@@ -35,9 +35,10 @@ public:
 	void setTickInterval(unsigned int tickInterval) { _tickInterval = tickInterval; }
 
 	uint8_t getPin()               const { return _pin;          }
-	unsigned int getDeadTime()     const { return _deadTime;	    }
+	unsigned int getDeadTime()     const { return _deadTime;	 }
 	unsigned int getRunningTime()  const { return _runningTime;  }
 	unsigned int getTickInterval() const { return _tickInterval; }
+	state        getStatus()       const { return _on;           }
 
 private:
 	uint8_t   _pin;                 /** Digital pin on which the pump is connected */
