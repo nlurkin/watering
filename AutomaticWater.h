@@ -52,6 +52,7 @@ public:
 
 private:
 	void tickSensors();
+	void stopAllWatering();
 	void setSensorsMeasureInterval(unsigned long int interval);
 	bool monitorCircuits();
 	bool isWatering();

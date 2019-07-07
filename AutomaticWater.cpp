@@ -235,10 +235,12 @@ void AutomaticWater::runMonitorMode(LCDWaterDisplay::button button){
 		lcdDisplay.initRunning(true);
 
 		if(button==LCDWaterDisplay::btnRIGHT){ // If Right button was pressed, move to IDLE sub mode
-			// Ensure the pump is not running and reset measurement interval to LONG_INTERVAL
+			// Ensure the pump is not running, reset measurement interval to LONG_INTERVAL
+			// and make sure all valves are closed
 			_gSubMode = MODE_MONITOR_IDLE;
 			pump1.run(false);
 			setSensorsMeasureInterval(LONG_INTERVAL);
+			stopAllWatering();
 		}
 		else{
 			bool currentIsWatering = ( pump1.getStatus() == PumpControl::RUNNING);
@@ -423,6 +425,17 @@ bool AutomaticWater::monitorCircuits() {
 		}
 	}
 	return isWatering();
+}
+
+/**
+ * Make sure everything stops watering properly. Close all the valves and 
+ * set the _isWatering variable to false.
+ */
+void AutomaticWater::stopAllWatering() {
+	for(unsigned short i=0; i<_nCircuits; ++i) {
+		_isWatering[i] = false;
+		if(valves[i]) valves[i]->open(false);
+	}
 }
 
 /**
