@@ -33,7 +33,7 @@ public:
 	void runShowMode(LCDWaterDisplay::button button);
 	void runMonitorMode(LCDWaterDisplay::button button);
 
-	bool addSensor(unsigned short pin, unsigned short powerPin);
+	bool addSensor(uint8_t pin, uint8_t powerPin);
 
 	/**
 	 * Set the tickInterval
@@ -51,11 +51,12 @@ private:
 	void tickSensors();
 	void setSensorsMeasureInterval(unsigned long int interval);
 	bool monitorCircuits();
+	bool isWatering();
 
 	enum MainMode {MAIN_MODE_MONITOR, MAIN_MODE_CALIB, MAIN_MODE_SHOW};     /** enum to identify the main modes */
 	enum SubMode  {MODE_MONITOR_IDLE, MODE_MONITOR_RUN,  //Sub modes for MONITOR
 		           MODE_CALIB_WATER, MODE_CALIB_WATER_W, MODE_CALIB_DRY, MODE_CALIB_DRY_W, //Sub modes for CALIB
-				   MODE_SHOW_CONST}; //Sub modes for SHOW                                   /** enum to identify the sub modes */
+				   MODE_SHOW_CONST}; //Sub modes for SHOW                   /** enum to identify the sub modes */
 
 	const short    PIN_VALVE1         = 32;                 /** Digital PIN number ?? Not used ?? */
 	const int      LEVEL_WATER        = 600;                /** Value returned by the sensor below which watering is needed */
@@ -69,7 +70,7 @@ private:
 	unsigned int   _currentCounter;                         /** Internal tick counter */
 	unsigned short _nSensors;                               /** Number of monitored sensors */
 	unsigned short _currentSensor;                          /** Index of the currently active sensor. Active is defined as the one that is being displayed/calibrated */
-	bool           _isWatering;                             /** True if currently watering else false */
+	bool           _isWatering[MAX_SENSORS];                /** True if associated sensor is currently watering else false */
 
 	MoistureSensor *sensors[MAX_SENSORS];    /** Moisture sensor controller */
 	PumpControl     pump1;      /** Pump controller */

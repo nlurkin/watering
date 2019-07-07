@@ -20,7 +20,10 @@ AutomaticWater::AutomaticWater() :
 	pump1(30),
 	_currentCounter(0)
 {
-	for(unsigned short i=0; i<MAX_SENSORS; ++i) sensors[i] = nullptr;
+	for(unsigned short i=0; i<MAX_SENSORS; ++i) {
+		sensors[i] = nullptr;
+		_isWatering[i] = false;
+	}
 }
 
 /**
@@ -233,18 +236,17 @@ void AutomaticWater::runMonitorMode(LCDWaterDisplay::button button){
 			setSensorsMeasureInterval(LONG_INTERVAL);
 		}
 		else{
+			bool currentIsWatering = isWatering();
 			bool needWater = monitorCircuits();
-			if(needWater && !_isWatering){
-				//Need water
+			if(needWater && !currentIsWatering){
+				// Need watering state changed
 				// Enable the pump
 				pump1.run(true);
-				_isWatering = true;
 			}
-			else if(!needWater && _isWatering){
-				//Does not need water
+			else if(!needWater && currentIsWatering){
+				// Does not need watering state changed
 				// Disable the pump
 				pump1.run(false);
-				_isWatering = false;
 			}
 			// Display or not the watering symbol.
 			lcdDisplay.initWatering(_isWatering);
@@ -264,7 +266,7 @@ void AutomaticWater::runMonitorMode(LCDWaterDisplay::button button){
  * @param powerPin: Digital pin used for powering the sensor
  * @return True of the sensor was added, else false.
  */
-bool AutomaticWater::addSensor(unsigned short pin, unsigned short powerPin) {
+bool AutomaticWater::addSensor(uint8_t pin, uint8_t powerPin) {
 	// Not more than MAX_SENSORS
 	if(_nSensors>=MAX_SENSORS) return false;
 	sensors[_nSensors] = new MoistureSensor(pin, powerPin);
@@ -358,16 +360,31 @@ void AutomaticWater::setSensorsMeasureInterval(unsigned long int interval) {
 bool AutomaticWater::monitorCircuits() {
 	bool needWater = false;
 	for (unsigned short i = 0; i < _nSensors; ++i) {
-		if (sensors[i]->getRawMoisture() > LEVEL_WATER) {
+		if (sensors[i]->getRawMoisture() > LEVEL_WATER && !_isWatering[i]) {
 			// Need water
 			needWater = true;
+			_isWatering[i] = true;
 			// Shorten the measurement interval to SHORT_INTERVAL for that sensor.
 			sensors[i]->setMeasureInterval(SHORT_INTERVAL);
-		} else {
+		} else if (sensors[i]->getRawMoisture() < LEVEL_WATER && _isWatering[i]){
 			// Does not need water
+			_isWatering[i] = false;
 			// Reset the measurement interval to LONG_INTERVAL for that sensor.
 			sensors[i]->setMeasureInterval(LONG_INTERVAL);
 		}
 	}
 	return needWater;
+}
+
+/**
+ * Checks if any of the circuit is currently watering
+ *
+ * @return True if any circuit is watering. False if none of them is.
+ */
+bool AutomaticWater::isWatering() {
+	for(unsigned short i=0; i<_nCircuits; ++i) {
+		if(_isWatering[i]) return true;
+	}
+
+	return false;
 }
