@@ -22,6 +22,7 @@ AutomaticWater::AutomaticWater() :
 {
 	for(unsigned short i=0; i<MAX_SENSORS; ++i) {
 		sensors[i] = nullptr;
+		valves[i] = nullptr;
 		_isWatering[i] = false;
 	}
 }
@@ -29,12 +30,14 @@ AutomaticWater::AutomaticWater() :
 /**
  * Destructor.
  *
- * Make sure we delete all the sensor pointers
+ * Make sure we delete all the sensor and valve pointers
  */
 AutomaticWater::~AutomaticWater() {
 	for(unsigned short i=0; i<_nCircuits; ++i){
 		delete sensors[i];
 		sensors[i] = nullptr;
+		if(valves[i]) delete valves[i];
+		valves[i] = nullptr;
 	}
 }
 
@@ -357,6 +360,47 @@ void AutomaticWater::setSensorsMeasureInterval(unsigned long int interval) {
 	for(unsigned short i=0; i<_nCircuits; ++i) sensors[i]->setMeasureInterval(interval);
 }
 
+/**
+ * Add a new valve to the designated circuit. The circuit must exist (a sensor with that
+ * index must exist) and a valve cannot be already associated to that circuit.
+ *
+ * @param pin: Digital control pin of the valve
+ * @param circuit_index: Index of the circuit to which the valve should be added
+ * @return True of the valve has been successfully added, else false.
+ */
+bool AutomaticWater::addValve(uint8_t pin, unsigned short circuit_index) {
+	if(circuit_index>=_nCircuits) return false; // Not allowed to have a valve without sensor
+	if(valves[circuit_index]!=nullptr) return false; // Already one valve assigned to that circuit
+
+	valves[circuit_index] = new ValveController(pin);
+
+	return true;
+}
+
+/**
+ * Add a sensor and an associated valve on the specified pins. It uses successively
+ * addSensor and addValve (check documentation).
+ *
+ * @param sensor_pin: Analog pin on which to read the sensor values
+ * @param sensor_powerPin: Digital pin used to provide power to the sensor
+ * @param valve_pin: Digital control pin of the valve
+ * @return True if both the sensor and the valve have been added successfully, else false.
+ */
+bool AutomaticWater::addCircuit(uint8_t sensor_pin, uint8_t sensor_powerPin, uint8_t valve_pin) {
+	if(addSensor(sensor_pin, sensor_powerPin)) // Add the sensor, continue only if successful
+		return addValve(valve_pin, _nCircuits-1); // If the sensor has been added successfully, add a valve to the last circuit.
+
+	return false;
+}
+
+/**
+ * Monitor every water circuit (sensor + valve pair, even if a valve is not present).
+ * Change the measuring interval of each sensor needed water to the SHORT_INTERVAL, and
+ * to the LONG_INTERVAL for those not needing it.
+ * It also opens the associated valve if it exists.
+ *
+ * @return True if any sensor needs watering. False if none of them needs it.
+ */
 bool AutomaticWater::monitorCircuits() {
 	for (unsigned short i = 0; i < _nCircuits; ++i) {
 		if (sensors[i]->getRawMoisture() > LEVEL_WATER && !_isWatering[i]) {
@@ -364,11 +408,16 @@ bool AutomaticWater::monitorCircuits() {
 			_isWatering[i] = true;
 			// Shorten the measurement interval to SHORT_INTERVAL for that sensor.
 			sensors[i]->setMeasureInterval(SHORT_INTERVAL);
+			// And open the valve if exists
+			if(valves[i])
+				valves[i]->open(true);
 		} else if (sensors[i]->getRawMoisture() < LEVEL_WATER && _isWatering[i]){
 			// Does not need water
 			_isWatering[i] = false;
 			// Reset the measurement interval to LONG_INTERVAL for that sensor.
 			sensors[i]->setMeasureInterval(LONG_INTERVAL);
+			if(valves[i])
+				valves[i]->open(false);
 		}
 	}
 	return isWatering();

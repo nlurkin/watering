@@ -11,6 +11,7 @@
 #include "MoistureSensor.h"
 #include "PumpControl.h"
 #include "LCDWaterDisplay.h"
+#include "ValveController.h"
 
 /**
  * \brief This is the main class of the program. It runs the state machine determining the actions to take.
@@ -34,6 +35,8 @@ public:
 	void runMonitorMode(LCDWaterDisplay::button button);
 
 	bool addSensor(uint8_t pin, uint8_t powerPin);
+	bool addValve(uint8_t pin, unsigned short circuit_index);
+	bool addCircuit(uint8_t sensor_pin, uint8_t sensor_powerPin, uint8_t valve_pin);
 
 	/**
 	 * Set the tickInterval
@@ -72,9 +75,10 @@ private:
 	unsigned short _currentSensor;                          /** Index of the currently active sensor. Active is defined as the one that is being displayed/calibrated */
 	bool           _isWatering[MAX_SENSORS];                /** True if associated sensor is currently watering else false */
 
-	MoistureSensor *sensors[MAX_SENSORS];    /** Moisture sensor controller */
-	PumpControl     pump1;      /** Pump controller */
-	LCDWaterDisplay lcdDisplay; /** LCD Display and buttons controller */
+	MoistureSensor  *sensors[MAX_SENSORS]; /** Moisture sensor controller */
+	ValveController *valves[MAX_SENSORS];  /** Valves controllers */
+	PumpControl      pump1;      /** Pump controller */
+	LCDWaterDisplay  lcdDisplay; /** LCD Display and buttons controller */
 };
 
 #endif /* AUTOMATICWATER_H_ */
