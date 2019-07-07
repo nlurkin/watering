@@ -25,7 +25,7 @@
 class AutomaticWater {
 public:
 	static const short MAX_SENSORS = 5;
-	AutomaticWater();
+	AutomaticWater(uint8_t pump_pin);
 	virtual ~AutomaticWater();
 
 	void initSystem();
@@ -61,7 +61,6 @@ private:
 		           MODE_CALIB_WATER, MODE_CALIB_WATER_W, MODE_CALIB_DRY, MODE_CALIB_DRY_W, //Sub modes for CALIB
 				   MODE_SHOW_CONST}; //Sub modes for SHOW                   /** enum to identify the sub modes */
 
-	const short    PIN_VALVE1         = 32;                 /** Digital PIN number ?? Not used ?? */
 	const int      LEVEL_WATER        = 600;                /** Value returned by the sensor below which watering is needed */
 	const long int LONG_INTERVAL      = 3600000;            /** Long interval between measurements */
 	const long int SHORT_INTERVAL     = 1000;               /** Long interval between measurements */

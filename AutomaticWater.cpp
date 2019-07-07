@@ -10,14 +10,16 @@
 
 /**
  * Constructor
+ *
+ * @param pump_pin: Digital pin controlling the pump
  */
-AutomaticWater::AutomaticWater() :
+AutomaticWater::AutomaticWater(uint8_t pump_pin) :
 	_gMainMode(MAIN_MODE_MONITOR),
 	_gSubMode(defaultMonitorMode),
 	_gTickInterval(500),
 	_nCircuits(0),
 	_currentSensor(0),
-	pump1(30),
+	pump1(pump_pin),
 	_currentCounter(0)
 {
 	for(unsigned short i=0; i<MAX_SENSORS; ++i) {
