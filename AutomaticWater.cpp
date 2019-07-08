@@ -256,7 +256,7 @@ void AutomaticWater::runMonitorMode(LCDWaterDisplay::button button){
 				pump1.run(false);
 			}
 			// Display or not the watering symbol.
-			lcdDisplay.initWatering(_isWatering);
+			lcdDisplay.initWatering(needWater);
 		}
 		break;
 	default:
@@ -428,7 +428,7 @@ bool AutomaticWater::monitorCircuits() {
 }
 
 /**
- * Make sure everything stops watering properly. Close all the valves and 
+ * Make sure everything stops watering properly. Close all the valves and
  * set the _isWatering variable to false.
  */
 void AutomaticWater::stopAllWatering() {
