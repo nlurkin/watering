@@ -23,6 +23,7 @@ public:
 	bool sendData(String data);
 	bool sendDataConfirm(String data);
 	String read();
+	String readRaw();
 	const String *getLastData();
 	uint8_t getLastDataSize();
 

@@ -476,7 +476,15 @@ String ATClient::read() {
 	String response;
 	while (Serial1.available() > 0) {
 		response = Serial1.readStringUntil('\n');
-		response.trim();
+	}
+
+	return response;
+}
+
+String ATClient::readRaw() {
+	String response;
+	while (Serial1.available() > 0) {
+		response = Serial1.readString();
 	}
 
 	return response;
