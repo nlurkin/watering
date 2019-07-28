@@ -29,6 +29,9 @@ public:
 	bool startServer(int port);
 	bool stopServer();
 
+	bool sendPacket(String data, uint8_t conn);
+	bool closeConnection(uint8_t conn);
+
 	bool restartBoard();
 
 	int8_t payloadAvailable();

@@ -222,6 +222,14 @@ void ESP8266Wifi::read_payload(String initdata) {
 	}
 }
 
+bool ESP8266Wifi::sendPacket(String data, uint8_t conn) {
+	return _client.CIPSEND(data, conn);
+}
+
+bool ESP8266Wifi::closeConnection(uint8_t conn) {
+	return _client.CIPCLOSE(conn);
+}
+
 void ESP8266Wifi::read_payload_raw(String initdata) {
 	String response = _client.readRaw();
 
