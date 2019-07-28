@@ -8,6 +8,7 @@
 #include "ESP8266Wifi.h"
 
 ESP8266Wifi::ESP8266Wifi() :
+	_has_payload({false,false,false,false,false}),
 	_ip_address({0,0,0,0}),
 	_mac_address({0,0,0,0,0,0})
 {
@@ -40,7 +41,13 @@ bool ESP8266Wifi::readAndPrint() {
 	if (has_response) {
 		Serial.println("Response Received:");
 		while (response.length() > 0) {
-			Serial.println(response);
+			Serial.println("> " + response);
+			if(response[0]=='+' && response[1]=='I'){ //+IPD
+				read_payload_raw(response);
+				break;
+			}
+			//else if(response.substring(2)=="CONNECT")
+			//	new_connection(response);
 			response = _client.read();
 		}
 
@@ -161,4 +168,68 @@ bool ESP8266Wifi::restartBoard() {
 		Serial.println(_client.getLastData()[i]);
 	}
 	return true;
+}
+
+uint8_t ESP8266Wifi::new_connection(String data) {
+	//Serial.println("New connection" + data.substring(0,1));
+	uint8_t conn_number = data.substring(0,1).toInt();
+	//Serial.println("New connection" + String(conn_number));
+	if(conn_number>4)
+		return 99;
+	_has_payload[conn_number] = true;
+	_payload[conn_number] = "";
+	return conn_number;
+}
+
+int8_t ESP8266Wifi::payloadAvailable() {
+	for(int8_t i=4; i>=0; i--)
+		if(_has_payload[i]) return i;
+	return -1;
+}
+
+String ESP8266Wifi::getPayload(uint8_t conn_number) {
+	if(conn_number>4)
+		return "";
+	_has_payload[conn_number] = false;
+	String val = _payload[conn_number];
+	_payload[conn_number] = "";
+	return val;
+}
+
+void ESP8266Wifi::read_payload(String initdata) {
+	const int MAX_LINES = 20;
+	static String buff[20];
+	uint8_t curr=1;
+	String response = _client.read();
+	while (response.length() > 0) {
+		Serial.println(response);
+		if(curr<MAX_LINES)
+			buff[curr++] = response;
+		else
+			Serial.println("Buffer overflow");
+		response = _client.read();
+	}
+
+	buff[0] = initdata.substring(initdata.indexOf(':')+1);
+	uint8_t conn_number = initdata.substring(5,6).toInt();
+	if(conn_number>4)
+		return;
+
+	_has_payload[conn_number] = true;
+	for(uint8_t i=0; i<curr; ++i){
+		Serial.println("Adding to payload: " + buff[i]);
+		_payload[conn_number] += buff[i];
+	}
+}
+
+void ESP8266Wifi::read_payload_raw(String initdata) {
+	String response = _client.readRaw();
+
+	uint8_t conn_number = initdata.substring(5,6).toInt();
+	if(conn_number>4)
+		return;
+
+	_has_payload[conn_number] = true;
+	_payload[conn_number] += initdata.substring(initdata.indexOf(':')+1) + '\n';
+	_payload[conn_number] += response;
 }

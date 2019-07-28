@@ -31,11 +31,19 @@ public:
 
 	bool restartBoard();
 
+	int8_t payloadAvailable();
+	String getPayload(uint8_t conn_number);
 private:
-	String _ssid;
-	String _passwd;
+	uint8_t new_connection(String data);
+	void read_payload(String initdata);
+	void read_payload_raw(String initdata);
+
+	bool _has_payload[5];
 	uint8_t _ip_address[4];
 	uint8_t _mac_address[6];
+	String _ssid;
+	String _passwd;
+	String _payload[5];
 	ATClient _client;
 };
 
