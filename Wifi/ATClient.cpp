@@ -27,7 +27,7 @@ bool ATClient::sendCommand(String cmd) {
 bool ATClient::sendData(String data) {
 	Serial.println("Sending data: " + data);
 	Serial.println();
-	Serial1.println(data);
+	Serial1.print(data);
 	return true;
 }
 
@@ -424,13 +424,13 @@ bool ATClient::CIFSR() {
 }
 
 bool ATClient::CIPMUX(bool mode) {
-	String cmd = "CIPMUX=" + mode;
+	String cmd = "CIPMUX=" + String(mode);
 	sendCommand(cmd);
 	return checkAnswer("AT+" + cmd);
 }
 
 bool ATClient::CIPSERVER(bool on, int port) {
-	String cmd = "CIPSERVER=" + on;
+	String cmd = "CIPSERVER=" + String(on);
 	if(on && port>=0)
 		cmd += "," + String(port);
 	sendCommand(cmd);
