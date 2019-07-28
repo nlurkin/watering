@@ -255,7 +255,33 @@ bool ATClient::CIPSTART(TCP_TYPE type, uint8_t ip[4], int port, int8_t link_id, 
 
 	sendCommand(cmd);
 	return checkAnswer("AT+" + cmd);
+}
 
+bool ATClient::CIPSTART(TCP_TYPE type, String address, int port, int8_t link_id, int udp_port, uint8_t udp_mode, int keepalive) {
+	if(udp_port!=-1 && type!=UDP) //udp_port and udp_mode valid only in UDP type
+		return false;
+	if(link_id!=-1 && link_id>4) //Maximum 4 links in CIPMUX=1, if CIPMUX=0, must be -1 (we do not check ourselves here)
+		return false;
+	if(udp_mode>2)
+		return false;
+	if(keepalive!=-1 && keepalive>7200)
+		return false;
+
+	String cmd = "CIPSTART=";
+	if(link_id!=-1)
+		cmd += String(link_id) + ",";
+	if(type==TCP)
+		cmd += "\"TCP\",";
+	else if(type==UDP)
+		cmd += "\"UDP\",";
+	cmd += "\"" + address + "\"," + String(port);
+	if(udp_port!=-1)
+		cmd += "," + String(port) + "," + String(udp_mode);
+	if(keepalive!=-1)
+		cmd += "," + String(keepalive);
+
+	sendCommand(cmd);
+	return checkAnswer("AT+" + cmd);
 }
 
 bool ATClient::CIPSEND(String &data, int link_id, uint8_t ip[4], int port) {

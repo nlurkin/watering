@@ -58,6 +58,7 @@ public:
 	//TCP/IP commands
 	bool CIPSTATUS();
 	bool CIPSTART(TCP_TYPE type, uint8_t ip[4], int port, int8_t link_id=-1, int udp_port=-1, uint8_t udp_mode=0, int keepalive=-1);
+	bool CIPSTART(TCP_TYPE type, String address, int port, int8_t link_id=-1, int udp_port=-1, uint8_t udp_mode=0, int keepalive=-1);
 	bool CIPSEND(String &data, int link_id=-1, uint8_t ip[4]=nullptr, int port=-1);
 	bool CIPSENDEX(uint16_t length, int link_id=-1, uint8_t ip[4]=nullptr, int port=-1);
 	bool CIPSENDBUF(String &data, uint8_t &bufferNr, int link_id=-1);
