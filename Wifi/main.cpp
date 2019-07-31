@@ -7,49 +7,47 @@
 
 #include <Arduino.h>
 #include "ESP8266Wifi.h"
-#include "HTTPRequest.h"
+#include "HTTPServer.h"
 
 ESP8266Wifi wifi;
+HTTPServer server(wifi);
+
+char ssid[] = "";
+char pwd[]  = "";
 
 void setup() {
 	Serial.begin(115200);
 	Serial1.begin(115200);
 
-	Serial.println("----- Arduino WIFI -----");
-	Serial.println("Checking ESP8266 connection...");
+	Serial.println(F("----- Arduino WIFI -----"));
+	Serial.println(F("Checking ESP8266 connection..."));
 	while (!wifi.checkBoardConnection())
 		delay(100);
-	Serial.println("Connection established");
+	Serial.println(F("Connection established"));
 
 	wifi.restartBoard();
 	delay(3000);
 
-	while (!wifi.checkWifiConnection()) {
-		wifi.connectWifi("WIFI_SSID", "WIFI_PASSWD");
+	uint8_t trials = 0;
+	while (!wifi.checkWifiConnection() && trials<10) {
+		++trials;
+		wifi.connectWifi(ssid, pwd);
 		delay(10000);
 	}
-	Serial.println("Connected to wifi");
-	if (wifi.startServer(80))
-		Serial.println("Server started on port 80");
+	Serial.println(F("Connected to wifi"));
+	if (server.startServer(80))
+		Serial.println(F("Server started on port 80"));
 }
 
 void loop() {
 	if (Serial.available() > 0) {
 		String command = Serial.readStringUntil('\n');
-		wifi.sendSomething(command);
+		if(command.startsWith("DATA"))
+			server.sendData("192.168.0.20", 80);
+		else
+			wifi.sendSomething(command);
 	}
 
 	wifi.readAndPrint();
-
-	int8_t conn = wifi.payloadAvailable();
-	if (conn != -1) {
-		HTTPRequest http(wifi.getPayload(conn));
-		Serial.println("Got http payload");
-		http.print();
-		if(http.needs_answer()){
-			wifi.sendPacket("HTTP/1.1 200 OK\r\nContent-Type: application/text\r\nContent-Length: 10\r\n\r\n", conn);
-			wifi.sendPacket("Hey you!\r\n", conn);
-			wifi.closeConnection(conn);
-		}
-	}
+	server.loop();
 }
