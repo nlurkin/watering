@@ -11,8 +11,23 @@
 #include <Arduino.h>
 
 class HTTPRequest {
-public:
 	enum REQ_TYPE {UNDEF, GET, POST, PUT, DEL, HEAD, ANSWER};
+	enum HDR_CONN {CONN_UNDEF, CONN_CLOSE};
+	struct HTTPHeader {
+		REQ_TYPE _request_type;
+		HDR_CONN _connection;
+		uint8_t _version_major;
+		uint8_t _version_minor;
+		uint16_t _answer_code;
+		uint16_t _length;
+		String _answer_reason;
+		String _content_type;
+		String _path;
+		String _raw_header;
+	};
+	typedef struct HTTPHeader header_t;
+public:
+	HTTPRequest();
 	HTTPRequest(String payload);
 	virtual ~HTTPRequest();
 
@@ -21,12 +36,8 @@ public:
 private:
 	void extractParts(String payload);
 	bool decodeHeader(String line);
-	REQ_TYPE _request_type;
-	uint16_t _answer_code;
-	uint8_t _host_ip[4];
-	String _header;
+	header_t _header;
 	String _body;
-	String _answer_reason;
 };
 
 #endif /* HTTPREQUEST_H_ */

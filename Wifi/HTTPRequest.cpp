@@ -7,10 +7,13 @@
 
 #include "HTTPRequest.h"
 
-HTTPRequest::HTTPRequest(String payload):
-	_request_type(UNDEF),
-	_answer_code(0)
+HTTPRequest::HTTPRequest()
 {
+}
+
+HTTPRequest::HTTPRequest(String payload)
+{
+	_header._request_type = UNDEF;
 	if(payload.length()==0)
 		return;
 	extractParts(payload);
@@ -33,7 +36,7 @@ void HTTPRequest::extractParts(String payload) {
 		lend = payload.indexOf('\r', curr_pos);
 		in_header = decodeHeader(line);
 		if(in_header)
-			_header += line + "\r\n";
+			_header._raw_header += line + "\r\n";
 		else{
 			_body = payload.substring(curr_pos);
 			break;
@@ -42,28 +45,28 @@ void HTTPRequest::extractParts(String payload) {
 }
 
 bool HTTPRequest::needs_answer() {
-	return _request_type!=ANSWER;
+	return _header._request_type!=ANSWER;
 }
 
 bool HTTPRequest::decodeHeader(String line) {
-	if(_request_type==UNDEF){
+	if(_header._request_type==UNDEF){
 		if(line.startsWith("GET"))
-			_request_type = GET;
+			_header._request_type = GET;
 		else if(line.startsWith("POST"))
-			_request_type = POST;
+			_header._request_type = POST;
 		else if(line.startsWith("PUT"))
-			_request_type = PUT;
+			_header._request_type = PUT;
 		else if(line.startsWith("DEL"))
-			_request_type = DEL;
+			_header._request_type = DEL;
 		else if(line.startsWith("HEAD"))
-			_request_type = HEAD;
+			_header._request_type = HEAD;
 		else if(line.startsWith("HTTP")){
-			_request_type = ANSWER;
+			_header._request_type = ANSWER;
 			int first_space = line.indexOf(' ');
 			String s_code = line.substring(first_space, line.indexOf(' ', first_space+1));
 			Serial.println("Extracting HTTP answer code" + s_code + "(" + line + ")");
-			_answer_code = s_code.toInt();
-			_answer_reason = line.substring(line.indexOf(' ', first_space+1));
+			_header._answer_code = s_code.toInt();
+			_header._answer_reason = line.substring(line.indexOf(' ', first_space+1));
 		}
 		return true;
 	}
@@ -76,18 +79,18 @@ bool HTTPRequest::decodeHeader(String line) {
 }
 
 void HTTPRequest::print(){
-	if(_request_type==GET)
+	if(_header._request_type==GET)
 		Serial.println("> Type: GET");
-	else if(_request_type==POST)
+	else if(_header._request_type==POST)
 		Serial.println("> Type: POST");
-	else if(_request_type==PUT)
+	else if(_header._request_type==PUT)
 		Serial.println("> Type: PUT");
-	else if(_request_type==DEL)
+	else if(_header._request_type==DEL)
 		Serial.println("> Type: DEL");
-	else if(_request_type==HEAD)
+	else if(_header._request_type==HEAD)
 		Serial.println("> Type: HEAD");
-	else if(_request_type==ANSWER)
-		Serial.println("> " + String(_answer_code) + ": " + _answer_reason);
+	else if(_header._request_type==ANSWER)
+		Serial.println("> " + String(_header._answer_code) + ": " + _header._answer_reason);
 
 	int curr_pos = 0;
 	int lend = _body.indexOf('\n');
