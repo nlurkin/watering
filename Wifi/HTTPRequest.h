@@ -33,7 +33,11 @@ public:
 
 	void print();
 	bool needs_answer();
-	
+
+	void addContent(String &data);
+	String generate();
+	unsigned int getTotalLength();
+
 	static HTTPRequest http_200();
 	static HTTPRequest http_post();
 private:

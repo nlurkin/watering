@@ -48,6 +48,10 @@ bool HTTPRequest::needs_answer() {
 	return _header._request_type!=ANSWER;
 }
 
+unsigned int HTTPRequest::getTotalLength() {
+	return generate().length();
+}
+
 bool HTTPRequest::decodeHeader(String line) {
 	if(_header._request_type==UNDEF){
 		if(line.startsWith("GET"))
@@ -103,6 +107,36 @@ void HTTPRequest::print(){
 	}
 	String line = _body.substring(curr_pos);
 	Serial.println("> " + line);
+}
+
+void HTTPRequest::addContent(String &data) {
+	unsigned int length = data.length();
+	_body += data;
+	_header._length += length;
+}
+
+String HTTPRequest::generate() {
+	if(_header._raw_header.length()==0) {
+		char buf[50];
+		_header._raw_header = "";
+
+		if(_header._request_type==ANSWER)
+			sprintf_P(buf, PSTR("HTTP/%u.%u %u %s\r\n"), _header._version_major, _header._version_minor, _header._answer_code, _header._answer_reason.c_str());
+		else if(_header._request_type==POST)
+			sprintf_P(buf, PSTR("POST %s HTTP/%u.%u\r\n"), _header._path.c_str(), _header._version_major, _header._version_minor);
+		_header._raw_header += buf;
+		if(_header._connection==CONN_CLOSE)
+			_header._raw_header += F("Connection: close\r\n");
+		sprintf_P(buf, PSTR("Content-Type: %s\r\n"), _header._content_type.c_str());
+		_header._raw_header += buf;
+
+		if(_body.length()>0){
+			sprintf_P(buf, PSTR("Content-Length: %u\r\n"), _body.length());
+			_header._raw_header += buf;
+		}
+	}
+
+	return _header._raw_header + "\r\n" + _body;
 }
 
 HTTPRequest HTTPRequest::http_200() {
