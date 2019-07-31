@@ -170,6 +170,12 @@ bool ESP8266Wifi::restartBoard() {
 	return true;
 }
 
+int ESP8266Wifi::openConnection(String address, uint16_t port) {
+	if(_client.CIPSTART(ATClient::TCP, address, port, 4))
+		return 4;
+	return -1;
+}
+
 uint8_t ESP8266Wifi::new_connection(String data) {
 	//Serial.println("New connection" + data.substring(0,1));
 	uint8_t conn_number = data.substring(0,1).toInt();

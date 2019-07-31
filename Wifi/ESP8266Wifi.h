@@ -31,6 +31,7 @@ public:
 
 	bool sendPacket(String data, uint8_t conn);
 	bool closeConnection(uint8_t conn);
+	int  openConnection(String address, uint16_t port);
 
 	bool restartBoard();
 
