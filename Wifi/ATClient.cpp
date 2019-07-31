@@ -551,6 +551,10 @@ bool ATClient::checkAnswer(String command) {
 	}
 	while(answer.length()!=0 && (!got_ok && !got_error)  && (millis()-startWait)<5*_timeout);
 
+	if(got_error){
+		Serial.println(F("Command failed with ERROR"));
+	}
+
 	return got_ok;
 }
 
