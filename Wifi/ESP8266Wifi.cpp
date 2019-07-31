@@ -39,7 +39,7 @@ bool ESP8266Wifi::readAndPrint() {
 	bool has_response = response.length() > 0;
 
 	if (has_response) {
-		Serial.println("Response Received:");
+		Serial.println(F("Response Received:"));
 		while (response.length() > 0) {
 			Serial.println("> " + response);
 			if(response[0]=='+' && response[1]=='I'){ //+IPD
@@ -52,7 +52,7 @@ bool ESP8266Wifi::readAndPrint() {
 		}
 
 		Serial.println();
-		Serial.println("============");
+		Serial.println(F("============"));
 		Serial.println();
 	}
 	return has_response;
@@ -75,9 +75,9 @@ bool ESP8266Wifi::checkWifiConnection() {
 		return false;
 	Serial.println(data[0]);
 	Serial.println(data[1]);
-	if(data[0].indexOf("+CIFSR:STAIP")!=0) //First one is expected to be IP
+	if(data[0].indexOf(F("+CIFSR:STAIP"))!=0) //First one is expected to be IP
 		return false;
-	if(data[1].indexOf("+CIFSR:STAMAC")!=0) //Second one is expected to be MAC
+	if(data[1].indexOf(F("+CIFSR:STAMAC"))!=0) //Second one is expected to be MAC
 		return false;
 
 	String substr = data[0].substring(14, data[0].length()-1); //Remove header and last "
@@ -130,17 +130,17 @@ bool ESP8266Wifi::connectWifi(String ssid, String passwd) {
 		return false;
 
 	if(datas==4){
-		if(data[0]!="WIFI CONNECTED")
+		if(data[0]!=F("WIFI CONNECTED"))
 			return false;
-		if(data[1]!="WIFI GOT IP")
+		if(data[1]!=F("WIFI GOT IP"))
 			return false;
 	}
 	else{
-		if(data[0]!="WIFI DISCONNECT")
+		if(data[0]!=F("WIFI DISCONNECT"))
 			return false;
-		if(data[1]!="WIFI CONNECTED")
+		if(data[1]!=F("WIFI CONNECTED"))
 			return false;
-		if(data[2]!="WIFI GOT IP")
+		if(data[2]!=F("WIFI GOT IP"))
 			return false;
 	}
 	return true;
@@ -155,7 +155,7 @@ bool ESP8266Wifi::disConnectWifi() {
 	if(_client.getLastDataSize()!=1) // Expecting 1 data line
 		return false;
 
-	if(_client.getLastData()[0]!="WIFI DISCONNECT")
+	if(_client.getLastData()[0]!=F("WIFI DISCONNECT"))
 		return false;
 
 	return true;
@@ -206,7 +206,7 @@ void ESP8266Wifi::read_payload(String initdata) {
 		if(curr<MAX_LINES)
 			buff[curr++] = response;
 		else
-			Serial.println("Buffer overflow");
+			Serial.println(F("Buffer overflow"));
 		response = _client.read();
 	}
 
@@ -217,7 +217,7 @@ void ESP8266Wifi::read_payload(String initdata) {
 
 	_has_payload[conn_number] = true;
 	for(uint8_t i=0; i<curr; ++i){
-		Serial.println("Adding to payload: " + buff[i]);
+		//Serial.println("Adding to payload: " + buff[i]);
 		_payload[conn_number] += buff[i];
 	}
 }
