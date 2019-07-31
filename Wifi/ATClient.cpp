@@ -93,9 +93,9 @@ bool ATClient::CWMODE(uint8_t mode) {
 bool ATClient::CWJAP(String &ssid, String &passwd) {
 	String cmd;
 	if(_set_default) // Store in flash
-		cmd = "CWJAC_DEF=";
+		cmd = "CWJAP_DEF=";
 	else //Only temporary
-		cmd = "CWJAC_CUR=";
+		cmd = "CWJAP_CUR=";
 
 	cmd += "\""+ssid+"\",\""+passwd+"\"";
 	sendCommand(cmd);
