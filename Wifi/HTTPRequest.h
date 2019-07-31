@@ -33,6 +33,9 @@ public:
 
 	void print();
 	bool needs_answer();
+	
+	static HTTPRequest http_200();
+	static HTTPRequest http_post();
 private:
 	void extractParts(String payload);
 	bool decodeHeader(String line);

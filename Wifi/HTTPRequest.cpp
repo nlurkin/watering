@@ -104,3 +104,30 @@ void HTTPRequest::print(){
 	String line = _body.substring(curr_pos);
 	Serial.println("> " + line);
 }
+
+HTTPRequest HTTPRequest::http_200() {
+	HTTPRequest h;
+	h._header._request_type = ANSWER;
+	h._header._version_major = 1;
+	h._header._version_minor = 1;
+	h._header._answer_code = 200;
+	h._header._connection = CONN_CLOSE;
+	h._header._answer_reason = "OK";
+	h._header._content_type = "text/html";
+	h._header._length = 0;
+	return h;
+}
+
+HTTPRequest HTTPRequest::http_post() {
+	HTTPRequest h;
+	h._header._request_type = POST;
+	h._header._version_major = 1;
+	h._header._version_minor = 1;
+	h._header._answer_code = 0;
+	h._header._connection = CONN_UNDEF;
+	h._header._answer_reason = "";
+	h._header._content_type = "application/json";
+	h._header._length = 0;
+	h._header._path = "/arduino";
+	return h;
+}
