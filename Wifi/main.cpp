@@ -6,11 +6,20 @@
  */
 
 #include <Arduino.h>
+#include <HardwareSerial.h>
 #include "ESP8266Wifi.h"
 #include "HTTPServer.h"
+#include "NetworkStream.h"
 
 ESP8266Wifi wifi;
-HTTPServer server(wifi);
+#define USE_NETWORK_STREAM 1 //Comment this to use the standard Serial port
+
+#ifdef USE_NETWORK_STREAM
+NetworkStream mySerial(wifi);
+Stream &logSerial = mySerial;
+#else
+Stream &logSerial = Serial;
+#endif
 
 char ssid[] = "";
 char pwd[]  = "";
@@ -18,6 +27,7 @@ char pwd[]  = "";
 void setup() {
 	Serial.begin(115200);
 	Serial1.begin(115200);
+	mySerial.setDestination("192.168.0.20", 8000);
 
 	Serial.println(F("----- Arduino WIFI -----"));
 	Serial.println(F("Checking ESP8266 connection..."));
@@ -35,19 +45,13 @@ void setup() {
 		delay(10000);
 	}
 	Serial.println(F("Connected to wifi"));
-	if (server.startServer(80))
-		Serial.println(F("Server started on port 80"));
 }
 
 void loop() {
-	if (Serial.available() > 0) {
-		String command = Serial.readStringUntil('\n');
-		if(command.startsWith("DATA"))
-			server.sendData("192.168.0.20", 80);
-		else
-			wifi.sendSomething(command);
+	if (logSerial.available() > 0) {
+		String command = logSerial.readStringUntil('\n');
+		wifi.sendSomething(command);
 	}
 
 	wifi.readAndPrint();
-	server.loop();
 }
