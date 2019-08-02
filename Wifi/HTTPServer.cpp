@@ -26,8 +26,9 @@ bool HTTPServer::stopServer() {
 	return _wifi.stopServer();
 }
 
-void HTTPServer::loop() {
+String HTTPServer::loop() {
 	int8_t conn = _wifi.payloadAvailable();
+	String data;
 	if (conn != -1) {
 		HTTPRequest http(_wifi.getPayload(conn));
 		http.print();
@@ -39,8 +40,9 @@ void HTTPServer::loop() {
 			_wifi.sendPacket(answer.generate(), conn);
 			_wifi.closeConnection(conn);
 		}
+		data = http.getData();
 	}
-
+	return data;
 }
 
 bool HTTPServer::sendData(String address, uint16_t port) {

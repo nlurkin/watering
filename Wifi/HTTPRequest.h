@@ -33,6 +33,7 @@ public:
 
 	void print();
 	bool needs_answer();
+	String getData() { return _body; }
 
 	void addContent(String &data);
 	String generate();

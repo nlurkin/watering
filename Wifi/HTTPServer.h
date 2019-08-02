@@ -18,7 +18,7 @@ public:
 	bool startServer(uint16_t port);
 	bool stopServer();
 
-	void loop();
+	String loop();
 
 	bool sendData(String address, uint16_t port);
 
