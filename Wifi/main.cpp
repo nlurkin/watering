@@ -50,7 +50,11 @@ void setup() {
 }
 
 void loop() {
-	if (logSerial.available() > 0) {
+	if (Serial.available() > 0) {
+		String command = Serial.readStringUntil('\n');
+		wifi.sendSomething(command);
+	}
+	else if (logSerial.available() > 0) {
 		String command = logSerial.readStringUntil('\n');
 		wifi.sendSomething(command);
 	}
