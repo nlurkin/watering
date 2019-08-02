@@ -17,8 +17,11 @@ public:
 	static const uint16_t NETWORK_RX_BUFFER_SIZE = 64;
 	static const uint16_t NETWORK_TX_BUFFER_SIZE = 64;
 
-	NetworkStream(ESP8266Wifi &wifi, uint16_t port=80);
+	NetworkStream(ESP8266Wifi &wifi);
 	virtual ~NetworkStream();
+
+	void begin(uint16_t port=80);
+
 	virtual size_t write(uint8_t);
 	virtual int read();
 	virtual int available();

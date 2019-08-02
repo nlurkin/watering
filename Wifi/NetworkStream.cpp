@@ -9,7 +9,7 @@
 
 #include "HTTPRequest.h"
 
-NetworkStream::NetworkStream(ESP8266Wifi &wifi, uint16_t port) :
+NetworkStream::NetworkStream(ESP8266Wifi &wifi) :
 	_dest_port(0),
 	_rx_pos(0),
 	_rx_size(0),
@@ -18,14 +18,17 @@ NetworkStream::NetworkStream(ESP8266Wifi &wifi, uint16_t port) :
 	_wifi(wifi),
 	_server(wifi)
 {
+}
+
+NetworkStream::~NetworkStream() {
+}
+
+void NetworkStream::begin(uint16_t port) {
 	if(_server.startServer(port)){
 		const char message[] PROGMEM = {"Server started on port 80"};
 		Serial.println(message);
 		println(message);
 	}
-}
-
-NetworkStream::~NetworkStream() {
 }
 
 size_t NetworkStream::write(uint8_t v) {
