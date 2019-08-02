@@ -7,14 +7,21 @@
 
 #include "ESP8266Wifi.h"
 
-ESP8266Wifi::ESP8266Wifi() :
+ESP8266Wifi::ESP8266Wifi(Stream* serial) :
 	_has_payload({false,false,false,false,false}),
 	_ip_address({0,0,0,0}),
-	_mac_address({0,0,0,0,0,0})
+	_mac_address({0,0,0,0,0,0}),
+	_client(serial),
+	_logSerial(&Serial)
 {
 }
 
 ESP8266Wifi::~ESP8266Wifi() {
+}
+
+void ESP8266Wifi::setLogSerial(Stream *serial){
+	_logSerial = serial;
+	_client.setLogSerial(_logSerial);
 }
 
 bool ESP8266Wifi::sendSomething(String cmd) {
@@ -39,9 +46,9 @@ bool ESP8266Wifi::readAndPrint() {
 	bool has_response = response.length() > 0;
 
 	if (has_response) {
-		Serial.println(F("Response Received:"));
+		_logSerial->println(F("Response Received:"));
 		while (response.length() > 0) {
-			Serial.println("> " + response);
+			_logSerial->println("> " + response);
 			if(response[0]=='+' && response[1]=='I'){ //+IPD
 				read_payload_raw(response);
 				break;
@@ -51,9 +58,9 @@ bool ESP8266Wifi::readAndPrint() {
 			response = _client.read();
 		}
 
-		Serial.println();
-		Serial.println(F("============"));
-		Serial.println();
+		_logSerial->println();
+		_logSerial->println(F("============"));
+		_logSerial->println();
 	}
 	return has_response;
 }
@@ -70,11 +77,11 @@ bool ESP8266Wifi::checkWifiConnection() {
 
 	String *data = _client.getLastData();
 
-	Serial.println(_client.getLastDataSize());
+	_logSerial->println(_client.getLastDataSize());
 	if(_client.getLastDataSize()!=2) // Expecting 2 data lines
 		return false;
-	Serial.println(data[0]);
-	Serial.println(data[1]);
+	_logSerial->println(data[0]);
+	_logSerial->println(data[1]);
 	if(data[0].indexOf(F("+CIFSR:STAIP"))!=0) //First one is expected to be IP
 		return false;
 	if(data[1].indexOf(F("+CIFSR:STAMAC"))!=0) //Second one is expected to be MAC
@@ -165,7 +172,7 @@ bool ESP8266Wifi::restartBoard() {
 	if(!_client.RST())
 		return false;
 	for(uint8_t i=0; i<_client.getLastDataSize(); ++i){
-		Serial.println(_client.getLastData()[i]);
+		_logSerial->println(_client.getLastData()[i]);
 	}
 	return true;
 }
@@ -177,9 +184,9 @@ int ESP8266Wifi::openConnection(String address, uint16_t port) {
 }
 
 uint8_t ESP8266Wifi::new_connection(String data) {
-	//Serial.println("New connection" + data.substring(0,1));
+	//_logSerial->println("New connection" + data.substring(0,1));
 	uint8_t conn_number = data.substring(0,1).toInt();
-	//Serial.println("New connection" + String(conn_number));
+	//_logSerial->println("New connection" + String(conn_number));
 	if(conn_number>4)
 		return 99;
 	_has_payload[conn_number] = true;
@@ -208,11 +215,11 @@ void ESP8266Wifi::read_payload(String initdata) {
 	uint8_t curr=1;
 	String response = _client.read();
 	while (response.length() > 0) {
-		Serial.println(response);
+		_logSerial->println(response);
 		if(curr<MAX_LINES)
 			buff[curr++] = response;
 		else
-			Serial.println(F("Buffer overflow"));
+			_logSerial->println(F("Buffer overflow"));
 		response = _client.read();
 	}
 
@@ -223,7 +230,7 @@ void ESP8266Wifi::read_payload(String initdata) {
 
 	_has_payload[conn_number] = true;
 	for(uint8_t i=0; i<curr; ++i){
-		//Serial.println("Adding to payload: " + buff[i]);
+		//_logSerial->println("Adding to payload: " + buff[i]);
 		_payload[conn_number] += buff[i];
 	}
 }

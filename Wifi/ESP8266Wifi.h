@@ -13,8 +13,10 @@
 
 class ESP8266Wifi {
 public:
-	ESP8266Wifi();
+	ESP8266Wifi(Stream* serial=&Serial1);
 	virtual ~ESP8266Wifi();
+
+	void setLogSerial(Stream* serial);
 
 	bool sendSomething(String cmd);
 	bool sendCommand(String cmd);
@@ -49,6 +51,7 @@ private:
 	String _passwd;
 	String _payload[5];
 	ATClient _client;
+	Stream* _logSerial;
 };
 
 #endif /* ESP8266WIFI_H_ */
