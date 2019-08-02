@@ -18,7 +18,11 @@ NetworkStream::NetworkStream(ESP8266Wifi &wifi, uint16_t port) :
 	_wifi(wifi),
 	_server(wifi)
 {
-	_server.startServer(port);
+	if(_server.startServer(port)){
+		const char message[] PROGMEM = {"Server started on port 80"};
+		Serial.println(message);
+		println(message);
+	}
 }
 
 NetworkStream::~NetworkStream() {
