@@ -27,7 +27,6 @@ char pwd[]  = "";
 void setup() {
 	Serial.begin(115200);
 	Serial1.begin(115200);
-	mySerial.setDestination("192.168.0.20", 8000);
 
 	Serial.println(F("----- Arduino WIFI -----"));
 	Serial.println(F("Checking ESP8266 connection..."));
@@ -45,6 +44,9 @@ void setup() {
 		delay(10000);
 	}
 	Serial.println(F("Connected to wifi"));
+	mySerial.setDestination("192.168.0.20", 8000);
+	mySerial.begin(80);
+	wifi.setLogSerial(&mySerial);
 }
 
 void loop() {
