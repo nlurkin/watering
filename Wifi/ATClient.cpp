@@ -11,30 +11,47 @@ ATClient::ATClient() :
 	_set_default(false),
 	_waitingForAnswer(0),
 	_timeout(2000),
-	_lastDataSize(0) {
+	_lastDataSize(0),
+	_atSerial(Serial1),
+	_logSerial(Serial)
+{
+}
+
+ATClient::ATClient(Stream* serial) :
+	_set_default(false),
+	_waitingForAnswer(0),
+	_timeout(2000),
+	_lastDataSize(0),
+	_atSerial(serial),
+	_logSerial(Serial)
+{
 }
 
 ATClient::~ATClient() {
 }
 
+void ATClient::setLogSerial(Stream *serial){
+	_logSerial = serial;
+}
+
 bool ATClient::sendCommand(String cmd) {
-	Serial.println("Sending: " + cmd);
-	Serial.println();
-	Serial1.println("AT+" + cmd);
+	_logSerial->println("Sending: " + cmd);
+	_logSerial->println();
+	_atSerial->println("AT+" + cmd);
 	return true;
 }
 
 bool ATClient::sendData(String data) {
-	Serial.println("Sending data: " + data);
-	Serial.println();
-	Serial1.print(data);
+	_logSerial->println("Sending data: " + data);
+	_logSerial->println();
+	_atSerial->print(data);
 	return true;
 }
 
 bool ATClient::sendDataConfirm(String data) {
-	Serial.println("Sending data: " + data);
-	Serial.println();
-	Serial1.println(data);
+	_logSerial->println("Sending data: " + data);
+	_logSerial->println();
+	_atSerial->println(data);
 	return waitMessage("SEND OK");
 }
 
@@ -48,7 +65,7 @@ uint8_t ATClient::getLastDataSize() {
 
 // ######################## General commands
 bool ATClient::AT() {
-	Serial1.println("AT");
+	_atSerial->println("AT");
 	return checkAnswer("AT");
 }
 
@@ -500,8 +517,8 @@ String ATClient::formMAC(uint8_t mac[6]){
 
 String ATClient::read() {
 	String response;
-	while (Serial1.available() > 0) {
-		response = Serial1.readStringUntil('\n');
+	while (_atSerial->available() > 0) {
+		response = _atSerial->readStringUntil('\n');
 	}
 
 	return response;
@@ -509,8 +526,8 @@ String ATClient::read() {
 
 String ATClient::readRaw() {
 	String response;
-	while (Serial1.available() > 0) {
-		response = Serial1.readString();
+	while (_atSerial->available() > 0) {
+		response = _atSerial->readString();
 	}
 
 	return response;
@@ -520,9 +537,9 @@ String ATClient::readWait() {
 	String response;
 	bool got_answer = false;
 	_waitingForAnswer = millis();
-	while ((Serial1.available() > 0)
+	while ((_atSerial->available() > 0)
 			|| ((millis()-_waitingForAnswer) < _timeout && !got_answer)) {
-		response = Serial1.readStringUntil('\n');
+		response = _atSerial->readStringUntil('\n');
 		response.trim();
 		if (response.length() > 0)
 			got_answer = true;
@@ -547,12 +564,12 @@ bool ATClient::checkAnswer(String command) {
 			got_error = true;
 		else
 			addDataLine(answer);
-		//Serial.println("CA:" + answer);
+		//_logSerial->println("CA:" + answer);
 	}
 	while(answer.length()!=0 && (!got_ok && !got_error)  && (millis()-startWait)<5*_timeout);
 
 	if(got_error){
-		Serial.println(F("Command failed with ERROR"));
+		_logSerial->println(F("Command failed with ERROR"));
 	}
 
 	return got_ok;
@@ -571,7 +588,7 @@ bool ATClient::waitMessage(String message, bool anywhere) {
 			addDataLine(answer);
 		if(got_message && anywhere)
 			addDataLine(answer);
-		//Serial.println("WM: " + answer);
+		//_logSerial->println("WM: " + answer);
 	}
 	while(answer.length()!=0 && !got_message && (millis()-startWait)<5*_timeout);
 
@@ -587,7 +604,7 @@ template<uint8_t N>
 bool ATClient::checkSequence(const char *seq[N]) {
 	for (uint8_t i = 0; i < N; ++i) {
 		String answer = readWait();
-		//Serial.println("S: " + answer + " " + answer.length() + " " + answer.indexOf(seq[i]));
+		//_logSerial->println("S: " + answer + " " + answer.length() + " " + answer.indexOf(seq[i]));
 		if (answer.length() == 0 || answer.indexOf(seq[i]) != 0)
 			return false;
 	}
@@ -599,7 +616,7 @@ template<uint8_t N>
 bool ATClient::checkSequenceCapture(const char *seq[N], String (&data)[N]) {
 	for (uint8_t i = 0; i < N; ++i) {
 		String answer = readWait();
-		//Serial.println("SC:" + answer);
+		//_logSerial->println("SC:" + answer);
 		if (answer.length() == 0 || answer.indexOf(seq[i]) != 0)
 			return false;
 		int seq_length = String(seq[i]).length();

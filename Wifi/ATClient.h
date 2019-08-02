@@ -17,7 +17,10 @@ public:
 
 	static const uint8_t MAX_DATA_LINES = 20;
 	ATClient();
+	ATClient(Stream* serial);
 	virtual ~ATClient();
+
+	void setLogSerial(Stream* serial);
 
 	bool sendCommand(String cmd);
 	bool sendData(String data);
@@ -94,6 +97,8 @@ private:
 	unsigned long _timeout;
 	uint8_t _lastDataSize;
 	String _lastData[MAX_DATA_LINES];
+	Stream *_atSerial;
+	Stream *_logSerial;
 };
 
 #endif /* ATCLIENT_H_ */
