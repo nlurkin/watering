@@ -16,8 +16,7 @@ public:
 	enum TCP_TYPE {TCP, UDP};
 
 	static const uint8_t MAX_DATA_LINES = 20;
-	ATClient();
-	ATClient(Stream* serial);
+	ATClient(Stream* serial=&Serial1);
 	virtual ~ATClient();
 
 	void setLogSerial(Stream* serial);

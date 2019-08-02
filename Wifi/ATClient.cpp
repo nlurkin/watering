@@ -7,23 +7,13 @@
 
 #include "ATClient.h"
 
-ATClient::ATClient() :
-	_set_default(false),
-	_waitingForAnswer(0),
-	_timeout(2000),
-	_lastDataSize(0),
-	_atSerial(Serial1),
-	_logSerial(Serial)
-{
-}
-
 ATClient::ATClient(Stream* serial) :
 	_set_default(false),
 	_waitingForAnswer(0),
 	_timeout(2000),
 	_lastDataSize(0),
 	_atSerial(serial),
-	_logSerial(Serial)
+	_logSerial(&Serial)
 {
 }
 
