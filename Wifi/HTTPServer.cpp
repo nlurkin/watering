@@ -34,11 +34,8 @@ String HTTPServer::loop() {
 		http.print();
 		if(http.needs_answer()){
 			HTTPRequest answer = HTTPRequest::http_200();
-			//wifi.sendPacket("HTTP/1.1 200 OK\r\nContent-Type: application/text\r\nContent-Length: 10\r\n\r\n", conn);
-			String d = "Hey you!\r\n";
-			answer.addContent(d);
 			_wifi.sendPacket(answer.generate(), conn);
-			_wifi.closeConnection(conn);
+			//_wifi.closeConnection(conn);
 		}
 		data = http.getData();
 	}
