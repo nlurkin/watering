@@ -44,9 +44,11 @@ void setup() {
 		delay(10000);
 	}
 	Serial.println(F("Connected to wifi"));
+	#ifdef USE_NETWORK_STREAM
 	mySerial.setDestination("192.168.0.20", 8000);
 	mySerial.begin(80);
 	wifi.setLogSerial(&mySerial);
+	#endif
 }
 
 void loop() {
