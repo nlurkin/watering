@@ -45,6 +45,8 @@ int NetworkStream::available() {
 	String data;
 	if(_wifi.payloadAvailable()>=0)
 		data = _server.loop();
+	else
+		return 0;
 
 	int len = data.length();
 	size_t written = 1;
