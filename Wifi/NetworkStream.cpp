@@ -32,7 +32,13 @@ void NetworkStream::begin(uint16_t port) {
 }
 
 size_t NetworkStream::write(uint8_t v) {
-	return addChar(_tx_buffer, _tx_pos, _tx_size, NETWORK_TX_BUFFER_SIZE, v);
+	if(v=='\n'){
+		addChar(_tx_buffer, _tx_pos, _tx_size, NETWORK_TX_BUFFER_SIZE, v);
+		flush();
+		return 1;
+	}
+	else
+		return addChar(_tx_buffer, _tx_pos, _tx_size, NETWORK_TX_BUFFER_SIZE, v);
 }
 
 int NetworkStream::available() {
