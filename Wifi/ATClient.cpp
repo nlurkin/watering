@@ -507,7 +507,7 @@ String ATClient::formMAC(uint8_t mac[6]){
 
 String ATClient::read() {
 	String response;
-	while (_atSerial->available() > 0) {
+	if (_atSerial->available() > 0) {
 		response = _atSerial->readStringUntil('\n');
 	}
 
