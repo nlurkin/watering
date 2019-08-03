@@ -77,9 +77,15 @@ void NetworkStream::flush() {
 	d.reserve(_tx_size);
 	for(unsigned int i=0; i<_tx_size; ++i)
 		d+=_tx_buffer[i];
+	clear();
 	r.addContent(d);
 	int conn = _wifi.openConnection(_dest_address, _dest_port);
 	_wifi.sendPacket(r.generate(), conn);
+}
+
+void NetworkStream::clear() {
+	_tx_pos = 0;
+	_tx_size = 0;
 }
 
 void NetworkStream::setDestination(String address, uint16_t port) {

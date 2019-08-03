@@ -28,6 +28,7 @@ public:
 	virtual int availableForWrite();
 	virtual int peek();
 	virtual void flush();
+	virtual void clear();
 
 	void setDestination(String address, uint16_t port);
 private:
