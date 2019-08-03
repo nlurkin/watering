@@ -11,12 +11,10 @@
 
 NetworkStream::NetworkStream(ESP8266Wifi &wifi) :
 	_dest_port(0),
-	_rx_pos(0),
-	_rx_size(0),
-	_tx_pos(0),
-	_tx_size(0),
 	_wifi(wifi),
-	_server(wifi)
+	_server(wifi),
+	_rx_buffer(NETWORK_RX_BUFFER_SIZE),
+	_tx_buffer(NETWORK_TX_BUFFER_SIZE)
 {
 }
 
@@ -33,12 +31,12 @@ void NetworkStream::begin(uint16_t port) {
 
 size_t NetworkStream::write(uint8_t v) {
 	if(v=='\n'){
-		addChar(_tx_buffer, _tx_pos, _tx_size, NETWORK_TX_BUFFER_SIZE, v);
+		_tx_buffer.push(v);
 		flush();
 		return 1;
 	}
 	else
-		return addChar(_tx_buffer, _tx_pos, _tx_size, NETWORK_TX_BUFFER_SIZE, v);
+		return _tx_buffer.push(v);
 }
 
 int NetworkStream::available() {
@@ -52,48 +50,39 @@ int NetworkStream::available() {
 	size_t written = 1;
 	int pos=0;
 	while(pos<len && written>0)
-		written = addChar(_rx_buffer, _rx_pos, _rx_size, NETWORK_RX_BUFFER_SIZE, data[pos++]);
+		written = _rx_buffer.push(data[pos++]);
 
-	return _rx_size;
+	return _rx_buffer.len();
 }
 
 int NetworkStream::peek() {
-	return _rx_size == 0 ? -1 : _rx_buffer[_rx_pos];
+	return _rx_buffer.len() == 0 ? -1 : _rx_buffer.peek();
 }
 
 int NetworkStream::read() {
-	if (_rx_size == 0) {
+	if (_rx_buffer.len() == 0)
 		return -1;
-	} else {
-		int ret = _rx_buffer[_rx_pos];
-		_rx_pos++;
-		_rx_size--;
-		if (_rx_pos == NETWORK_RX_BUFFER_SIZE) {
-			_rx_pos = 0;
-		}
-		return ret;
-	}
+	else
+		return _rx_buffer.read();
 }
 
 int NetworkStream::availableForWrite() {
-	return NETWORK_TX_BUFFER_SIZE - _tx_size;
+	return _tx_buffer.len();
 }
 
 void NetworkStream::flush() {
 	HTTPRequest r = HTTPRequest::http_post();
-	String d;
-	d.reserve(_tx_size);
-	for(unsigned int i=0; i<_tx_size; ++i)
-		d+=_tx_buffer[i];
+	char buff[NETWORK_TX_BUFFER_SIZE];
+	_tx_buffer.get(buff, NETWORK_TX_BUFFER_SIZE);
 	clear();
+	String d(buff);
 	r.addContent(d);
 	int conn = _wifi.openConnection(_dest_address, _dest_port);
 	_wifi.sendPacket(r.generate(), conn);
 }
 
 void NetworkStream::clear() {
-	_tx_pos = 0;
-	_tx_size = 0;
+	_tx_buffer.clear();
 }
 
 void NetworkStream::setDestination(String address, uint16_t port) {
