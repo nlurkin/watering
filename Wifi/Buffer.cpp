@@ -101,3 +101,18 @@ void Buffer::increment(char *&ptr, size_t len) {
 		ptr = ptr-_size-1;
 
 }
+
+void Buffer::print() {
+	char * p = _p_begin;
+	Serial.print("Buffer state (" + String((int)_p_begin) + "," + String((int)_p_end) + ") --- ");
+	while(p!=_p_end){
+		if(*p=='\r')
+			Serial.print("\\r");
+		else if(*p=='\n')
+			Serial.print("\\n");
+		else
+			Serial.print(*p);
+		increment(p);
+	}
+	Serial.println("-----");
+}
