@@ -10,8 +10,9 @@
 ATClient::ATClient(Stream* serial) :
 	_set_default(false),
 	_waitingForAnswer(0),
-	_timeout(2000),
+	_timeout(5000),
 	_lastDataSize(0),
+	_buffer(BUFFER_SIZE),
 	_atSerial(serial),
 	_logSerial(&Serial)
 {
@@ -55,6 +56,7 @@ uint8_t ATClient::getLastDataSize() {
 
 // ######################## General commands
 bool ATClient::AT() {
+	Serial.println("Sending command: AT");
 	_atSerial->println("AT");
 	return checkAnswer("AT");
 }
@@ -106,7 +108,11 @@ bool ATClient::CWJAP(String &ssid, String &passwd) {
 
 	cmd += "\""+ssid+"\",\""+passwd+"\"";
 	sendCommand(cmd);
-	return checkAnswer("AT+" + cmd);
+	unsigned long old_to = _timeout;
+	_timeout = 5000;
+	bool ans = checkAnswer("AT+" + cmd);
+	_timeout = old_to;
+	return ans;
 }
 
 bool ATClient::CWLAP() {
@@ -505,39 +511,78 @@ String ATClient::formMAC(uint8_t mac[6]){
 			+ ":" + String(mac[5], HEX);
 }
 
-String ATClient::read() {
-	String response;
-	if (_atSerial->available() > 0) {
-		response = _atSerial->readStringUntil('\n');
+bool ATClient::waitMessage(const char *message) {
+	bool got_message = false;
+	int curr_index = 0;
+	int str_len = strlen(message);
+	char c=read();
+	unsigned long start_time = millis();
+	while( (c!='\0') && ((millis()-start_time) < _timeout) ){
+		if(c==message[curr_index]) ++curr_index;
+		else curr_index=0;
+		if(curr_index==str_len) {
+			got_message = true;
+			break;
+		}
+		c=read();
 	}
 
-	return response;
+	return got_message;
 }
 
+char ATClient::read() {
+	if(transferBuffer()==0)
+		return '\0';
+
+	return _buffer.read();
+}
+
+bool ATClient::checkAnswer(const char *command) {
+	if(!waitMessage(command))
+		return false;
+	return waitMessage("OK");
+}
+
+/*String ATClient::read() {
+	if(transferBuffer()>0){
+		char buffer[BUFFER_SIZE] = "";
+		_buffer.get(buffer, BUFFER_SIZE, '\n');
+		return String(buffer);
+	}
+	return "";
+}*/
+
+/*
 String ATClient::readRaw() {
-	String response;
-	while (_atSerial->available() > 0) {
-		response = _atSerial->readString();
-	}
-
-	return response;
+	transferBuffer();
+	return _buffer.getString();
 }
+*/
 
+/*
 String ATClient::readWait() {
 	String response;
 	bool got_answer = false;
 	_waitingForAnswer = millis();
-	while ((_atSerial->available() > 0)
-			|| ((millis()-_waitingForAnswer) < _timeout && !got_answer)) {
-		response = _atSerial->readStringUntil('\n');
-		response.trim();
-		if (response.length() > 0)
-			got_answer = true;
+	size_t ans_len = 0;
+	char buffer[BUFFER_SIZE] = "";
+	while ( (millis()-_waitingForAnswer) < _timeout && !got_answer) { //While we are below the timeout and we have not yet received an answer, continue to try reading
+		if(transferBuffer()>0){
+			size_t read = _buffer.get(buffer + ans_len, BUFFER_SIZE, '\n');
+			ans_len += read;
+			if(read>0 && buffer[ans_len-1]=='\n'){
+				got_answer = true;
+				response = buffer;
+			}
+		}
 	}
+	response = buffer;
+	Serial.println("Got answer: " + String(got_answer) + "(" + String(millis()) + "-" + String(_waitingForAnswer) + ":" + response);
 	return response;
 }
+*/
 
-bool ATClient::checkAnswer(String command) {
+/*bool ATClient::checkAnswer(String command) {
 	String answer;
 	bool got_command = false;
 	bool got_ok = false;
@@ -546,6 +591,8 @@ bool ATClient::checkAnswer(String command) {
 	_lastDataSize = 0;
 	do{
 		answer = readWait();
+		if(answer.length()>2)
+			answer.trim();
 		if(!got_command && answer==command)
 			got_command = true;
 		else if(!got_ok && answer=="OK")
@@ -554,36 +601,44 @@ bool ATClient::checkAnswer(String command) {
 			got_error = true;
 		else
 			addDataLine(answer);
-		//_logSerial->println("CA:" + answer);
+		_logSerial->println("CA:" + answer + "," + String(answer.length()));
 	}
 	while(answer.length()!=0 && (!got_ok && !got_error)  && (millis()-startWait)<5*_timeout);
 
 	if(got_error){
 		_logSerial->println(F("Command failed with ERROR"));
 	}
+	if(got_ok){
+		_logSerial->println(F("Command Succeeded"));
+	}
 
 	return got_ok;
-}
+}*/
 
-bool ATClient::waitMessage(String message, bool anywhere) {
+/*bool ATClient::waitMessage(String message, bool anywhere) {
 	String answer;
 	bool got_message = false;
 	unsigned long startWait = millis()-1;
 	_lastDataSize = 0;
 	do{
 		answer = readWait();
+		if(answer.length()>2)
+			answer.trim();
+
+		Serial.println("Asnwer: " + answer + "\r\n,message:" + message);
 		if(!got_message && ((anywhere && answer.indexOf(message)!=-1) || (answer==message)))
 			got_message = true;
 		else
 			addDataLine(answer);
 		if(got_message && anywhere)
 			addDataLine(answer);
-		//_logSerial->println("WM: " + answer);
+		_logSerial->println("WM: " + answer);
 	}
 	while(answer.length()!=0 && !got_message && (millis()-startWait)<5*_timeout);
 
+	Serial.println("Stopped waiting for message: " + String(got_message) + "," + String(answer.length()) + "," + String(millis()) + "-" + String(startWait));
 	return got_message;
-}
+}*/
 
 String ATClient::formIP(uint8_t ip[4]){
 	return String(ip[0]) + "." + String(ip[1]) + "."
@@ -594,7 +649,7 @@ template<uint8_t N>
 bool ATClient::checkSequence(const char *seq[N]) {
 	for (uint8_t i = 0; i < N; ++i) {
 		String answer = readWait();
-		//_logSerial->println("S: " + answer + " " + answer.length() + " " + answer.indexOf(seq[i]));
+		_logSerial->println("S: " + answer + " " + answer.length() + " " + answer.indexOf(seq[i]));
 		if (answer.length() == 0 || answer.indexOf(seq[i]) != 0)
 			return false;
 	}
@@ -606,7 +661,7 @@ template<uint8_t N>
 bool ATClient::checkSequenceCapture(const char *seq[N], String (&data)[N]) {
 	for (uint8_t i = 0; i < N; ++i) {
 		String answer = readWait();
-		//_logSerial->println("SC:" + answer);
+		_logSerial->println("SC:" + answer);
 		if (answer.length() == 0 || answer.indexOf(seq[i]) != 0)
 			return false;
 		int seq_length = String(seq[i]).length();
@@ -617,8 +672,15 @@ bool ATClient::checkSequenceCapture(const char *seq[N], String (&data)[N]) {
 	return true;
 }
 
-void ATClient::addDataLine(String data){
+void ATClient::addDataLine(String data) {
 	if(_lastDataSize>=MAX_DATA_LINES)
 		return;
 	_lastData[_lastDataSize++] = data;
+}
+
+size_t ATClient::transferBuffer() {
+	while (_atSerial->available() > 0)
+		_buffer.push(_atSerial->read());
+
+	return _buffer.len();
 }

@@ -50,7 +50,7 @@ bool ESP8266Wifi::readAndPrint() {
 		while (response.length() > 0) {
 			_logSerial->println("> " + response);
 			if(response[0]=='+' && response[1]=='I'){ //+IPD
-				read_payload_raw(response);
+				read_payload(response);
 				break;
 			}
 			//else if(response.substring(2)=="CONNECT")
@@ -78,7 +78,7 @@ bool ESP8266Wifi::checkWifiConnection() {
 	String *data = _client.getLastData();
 
 	_logSerial->println(_client.getLastDataSize());
-	if(_client.getLastDataSize()!=2) // Expecting 2 data lines
+	if(_client.getLastDataSize()<2) // Expecting 2 data lines
 		return false;
 	_logSerial->println(data[0]);
 	_logSerial->println(data[1]);

@@ -1,4 +1,4 @@
-#!/bin/env python3
+#!/usr/bin/env python3
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import urllib.request
 
