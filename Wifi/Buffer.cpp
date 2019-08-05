@@ -55,8 +55,12 @@ char Buffer::peek() {
 	return *_p_begin;
 }
 
-void Buffer::get(char *dest, size_t max) {
+size_t Buffer::get(char *dest, size_t max) {
 	size_t strlen = len();
+	if(strlen==0){ //Shortcut, nothing to do
+		dest[0] = '\0';
+		return 0;
+	}
 	size_t t_len = 0;
 	if(strlen>max-1)
 		strlen = max-1;
@@ -72,9 +76,10 @@ void Buffer::get(char *dest, size_t max) {
 	memcpy(dest, _p_begin, strlen);
 	dest[strlen+t_len] = '\0';
 	increment(_p_begin, strlen);
+	return strlen+t_len;
 }
 
-void Buffer::get(char *dest, size_t max, char until) {
+size_t Buffer::get(char *dest, size_t max, char until) {
 	size_t strlen = len();
 	if(strlen>max-1)
 		strlen = max-1;
@@ -87,6 +92,7 @@ void Buffer::get(char *dest, size_t max, char until) {
 			break;
 	}
 	dest[read] = '\0';
+	return read;
 }
 
 void Buffer::increment(char *&ptr, size_t len) {

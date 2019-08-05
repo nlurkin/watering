@@ -22,8 +22,8 @@ public:
 
 	size_t push(char c);
 	char read();
-	void get(char *dest, size_t max);
-	void get(char *dest, size_t max, char until);
+	size_t get(char *dest, size_t max);
+	size_t get(char *dest, size_t max, char until);
 
 private:
 	void increment(char*& ptr, size_t len=1);
