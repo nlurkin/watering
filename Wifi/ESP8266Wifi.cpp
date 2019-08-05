@@ -78,7 +78,7 @@ bool ESP8266Wifi::checkWifiConnection() {
 	String *data = _client.getLastData();
 
 	_logSerial->println(_client.getLastDataSize());
-	if(_client.getLastDataSize()!=2) // Expecting 2 data lines
+	if(_client.getLastDataSize()<2) // Expecting 2 data lines + eventual empty lines
 		return false;
 	_logSerial->println(data[0]);
 	_logSerial->println(data[1]);
