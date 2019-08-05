@@ -8,13 +8,32 @@ class MyHandler(BaseHTTPRequestHandler):
     arduino_buffer = ""
 
     def do_GET(self):
-        self.send_response(200, "OK")
-        self.send_header('Content-type', 'text/html')
-        self.end_headers()
 
-        message = MyHandler.arduino_buffer
-        self.wfile.write(bytes(message, "utf8"))
-        MyHandler.arduino_buffer = ""
+        if self.path == "/console":
+            self.send_response(200, "OK")
+            self.send_header('Content-type', 'text/html')
+            self.end_headers()
+            self.wfile.write(bytes(MyHandler.arduino_buffer, "utf8"))
+
+            return
+
+        try:
+            sendReply = False
+            if self.path.endswith(".html"):
+                mimetype = 'text/html'
+                sendReply = True
+
+            if sendReply:
+                with open(curdir + sep + self.path) as fd:
+                    self.send_response(200, "OK")
+                    self.send_header('Content-type', mimetype)
+                    self.end_headers()
+                    self.wfile.write(bytes(fd.read(), "utf8"))
+
+        except IOError:
+            self.send_error(404, 'File Not Found: %s' % self.path)
+            self.end_headers()
+
         return
 
     def do_POST(self):
