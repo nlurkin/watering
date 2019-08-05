@@ -1,5 +1,6 @@
 #!/bin/env python3
 from http.server import HTTPServer, BaseHTTPRequestHandler
+from os.path import curdir, sep
 import urllib.request
 
 
@@ -39,6 +40,13 @@ class MyHandler(BaseHTTPRequestHandler):
         req = urllib.request.Request(url = url, data = post_data, method = 'PUT')
         with urllib.request.urlopen(req):
             pass
+
+    def do_DELETE(self):
+        '''Empty buffer'''
+        self.send_response(200, "OK")
+        self.end_headers()
+
+        MyHandler.arduino_buffer = ""
 
 
 def run(server_class = HTTPServer, handler_class = MyHandler):
