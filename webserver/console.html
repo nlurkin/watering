@@ -1,0 +1,47 @@
+<html>
+<head>
+<title>Arduino Network terminal</title>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script>
+function update() {
+	const Url="http://localhost:8000/console";
+	$.ajax({
+		url: Url,
+		type: "GET",
+		success: function(result){ result = result.replace(/\r/g, "").replace(/\n/g, "\n"); document.getElementById("arduino_text").innerHTML = result; console.log(result); },
+		error: function(error){ console.log(`Error ${error}`) }
+		   })
+}
+
+function clear_buffer() {
+	const Url="http://localhost:8000";
+	$.ajax({
+		url: Url,
+		type: "DELETE",
+		success: function(result){ console.log(result); update(); },
+		error: function(error){ console.log(`Error ${error}`) }
+		   })
+}
+
+function submit_cmd() {
+	const Url="http://localhost:8000";
+	$.ajax({
+		url: Url,
+		type: "PUT",
+		data: document.getElementById("arduino_cmd").value,
+		success: function(result){ console.log(result) },
+		error: function(error){ console.log(`Error ${error}`) }
+		   })
+}
+
+$(document).ready(function() { update(); window.setInterval(function(){ update() }, 2000); } )
+</script>
+</head>
+<body>
+<textarea cols=120 rows=30 id="arduino_text"></textarea>
+</br>
+<input type="text" size=139px id="arduino_cmd">
+<input type="button" onClick="javascript:submit_cmd();" value="Submit"/>
+<input type="button" onClick="javascript:clear_buffer();"  value="Clear"/>
+</body>
+</html>
