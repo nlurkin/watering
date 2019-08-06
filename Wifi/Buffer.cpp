@@ -102,6 +102,12 @@ void Buffer::increment(char *&ptr, size_t len) {
 
 }
 
+String Buffer::getString() {
+	char buffer[_size];
+	get(buffer, _size);
+	return String(buffer);
+}
+
 void Buffer::print() {
 	char * p = _p_begin;
 	Serial.print("Buffer state (" + String((int)_p_begin) + "," + String((int)_p_end) + ") --- ");

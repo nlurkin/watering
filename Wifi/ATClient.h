@@ -9,25 +9,28 @@
 #define ATCLIENT_H_
 
 #include <Arduino.h>
+#include "Buffer.h"
 
 // https://cdn.sparkfun.com/assets/learn_tutorials/4/0/3/4A-ESP8266__AT_Instruction_Set__EN_v0.30.pdf
 class ATClient {
 public:
 	enum TCP_TYPE {TCP, UDP};
+	static const size_t BUFFER_SIZE = 512;
+	static const uint8_t DATA_BUFFER_SIZE = 1024;
 
-	static const uint8_t MAX_DATA_LINES = 20;
 	ATClient(Stream* serial=&Serial1);
 	virtual ~ATClient();
 
 	void setLogSerial(Stream* serial);
 
-	bool sendCommand(String cmd);
-	bool sendData(String data);
-	bool sendDataConfirm(String data);
-	String read();
-	String readRaw();
-	const String *getLastData();
-	uint8_t getLastDataSize();
+	bool sendCommand(const char *cmd);
+	bool sendCommand(const __FlashStringHelper *cmd);
+	bool sendData(const char *data);
+	bool sendDataConfirm(const char *data);
+	size_t readUntil(char *to, size_t max, const char c='\n');
+	size_t readRaw(char * to, size_t max);
+	size_t getLastData(char *to, size_t max);
+	size_t dataAvailable();
 
 	//General commands
 	bool AT();
@@ -43,10 +46,10 @@ public:
 
 	//WIFI commands
 	bool CWMODE(uint8_t mode); //_cur _def
-	bool CWJAP(String &ssid, String &passwd);  //_cur _def
+	bool CWJAP(const char *ssid, const char *passwd);  //_cur _def
 	bool CWLAP();
 	bool CWQAP();
-	bool CWSAP(String &ssid, String &passwd, uint8_t channel, uint8_t ecn); //_cur _def
+	bool CWSAP(const char *ssid, const char *passwd, uint8_t channel, uint8_t ecn); //_cur _def
 	bool CWLIF();
 	bool CWDHCP(bool en, uint8_t mode); //_cur _def
 	bool CWAUTOCONN(bool en);
@@ -60,10 +63,10 @@ public:
 	//TCP/IP commands
 	bool CIPSTATUS();
 	bool CIPSTART(TCP_TYPE type, uint8_t ip[4], int port, int8_t link_id=-1, int udp_port=-1, uint8_t udp_mode=0, int keepalive=-1);
-	bool CIPSTART(TCP_TYPE type, String address, int port, int8_t link_id=-1, int udp_port=-1, uint8_t udp_mode=0, int keepalive=-1);
-	bool CIPSEND(String &data, int link_id=-1, uint8_t ip[4]=nullptr, int port=-1);
+	bool CIPSTART(TCP_TYPE type, const char *address, int port, int8_t link_id=-1, int udp_port=-1, uint8_t udp_mode=0, int keepalive=-1);
+	bool CIPSEND(const char *data, int link_id=-1, uint8_t ip[4]=nullptr, int port=-1);
 	bool CIPSENDEX(uint16_t length, int link_id=-1, uint8_t ip[4]=nullptr, int port=-1);
-	bool CIPSENDBUF(String &data, uint8_t &bufferNr, int link_id=-1);
+	bool CIPSENDBUF(const char *data, uint8_t &bufferNr, int link_id=-1);
 	bool CIPBUFSTATUS(uint8_t link_id=-1);
 	bool CIPCHECKSEQ(uint8_t segment, uint8_t link_id=-1);
 	bool CIPBUFRESET(uint8_t link_id=-1);
@@ -75,27 +78,30 @@ public:
 	bool CIPSAVETRANSLINK(bool on, uint8_t ip[4]=nullptr, int port=-1, TCP_TYPE type=TCP, int keepalive=-1, int udp_port=-1);
 	bool CIPSTO(int keepalive);
 	bool CIUPDATE() {return false;}
-	bool PINGA(String address);
+	bool PINGA(const char *address);
 	bool PINGA(uint8_t ip[4]);
 	bool CIPDINFO(bool on);
 
-	template<uint8_t N>
-	bool checkSequence(const char* seq[N]);
-	template<uint8_t N>
-	bool checkSequenceCapture(const char* seq[N], String (&data)[N]);
+	//template<uint8_t N>
+	//bool checkSequence(const char* seq[N]);
+	//template<uint8_t N>
+	//bool checkSequenceCapture(const char* seq[N], String (&data)[N]);
 private:
-	String readWait();
-	bool checkAnswer(String command);
-	bool waitMessage(String message, bool anywhere=false);
-	String formMAC(uint8_t mac[6]);
-	String formIP(uint8_t ip[4]);
-	void addDataLine(String data);
+	size_t transferBuffer();
+	size_t waitData(size_t length);
+	char read();
+	//String readWait();
+	bool checkAnswer(const char *command);
+	bool checkAnswer(const __FlashStringHelper *message);
+	bool waitMessage(const char *message);
+	bool waitMessage(const __FlashStringHelper *message);
+	//void addDataLine(String data);
 
 	bool _set_default;
 	unsigned long _waitingForAnswer;
 	unsigned long _timeout;
-	uint8_t _lastDataSize;
-	String _lastData[MAX_DATA_LINES];
+	Buffer _dataCapture;
+	Buffer _buffer;
 	Stream *_atSerial;
 	Stream *_logSerial;
 };

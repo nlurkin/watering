@@ -24,6 +24,10 @@ public:
 	char read();
 	size_t get(char *dest, size_t max);
 	size_t get(char *dest, size_t max, char until);
+	String getString();
+	bool startsWith(const char *str);
+	bool startsWith(const __FlashStringHelper *str);
+	void drop(size_t nchar);
 	void print();
 
 private:
