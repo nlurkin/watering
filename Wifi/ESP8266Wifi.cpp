@@ -25,7 +25,7 @@ void ESP8266Wifi::setLogSerial(Stream *serial){
 	_client.setLogSerial(_logSerial);
 }
 
-bool ESP8266Wifi::sendSomething(const char *cmd) {
+bool ESP8266Wifi::sendSomething(const char *cmd) const {
 	if(cmd[0]=='&')
 		return _client.sendData(cmd+1);
 	else if(cmd[0]=='+' && cmd[1]=='+' && cmd[1]=='+')
@@ -34,11 +34,11 @@ bool ESP8266Wifi::sendSomething(const char *cmd) {
 		return _client.sendCommand(cmd);
 }
 
-bool ESP8266Wifi::sendCommand(const char *cmd) {
+bool ESP8266Wifi::sendCommand(const char *cmd) const {
 	return _client.sendCommand(cmd);
 }
 
-bool ESP8266Wifi::sendData(const char *data) {
+bool ESP8266Wifi::sendData(const char *data) const {
 	return _client.sendData(data);
 }
 
@@ -68,7 +68,7 @@ bool ESP8266Wifi::readAndPrint() {
 	return has_response;
 }
 
-bool ESP8266Wifi::checkBoardConnection() {
+bool ESP8266Wifi::checkBoardConnection() const {
 	return _client.AT();
 }
 
@@ -112,7 +112,7 @@ bool ESP8266Wifi::checkWifiConnection() {
 	return _ip_address[0]!=0 || _ip_address[1]!=0  || _ip_address[2]!=0 || _ip_address[3]!=0; //Success if we have a non-zero ip address
 }
 
-bool ESP8266Wifi::startServer(int port) {
+bool ESP8266Wifi::startServer(int port) const {
 	bool success = _client.CIPMUX(true);
 
 	if(success)
@@ -121,11 +121,11 @@ bool ESP8266Wifi::startServer(int port) {
 	return success;
 }
 
-bool ESP8266Wifi::stopServer() {
+bool ESP8266Wifi::stopServer() const {
 	return _client.CIPSERVER(false);
 }
 
-bool ESP8266Wifi::connectWifi(const char *ssid, const char *passwd) {
+bool ESP8266Wifi::connectWifi(const char *ssid, const char *passwd) const {
 	bool success = _client.CWJAP(ssid, passwd);
 
 	if(!success)
@@ -166,14 +166,17 @@ bool ESP8266Wifi::disConnectWifi() {
 
 	ptr = strtok(data, "\n");
 	while(ptr!=nullptr){
-		if(strstr_P(ptr, PSTR("WIFI DISCONNECT"))==ptr) // Found it
+		if(strstr_P(ptr, PSTR("WIFI DISCONNECT"))==ptr){ // Found it
+			_ip_address = {0, 0, 0, 0};
+			_mac_address = {0, 0, 0, 0, 0, 0};
 			return true;
+		}
 	}
 
 	return false;
 }
 
-bool ESP8266Wifi::restartBoard() {
+bool ESP8266Wifi::restartBoard() const {
 	if(!_client.RST())
 		return false;
 
@@ -187,7 +190,7 @@ bool ESP8266Wifi::restartBoard() {
 	return true;
 }
 
-int ESP8266Wifi::openConnection(const char *address, uint16_t port) {
+int ESP8266Wifi::openConnection(const char *address, uint16_t port) const {
 	if(_client.CIPSTART(ATClient::TCP, address, port, 4))
 		return 4;
 	return -1;
@@ -202,7 +205,7 @@ uint8_t ESP8266Wifi::new_connection(const char *data) {
 	return conn_number;
 }
 
-int8_t ESP8266Wifi::payloadAvailable() {
+int8_t ESP8266Wifi::payloadAvailable() const {
 	for(int8_t i=4; i>=0; i--)
 		if(_payload[i].len()>0) return i;
 	return -1;
@@ -231,11 +234,11 @@ void ESP8266Wifi::read_payload(const char *initdata) {
 	_payload[conn_number].push(buff);
 }
 
-bool ESP8266Wifi::sendPacket(const char *data, uint8_t conn) {
+bool ESP8266Wifi::sendPacket(const char *data, uint8_t conn) const {
 	return _client.CIPSEND(data, conn);
 }
 
-bool ESP8266Wifi::closeConnection(uint8_t conn) {
+bool ESP8266Wifi::closeConnection(uint8_t conn) const {
 	return _client.CIPCLOSE(conn);
 }
 

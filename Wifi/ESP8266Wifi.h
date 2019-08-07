@@ -20,26 +20,26 @@ public:
 
 	void setLogSerial(Stream* serial);
 
-	bool sendSomething(const char *cmd);
-	bool sendCommand(const char *cmd);
-	bool sendData(const char *data);
+	bool sendSomething(const char *cmd) const;
+	bool sendCommand(const char *cmd) const;
+	bool sendData(const char *data) const;
 	bool readAndPrint();
 
-	bool checkBoardConnection();
+	bool checkBoardConnection() const;
 	bool checkWifiConnection();
-	bool connectWifi(const char *ssid, const char *passwd);
+	bool connectWifi(const char *ssid, const char *passwd) const;
 	bool disConnectWifi();
 
-	bool startServer(int port);
-	bool stopServer();
+	bool startServer(int port) const;
+	bool stopServer() const;
 
-	bool sendPacket(const char *data, uint8_t conn);
-	bool closeConnection(uint8_t conn);
-	int  openConnection(const char *address, uint16_t port);
+	bool sendPacket(const char *data, uint8_t conn) const;
+	bool closeConnection(uint8_t conn) const;
+	int  openConnection(const char *address, uint16_t port) const;
 
-	bool restartBoard();
+	bool restartBoard() const;
 
-	int8_t payloadAvailable();
+	int8_t payloadAvailable() const;
 	size_t getPayload(char *buff, uint8_t conn_number, size_t max);
 private:
 	static bool startsWith(const char *str, const char *search);
@@ -53,7 +53,7 @@ private:
 	uint8_t _ip_address[4];
 	uint8_t _mac_address[6];
 	Buffer _payload[5];
-	ATClient _client;
+	mutable ATClient _client;
 	Stream* _logSerial;
 };
 
