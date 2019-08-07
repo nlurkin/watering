@@ -11,6 +11,7 @@ ESP8266Wifi::ESP8266Wifi(Stream* serial) :
 	_conn_opened({false,false,false,false,false}),
 	_ip_address({0,0,0,0}),
 	_mac_address({0,0,0,0,0,0}),
+	_payload({Buffer(PAYLOAD_SIZE), Buffer(PAYLOAD_SIZE), Buffer(PAYLOAD_SIZE), Buffer(PAYLOAD_SIZE), Buffer(PAYLOAD_SIZE)}),
 	_client(serial),
 	_logSerial(&Serial)
 {
@@ -203,43 +204,33 @@ uint8_t ESP8266Wifi::new_connection(const char *data) {
 
 int8_t ESP8266Wifi::payloadAvailable() {
 	for(int8_t i=4; i>=0; i--)
-		if(_has_payload[i]) return i;
+		if(_payload[i].len()>0) return i;
 	return -1;
 }
 
 String ESP8266Wifi::getPayload(uint8_t conn_number) {
 	if(conn_number>4)
 		return "";
-	_has_payload[conn_number] = false;
 	String val = _payload[conn_number];
 	_payload[conn_number] = "";
 	return val;
 }
 
-void ESP8266Wifi::read_payload(String initdata) {
-	const int MAX_LINES = 20;
-	static String buff[20];
-	uint8_t curr=1;
-	String response = _client.read();
-	while (response.length() > 0) {
-		_logSerial->println(response);
-		if(curr<MAX_LINES)
-			buff[curr++] = response;
-		else
-			_logSerial->println(F("Buffer overflow"));
-		response = _client.read();
-	}
-
-	buff[0] = initdata.substring(initdata.indexOf(':')+1);
-	uint8_t conn_number = initdata.substring(5,6).toInt();
+void ESP8266Wifi::read_payload(const char *initdata) {
+	uint8_t conn_number = strtoul(initdata+5, nullptr, 10);
 	if(conn_number>4)
 		return;
+	size_t datas = strtol(initdata+7, nullptr, 10);
+	if(datas>1024) // Only accepting up to 1024 bytes packets
+		return;
+	char *data_start = strchr(initdata+7, ':');
+	if(data_start==nullptr)
+		return;
 
-	_has_payload[conn_number] = true;
-	for(uint8_t i=0; i<curr; ++i){
-		//_logSerial->println("Adding to payload: " + buff[i]);
-		_payload[conn_number] += buff[i];
-	}
+	_payload[conn_number].push(data_start+1);
+	char buff[1024];
+	_client.readRaw(buff, datas);
+	_payload[conn_number].push(buff);
 }
 
 bool ESP8266Wifi::sendPacket(const char *data, uint8_t conn) {
@@ -248,16 +239,4 @@ bool ESP8266Wifi::sendPacket(const char *data, uint8_t conn) {
 
 bool ESP8266Wifi::closeConnection(uint8_t conn) {
 	return _client.CIPCLOSE(conn);
-}
-
-void ESP8266Wifi::read_payload_raw(const char *initdata) {
-	String response = _client.readRaw();
-
-	uint8_t conn_number = initdata.substring(5,6).toInt();
-	if(conn_number>4)
-		return;
-
-	_has_payload[conn_number] = true;
-	_payload[conn_number] += initdata.substring(initdata.indexOf(':')+1) + '\n';
-	_payload[conn_number] += response;
 }

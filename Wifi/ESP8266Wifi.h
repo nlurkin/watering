@@ -13,6 +13,8 @@
 
 class ESP8266Wifi {
 public:
+	static const size_t PAYLOAD_SIZE = 1024;
+
 	ESP8266Wifi(Stream* serial=&Serial1);
 	virtual ~ESP8266Wifi();
 
@@ -45,15 +47,12 @@ private:
 	static bool endsWith(const char *str, const char *search);
 	static bool endsWith(const char *str, const __FlashStringHelper *search);
 	uint8_t new_connection(const char *data);
-	void read_payload(String initdata);
-	void read_payload_raw(String initdata);
+	void read_payload(const char *initdata);
 
 	bool _conn_opened[5];
 	uint8_t _ip_address[4];
 	uint8_t _mac_address[6];
-	String _ssid;
-	String _passwd;
-	String _payload[5];
+	Buffer _payload[5];
 	ATClient _client;
 	Stream* _logSerial;
 };
