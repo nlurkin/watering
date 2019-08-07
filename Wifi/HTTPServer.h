@@ -20,7 +20,7 @@ public:
 
 	String loop();
 
-	bool sendData(String address, uint16_t port);
+	bool sendData(const char *address, uint16_t port);
 
 private:
 	uint16_t _port;

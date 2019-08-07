@@ -29,12 +29,16 @@ bool HTTPServer::stopServer() {
 String HTTPServer::loop() {
 	int8_t conn = _wifi.payloadAvailable();
 	String data;
+	char buff[1024];
 	if (conn != -1) {
-		HTTPRequest http(_wifi.getPayload(conn));
+		_wifi.getPayload(buff, conn, 1024);
+		HTTPRequest http(buff);
 		http.print();
 		if(http.needs_answer()){
 			HTTPRequest answer = HTTPRequest::http_200();
-			_wifi.sendPacket(answer.generate(), conn);
+			answer.generate();
+			answer.getRawRequest(buff);
+			_wifi.sendPacket(buff, conn);
 			//_wifi.closeConnection(conn);
 		}
 		data = http.getData();
@@ -42,12 +46,14 @@ String HTTPServer::loop() {
 	return data;
 }
 
-bool HTTPServer::sendData(String address, uint16_t port) {
+bool HTTPServer::sendData(const char *address, uint16_t port) {
 	HTTPRequest r = HTTPRequest::http_post();
-	String d = "{s:atm,v:5}";
-	r.addContent(d);
+	char buff[1024] = "{s:atm,v:5}";
+	r.addContent(buff);
 	int conn = _wifi.openConnection(address, port);
-	_wifi.sendPacket(r.generate(), conn);
+	r.generate();
+	r.getRawRequest(buff);
+	_wifi.sendPacket(buff, conn);
 
 	return true;
 }
