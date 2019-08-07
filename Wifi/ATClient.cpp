@@ -25,7 +25,7 @@ void ATClient::setLogSerial(Stream *serial){
 	_logSerial = serial;
 }
 
-bool ATClient::sendCommand(String cmd) {
+bool ATClient::sendCommand(const char *cmd) {
 	_logSerial->print(F("Sending: "));
 	_logSerial->println(cmd);
 	_logSerial->println();
@@ -49,7 +49,7 @@ bool ATClient::sendData(const char *data) {
 	return true;
 }
 
-bool ATClient::sendDataConfirm(String data) {
+bool ATClient::sendDataConfirm(const char *data) {
 	_logSerial->print(F("Sending data: "));
 	_logSerial->println(data);
 	_logSerial->println();
@@ -128,7 +128,7 @@ bool ATClient::CWMODE(uint8_t mode) {
 	return checkAnswer(cmd);
 }
 
-bool ATClient::CWJAP(String &ssid, String &passwd) {
+bool ATClient::CWJAP(const char *ssid, const char *passwd) {
 	char cmd[50];
 	if(_set_default) // Store in flash
 		sprintf_P(cmd, PSTR("AT+CWJAP_DEF=\"%s\",\"%s\""), ssid, passwd);
@@ -153,7 +153,7 @@ bool ATClient::CWQAP() {
 	return checkAnswer(F("AT+CWQAP"));
 }
 
-bool ATClient::CWSAP(String &ssid, String &passwd, uint8_t channel, uint8_t ecn) {
+bool ATClient::CWSAP(const char *ssid, const char *passwd, uint8_t channel, uint8_t ecn) {
 	if(ecn>4 || ecn==1) //Can be only 0,2,3,4
 		return false;
 
@@ -301,7 +301,7 @@ bool ATClient::CIPSTART(TCP_TYPE type, uint8_t ip[4], int port, int8_t link_id, 
 	return checkAnswer(cmd);
 }
 
-bool ATClient::CIPSTART(TCP_TYPE type, String address, int port, int8_t link_id, int udp_port, uint8_t udp_mode, int keepalive) {
+bool ATClient::CIPSTART(TCP_TYPE type, const char *address, int port, int8_t link_id, int udp_port, uint8_t udp_mode, int keepalive) {
 	if(udp_port!=-1 && type!=UDP) //udp_port and udp_mode valid only in UDP type
 		return false;
 	if(link_id!=-1 && link_id>4) //Maximum 4 links in CIPMUX=1, if CIPMUX=0, must be -1 (we do not check ourselves here)
@@ -331,14 +331,14 @@ bool ATClient::CIPSTART(TCP_TYPE type, String address, int port, int8_t link_id,
 	return checkAnswer(cmd);
 }
 
-bool ATClient::CIPSEND(String &data, int link_id, uint8_t ip[4], int port) {
+bool ATClient::CIPSEND(const char *data, int link_id, uint8_t ip[4], int port) {
 	if(ip!=nullptr && port==-1) //If ip is set, port must be set
 		return false;
 	if(ip==nullptr && port!=-1) //Port cannot be set if ip is not
 		return false;
 	if(link_id!=-1 && link_id>4) //Maximum 4 links in CIPMUX=1, if CIPMUX=0, must be -1 (we do not check ourselves here)
 		return false;
-	uint16_t datas = data.length();
+	uint16_t datas = strlen(data);
 	if(datas>2048) //Maximum size of a single transmission
 		return false;
 
@@ -382,10 +382,10 @@ bool ATClient::CIPSENDEX(uint16_t length, int link_id, uint8_t ip[4], int port) 
 	return waitMessage(F(">"));
 }
 
-bool ATClient::CIPSENDBUF(String &data, uint8_t &bufferNr, int link_id) {
+bool ATClient::CIPSENDBUF(const char *data, uint8_t &bufferNr, int link_id) {
 	if(link_id!=-1 && link_id>4) //Maximum 4 links in CIPMUX=1, if CIPMUX=0, must be -1 (we do not check ourselves here)
 		return false;
-	uint16_t datas = data.length();
+	uint16_t datas = strlen(data);
 	if(datas>2048) //Maximum size of a single transmission
 		return false;
 
