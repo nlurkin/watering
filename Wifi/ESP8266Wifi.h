@@ -44,7 +44,7 @@ private:
 	static bool startsWith(const char *str, const __FlashStringHelper *search);
 	static bool endsWith(const char *str, const char *search);
 	static bool endsWith(const char *str, const __FlashStringHelper *search);
-	uint8_t new_connection(String data);
+	uint8_t new_connection(const char *data);
 	void read_payload(String initdata);
 	void read_payload_raw(String initdata);
 

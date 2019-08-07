@@ -55,8 +55,8 @@ bool ESP8266Wifi::readAndPrint() {
 				read_payload(response);
 				break;
 			}
-			//else if(response.substring(2)=="CONNECT")
-			//	new_connection(response);
+			else if(endsWith(response, F("CONNECT")))
+				new_connection(response);
 			len = _client.readUntil(response, 200, '\n');
 		}
 
@@ -192,10 +192,8 @@ int ESP8266Wifi::openConnection(const char *address, uint16_t port) {
 	return -1;
 }
 
-uint8_t ESP8266Wifi::new_connection(String data) {
-	//_logSerial->println("New connection" + data.substring(0,1));
-	uint8_t conn_number = data.substring(0,1).toInt();
-	//_logSerial->println("New connection" + String(conn_number));
+uint8_t ESP8266Wifi::new_connection(const char *data) {
+	uint8_t conn_number = strtol(data, nullptr, 10);
 	if(conn_number>4)
 		return 99;
 	_has_payload[conn_number] = true;
