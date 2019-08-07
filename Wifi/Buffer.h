@@ -18,6 +18,7 @@ public:
 	void   clear();
 	void   drop(size_t nchar);
 	size_t push(char c);
+	size_t push(const char *str);
 
 	inline size_t len();
 	char peek();

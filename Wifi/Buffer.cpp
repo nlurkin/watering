@@ -30,6 +30,7 @@ void Buffer::drop(size_t nchar) {
 	else
 		_p_begin += nchar;
 }
+
 size_t Buffer::push(char c) {
 	if (len() == _size) {//Buffer full
 		if(!_allow_overwrite) // Not allowed to overwrite previous data if full
@@ -40,6 +41,15 @@ size_t Buffer::push(char c) {
 	*_p_end = c;
 	increment(_p_end);
 	return 1;
+}
+
+size_t Buffer::push(const char *str) {
+	char *p = str;
+	while(*p!='\0'){
+		if(push(*p)==0) return p-str; //Buffer full, return the number of char inserted so far
+		++p;
+	}
+	return p-str;
 }
 
 size_t Buffer::len() {
