@@ -22,7 +22,7 @@ HTTPRequest::HTTPRequest(const char *payload)
 HTTPRequest::~HTTPRequest() {
 }
 
-void HTTPRequest::print(){
+void HTTPRequest::print() const {
 	if(_header._request_type==GET)
 		Serial.println(F("> Type: GET"));
 	else if(_header._request_type==POST)
@@ -44,19 +44,19 @@ void HTTPRequest::print(){
 	Serial.println(F("----  END BODY  ----"));
 }
 
-bool HTTPRequest::needs_answer() {
+bool HTTPRequest::needs_answer() const {
 	return _header._request_type!=ANSWER;
 }
 
-size_t HTTPRequest::getTotalLength() {
+size_t HTTPRequest::getTotalLength() const {
 	return strlen(_raw_header) + strlen(_body);
 }
 
-const char* HTTPRequest::getData() {
+const char* HTTPRequest::getData() const {
 	return _body;
 }
 
-void HTTPRequest::getRawRequest(char *to) {
+void HTTPRequest::getRawRequest(char *to) const {
 	strcpy(to, _raw_header);
 	strcat(to, _body);
 }

@@ -34,12 +34,12 @@ public:
 	HTTPRequest(const char *payload);
 	virtual ~HTTPRequest();
 
-	void   print();
-	bool   needs_answer();
-	size_t getTotalLength();
+	void   print() const;
+	bool   needs_answer() const;
+	size_t getTotalLength() const;
 
-	const char* getData();
-	void getRawRequest(char *to);
+	const char* getData() const;
+	void getRawRequest(char *to) const;
 
 	void addContent(const char *data);
 	size_t generate();
