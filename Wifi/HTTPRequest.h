@@ -20,32 +20,39 @@ class HTTPRequest {
 		uint8_t _version_minor;
 		uint16_t _answer_code;
 		uint16_t _length;
-		String _answer_reason;
-		String _content_type;
-		String _path;
-		String _raw_header;
+		char _answer_reason[30];
+		char _content_type[30];
+		char _path[100];
 	};
 	typedef struct HTTPHeader header_t;
+
 public:
+	static const size_t MAX_HEADER_LENGTH=800;
+	static const size_t MAX_DATA_LENGTH  =1024;
+
 	HTTPRequest();
-	HTTPRequest(String payload);
+	HTTPRequest(const char *payload);
 	virtual ~HTTPRequest();
 
-	void print();
-	bool needs_answer();
-	String getData() { return _body; }
+	void   print();
+	bool   needs_answer();
+	size_t getTotalLength();
 
-	void addContent(String &data);
-	String generate();
-	unsigned int getTotalLength();
+	const char* getData();
+	void getRawRequest(char *to);
+
+	void addContent(const char *data);
+	size_t generate();
 
 	static HTTPRequest http_200();
 	static HTTPRequest http_post();
 private:
-	void extractParts(String payload);
-	bool decodeHeader(String line);
+	void extractParts(const char *payload);
+	void decodeHeader(const char *line);
+
 	header_t _header;
-	String _body;
+	char _raw_header[MAX_HEADER_LENGTH];
+	char _body[MAX_DATA_LENGTH];
 };
 
 #endif /* HTTPREQUEST_H_ */
