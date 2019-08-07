@@ -40,7 +40,7 @@ public:
 	bool restartBoard();
 
 	int8_t payloadAvailable();
-	String getPayload(uint8_t conn_number);
+	size_t getPayload(char *buff, uint8_t conn_number, size_t max);
 private:
 	static bool startsWith(const char *str, const char *search);
 	static bool startsWith(const char *str, const __FlashStringHelper *search);

@@ -208,12 +208,10 @@ int8_t ESP8266Wifi::payloadAvailable() {
 	return -1;
 }
 
-String ESP8266Wifi::getPayload(uint8_t conn_number) {
+size_t ESP8266Wifi::getPayload(char *buff, uint8_t conn_number, size_t max) {
 	if(conn_number>4)
 		return "";
-	String val = _payload[conn_number].getString();
-	_payload[conn_number] = "";
-	return val;
+	return _payload[conn_number].get(buff, max);
 }
 
 void ESP8266Wifi::read_payload(const char *initdata) {
