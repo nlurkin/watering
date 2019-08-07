@@ -44,6 +44,7 @@ bool ESP8266Wifi::sendData(const char *data) const {
 
 bool ESP8266Wifi::readAndPrint() {
 	char response[200];
+	delay(10);
 	size_t len = _client.readUntil(response, 200, '\n');
 	bool has_response = len > 0;
 
@@ -51,7 +52,7 @@ bool ESP8266Wifi::readAndPrint() {
 		_logSerial->println(F("Response Received:"));
 		while (len > 0) {
 			_logSerial->print("> ");
-			_logSerial->println(response);
+			_logSerial->print(response);
 			if(startsWith(response, F("+IPD"))){ //+IPD
 				read_payload(response);
 				break;
