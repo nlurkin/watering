@@ -10,6 +10,7 @@
 #include "HTTPRequest.h"
 
 NetworkStream::NetworkStream(ESP8266Wifi &wifi) :
+	_dest_address(nullptr),
 	_dest_port(0),
 	_wifi(wifi),
 	_server(wifi),
@@ -19,6 +20,9 @@ NetworkStream::NetworkStream(ESP8266Wifi &wifi) :
 }
 
 NetworkStream::~NetworkStream() {
+	if(_dest_address)
+		delete[] _dest_address;
+	_dest_address = nullptr;
 }
 
 void NetworkStream::begin(uint16_t port) {
@@ -78,15 +82,16 @@ void NetworkStream::flush() {
 	String d(buff);
 	r.addContent(d);
 	int conn = _wifi.openConnection(_dest_address, _dest_port);
-	_wifi.sendPacket(r.generate(), conn);
+	_wifi.sendPacket(r.generate().c_str(), conn);
 }
 
 void NetworkStream::clear() {
 	_tx_buffer.clear();
 }
 
-void NetworkStream::setDestination(String address, uint16_t port) {
-	_dest_address = address;
+void NetworkStream::setDestination(const char *address, uint16_t port) {
+	_dest_address = new char[strlen(address)];
+	strcpy(_dest_address, address);
 	_dest_port = port;
 }
 
