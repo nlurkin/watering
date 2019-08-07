@@ -167,8 +167,8 @@ bool ESP8266Wifi::disConnectWifi() {
 	ptr = strtok(data, "\n");
 	while(ptr!=nullptr){
 		if(strstr_P(ptr, PSTR("WIFI DISCONNECT"))==ptr){ // Found it
-			_ip_address = {0, 0, 0, 0};
-			_mac_address = {0, 0, 0, 0, 0, 0};
+			memset(_ip_address, 0, 4 * sizeof(uint8_t));
+			memset(_mac_address, 0, 6 * sizeof(uint8_t));
 			return true;
 		}
 	}
