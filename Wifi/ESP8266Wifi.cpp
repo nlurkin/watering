@@ -94,6 +94,7 @@ bool ESP8266Wifi::checkWifiConnection() {
 			strncpy(mac_line, ptr+15, 17); //Copy the mac address
 			mac_line[17] = '\0';
 		}
+		ptr = strtok(nullptr, "\n");
 	}
 
 	// Extract 4 numbers of the IP address (separated by .)
@@ -104,7 +105,7 @@ bool ESP8266Wifi::checkWifiConnection() {
 	}
 
 	// Extract 6 numbers of the MAC address (separated by :)
-	ptr = strtok(ip_line, ":");
+	ptr = strtok(mac_line, ":");
 	for(int i=0; i<6 && ptr!=nullptr; ++i){
 		_mac_address[i] = strtol(ptr, nullptr, 16);
 		ptr = strtok(nullptr, ":");
@@ -138,7 +139,6 @@ bool ESP8266Wifi::connectWifi(const char *ssid, const char *passwd) const {
 	bool got_connect = false;
 	bool got_ip = false;
 
-
 	ptr = strtok(data, "\n");
 	while(ptr!=nullptr){
 		if(!got_connect && !got_ip && strstr_P(ptr, PSTR("WIFI DISCONNECT"))==ptr) // If we have this, it must be first
@@ -147,6 +147,7 @@ bool ESP8266Wifi::connectWifi(const char *ssid, const char *passwd) const {
 			got_connect = true;
 		if(got_connect && strstr_P(ptr, PSTR("WIFI GOT IP"))==ptr) // We must have this right after the connect
 			got_ip = true;
+		ptr = strtok(nullptr, "\n");
 	}
 
 	return got_connect && got_ip;
@@ -201,7 +202,7 @@ uint8_t ESP8266Wifi::new_connection(const char *data) {
 	if(conn_number>4)
 		return 99;
 	_conn_opened[conn_number] = true;
-	_payload[conn_number] = "";
+	_payload[conn_number].clear();
 	return conn_number;
 }
 
