@@ -145,8 +145,8 @@ HTTPRequest HTTPRequest::http_200() {
 	h._header._version_minor = 1;
 	h._header._answer_code = 200;
 	h._header._connection = CONN_CLOSE;
-	h._header._answer_reason = "OK";
-	h._header._content_type = "text/html";
+	strcpy_P(h._header._answer_reason, PSTR("OK"));
+	strcpy_P(h._header._content_type, PSTR("text/html"));
 	h._header._length = 0;
 	return h;
 }
@@ -158,9 +158,9 @@ HTTPRequest HTTPRequest::http_post() {
 	h._header._version_minor = 1;
 	h._header._answer_code = 0;
 	h._header._connection = CONN_UNDEF;
-	h._header._answer_reason = "";
-	h._header._content_type = "application/json";
+	h._header._answer_reason[0] = '\0';
+	strcpy_P(h._header._content_type, PSTR("application/json"));
 	h._header._length = 0;
-	h._header._path = "/arduino";
+	strcpy_P(h._header._path, PSTR("/arduino"));
 	return h;
 }
