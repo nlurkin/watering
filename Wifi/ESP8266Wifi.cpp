@@ -8,7 +8,7 @@
 #include "ESP8266Wifi.h"
 
 ESP8266Wifi::ESP8266Wifi(Stream* serial) :
-	_has_payload({false,false,false,false,false}),
+	_conn_opened({false,false,false,false,false}),
 	_ip_address({0,0,0,0}),
 	_mac_address({0,0,0,0,0,0}),
 	_client(serial),
@@ -193,10 +193,10 @@ int ESP8266Wifi::openConnection(const char *address, uint16_t port) {
 }
 
 uint8_t ESP8266Wifi::new_connection(const char *data) {
-	uint8_t conn_number = strtol(data, nullptr, 10);
+	uint8_t conn_number = strtoul(data, nullptr, 10);
 	if(conn_number>4)
 		return 99;
-	_has_payload[conn_number] = true;
+	_conn_opened[conn_number] = true;
 	_payload[conn_number] = "";
 	return conn_number;
 }

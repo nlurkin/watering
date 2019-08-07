@@ -48,7 +48,7 @@ private:
 	void read_payload(String initdata);
 	void read_payload_raw(String initdata);
 
-	bool _has_payload[5];
+	bool _conn_opened[5];
 	uint8_t _ip_address[4];
 	uint8_t _mac_address[6];
 	String _ssid;
