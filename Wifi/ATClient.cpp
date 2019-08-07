@@ -10,8 +10,9 @@
 ATClient::ATClient(Stream* serial) :
 	_set_default(false),
 	_waitingForAnswer(0),
-	_timeout(2000),
-	_lastDataSize(0),
+	_timeout(5000),
+	_dataCapture(DATA_BUFFER_SIZE),
+	_buffer(BUFFER_SIZE),
 	_atSerial(serial),
 	_logSerial(&Serial)
 {
@@ -56,12 +57,30 @@ bool ATClient::sendDataConfirm(String data) {
 	return waitMessage(F("SEND OK"));
 }
 
-const String* ATClient::getLastData() {
-	return _lastData;
+size_t ATClient::readUntil(char * to, size_t max, const char c_search) {
+	if(transferBuffer()==0){
+		*to = '\0';
+		return 0;
+	}
+
+	return _buffer.get(to, max, c_search);
 }
 
-uint8_t ATClient::getLastDataSize() {
-	return _lastDataSize;
+size_t ATClient::readRaw(char * to, size_t max) {
+	if(transferBuffer()==0){
+		*to = '\0';
+		return 0;
+	}
+
+	return _buffer.get(to, max);
+}
+
+size_t ATClient::getLastData(char *to, size_t max) {
+	return _dataCapture.get(to, max);
+}
+
+size_t ATClient::dataAvailable() {
+	return _dataCapture.len();
 }
 
 // ######################## General commands
@@ -533,91 +552,92 @@ bool ATClient::CIPDINFO(bool on) {
 }
 
 //######################## PRIVATE ##################
-String ATClient::read() {
-	String response;
-	if (_atSerial->available() > 0) {
-		response = _atSerial->readStringUntil('\n');
-	}
+size_t ATClient::transferBuffer() {
+	while (_atSerial->available() > 0)
+		_buffer.push(_atSerial->read());
 
-	return response;
+	return _buffer.len();
 }
 
-String ATClient::readRaw() {
-	String response;
-	while (_atSerial->available() > 0) {
-		response = _atSerial->readString();
+size_t ATClient::waitData(size_t length) {
+	unsigned long start_time = millis();
+	size_t available;
+	do {
+		available = transferBuffer();
 	}
+	while( (available<length) && ((millis()-start_time) < _timeout) );
 
-	return response;
+	return available;
 }
 
-String ATClient::readWait() {
-	String response;
-	bool got_answer = false;
-	_waitingForAnswer = millis();
-	while ((_atSerial->available() > 0)
-			|| ((millis()-_waitingForAnswer) < _timeout && !got_answer)) {
-		response = _atSerial->readStringUntil('\n');
-		response.trim();
-		if (response.length() > 0)
-			got_answer = true;
-	}
-	return response;
+char ATClient::read() {
+	if(transferBuffer()==0)
+		return '\0';
+
+	return _buffer.read();
 }
 
-bool ATClient::checkAnswer(String command) {
-	String answer;
-	bool got_command = false;
-	bool got_ok = false;
-	bool got_error = false;
-	unsigned long startWait = millis()-1;
-	_lastDataSize = 0;
-	do{
-		answer = readWait();
-		if(!got_command && answer==command)
-			got_command = true;
-		else if(!got_ok && answer=="OK")
-			got_ok = true;
-		else if(!got_error && answer=="ERROR")
-			got_error = true;
-		else
-			addDataLine(answer);
-		//_logSerial->println("CA:" + answer);
-	}
-	while(answer.length()!=0 && (!got_ok && !got_error)  && (millis()-startWait)<5*_timeout);
-
-	if(got_error){
-		_logSerial->println(F("Command failed with ERROR"));
-	}
-
-	return got_ok;
+bool ATClient::checkAnswer(const char *command) {
+	if(!waitMessage(command))
+		return false;
+	return waitMessage(F("OK"));
 }
 
-bool ATClient::waitMessage(String message, bool anywhere) {
-	String answer;
+bool ATClient::checkAnswer(const __FlashStringHelper* command) {
+	if(!waitMessage(command))
+		return false;
+	return waitMessage(F("OK"));
+}
+
+bool ATClient::waitMessage(const char *message) {
 	bool got_message = false;
-	unsigned long startWait = millis()-1;
-	_lastDataSize = 0;
-	do{
-		answer = readWait();
-		if(!got_message && ((anywhere && answer.indexOf(message)!=-1) || (answer==message)))
+	int str_len = strlen(message);
+	size_t available = waitData(str_len);
+	unsigned long start_time = millis();
+
+	// Loop while we have enough data in buffer and while we are not in timeout
+	while( available>0 && ((millis()-start_time) < _timeout) ){
+		if(_buffer.startsWith(message)) { //If the buffer starts with what we are looking for, we are done
 			got_message = true;
-		else
-			addDataLine(answer);
-		if(got_message && anywhere)
-			addDataLine(answer);
-		//_logSerial->println("WM: " + answer);
+			_buffer.drop(str_len); //Make sure the buffer removes the message we were looking for
+			break;
+		}
+		// Else at least the first character is wrong and we should add it to the captured data
+		_dataCapture.push(_buffer.read());
+		// Then wait for at least as much data as we need
+		available = waitData(str_len);
 	}
-	while(answer.length()!=0 && !got_message && (millis()-startWait)<5*_timeout);
 
 	return got_message;
 }
 
-template<uint8_t N>
+bool ATClient::waitMessage(const __FlashStringHelper* message) {
+	bool got_message = false;
+	int str_len = strlen_P(reinterpret_cast<PGM_P>(message));
+	size_t available = waitData(str_len);
+	unsigned long start_time = millis();
+
+	// Loop while we have enough data in buffer and while we are not in timeout
+	while( available>0 && ((millis()-start_time) < _timeout) ){
+		if(_buffer.startsWith(message)) { //If the buffer starts with what we are looking for, we are done
+			got_message = true;
+			_buffer.drop(str_len); //Make sure the buffer removes the message we were looking for
+			break;
+		}
+		// Else at least the first character is wrong and we should add it to the captured data
+		_dataCapture.push(_buffer.read());
+		// Then wait for at least as much data as we need
+		available = waitData(str_len);
+	}
+
+	return got_message;
+}
+
+/*template<uint8_t N>
 bool ATClient::checkSequence(const char *seq[N]) {
 	for (uint8_t i = 0; i < N; ++i) {
 		String answer = readWait();
-		//_logSerial->println("S: " + answer + " " + answer.length() + " " + answer.indexOf(seq[i]));
+		_logSerial->println("S: " + answer + " " + answer.length() + " " + answer.indexOf(seq[i]));
 		if (answer.length() == 0 || answer.indexOf(seq[i]) != 0)
 			return false;
 	}
@@ -629,7 +649,7 @@ template<uint8_t N>
 bool ATClient::checkSequenceCapture(const char *seq[N], String (&data)[N]) {
 	for (uint8_t i = 0; i < N; ++i) {
 		String answer = readWait();
-		//_logSerial->println("SC:" + answer);
+		_logSerial->println("SC:" + answer);
 		if (answer.length() == 0 || answer.indexOf(seq[i]) != 0)
 			return false;
 		int seq_length = String(seq[i]).length();
@@ -638,10 +658,5 @@ bool ATClient::checkSequenceCapture(const char *seq[N], String (&data)[N]) {
 	}
 
 	return true;
-}
+}*/
 
-void ATClient::addDataLine(String data){
-	if(_lastDataSize>=MAX_DATA_LINES)
-		return;
-	_lastData[_lastDataSize++] = data;
-}

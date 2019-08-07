@@ -9,13 +9,15 @@
 #define ATCLIENT_H_
 
 #include <Arduino.h>
+#include "Buffer.h"
 
 // https://cdn.sparkfun.com/assets/learn_tutorials/4/0/3/4A-ESP8266__AT_Instruction_Set__EN_v0.30.pdf
 class ATClient {
 public:
 	enum TCP_TYPE {TCP, UDP};
+	static const size_t BUFFER_SIZE = 512;
+	static const uint8_t DATA_BUFFER_SIZE = 1024;
 
-	static const uint8_t MAX_DATA_LINES = 20;
 	ATClient(Stream* serial=&Serial1);
 	virtual ~ATClient();
 
@@ -27,8 +29,8 @@ public:
 	bool sendDataConfirm(String data);
 	String read();
 	String readRaw();
-	const String *getLastData();
-	uint8_t getLastDataSize();
+	size_t getLastData(char *to, size_t max);
+	size_t dataAvailable();
 
 	//General commands
 	bool AT();
@@ -85,18 +87,20 @@ public:
 	template<uint8_t N>
 	bool checkSequenceCapture(const char* seq[N], String (&data)[N]);
 private:
-	String readWait();
-	bool checkAnswer(String command);
+	size_t transferBuffer();
+	size_t waitData(size_t length);
+	char read();
+
+	bool checkAnswer(const char *command);
 	bool checkAnswer(const __FlashStringHelper *message);
-	bool waitMessage(String message, bool anywhere=false);
+	bool waitMessage(const char *message);
 	bool waitMessage(const __FlashStringHelper *message);
-	void addDataLine(String data);
 
 	bool _set_default;
 	unsigned long _waitingForAnswer;
 	unsigned long _timeout;
-	uint8_t _lastDataSize;
-	String _lastData[MAX_DATA_LINES];
+	Buffer _dataCapture;
+	Buffer _buffer;
 	Stream *_atSerial;
 	Stream *_logSerial;
 };
