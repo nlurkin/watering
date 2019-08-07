@@ -16,7 +16,7 @@ class ATClient {
 public:
 	enum TCP_TYPE {TCP, UDP};
 	static const size_t BUFFER_SIZE = 512;
-	static const uint8_t DATA_BUFFER_SIZE = 1024;
+	static const size_t DATA_BUFFER_SIZE = 200;
 
 	ATClient(Stream* serial=&Serial1);
 	virtual ~ATClient();
