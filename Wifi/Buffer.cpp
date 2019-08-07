@@ -24,6 +24,12 @@ void Buffer::clear() {
 	_p_end = _p_begin;
 }
 
+void Buffer::drop(size_t nchar) {
+	if(len()<nchar)
+		_p_begin = _p_end;
+	else
+		_p_begin += nchar;
+}
 size_t Buffer::push(char c) {
 	if (len() == _size) {//Buffer full
 		if(!_allow_overwrite) // Not allowed to overwrite previous data if full
@@ -42,6 +48,47 @@ size_t Buffer::len() {
 	return _p_end-_p_begin;
 }
 
+char Buffer::peek() {
+	return *_p_begin;
+}
+
+bool Buffer::startsWith(const char *str) {
+	char *p = _p_begin;
+	while( (p!=_p_end) && (*str!='\0') ){
+		if(*(p++)!=*(str++)) // Not the same char -> we are done
+			return false;
+	}
+	return *str=='\0'; // The loop went through the whole string, finding each character equal
+}
+
+bool Buffer::startsWith(const __FlashStringHelper* str) {
+	char *p = _p_begin;
+	PGM_P p_search = reinterpret_cast<PGM_P>(str);
+	unsigned char c;
+	c = pgm_read_byte(p_search++);
+	while( (p!=_p_end) && (c!='\0') ){
+		if(*(p++)!=c) // Not the same char -> we are done
+			return false;
+		c = pgm_read_byte(p_search++);
+	}
+	return c=='\0'; // The loop went through the whole string, finding each character equal
+}
+
+void Buffer::print() {
+	char * p = _p_begin;
+	Serial.print("Buffer state (" + String((int)_p_begin) + "," + String((int)_p_end) + ") --- ");
+	while(p!=_p_end){
+		if(*p=='\r')
+			Serial.print("\\r");
+		else if(*p=='\n')
+			Serial.print("\\n");
+		else
+			Serial.print(*p);
+		increment(p);
+	}
+	Serial.println("-----");
+}
+
 char Buffer::read() {
 	if(_p_begin==_p_end)
 		return '\0';
@@ -49,10 +96,6 @@ char Buffer::read() {
 	char v = *_p_begin;
 	increment(_p_begin);
 	return v;
-}
-
-char Buffer::peek() {
-	return *_p_begin;
 }
 
 size_t Buffer::get(char *dest, size_t max) {
@@ -95,6 +138,12 @@ size_t Buffer::get(char *dest, size_t max, char until) {
 	return read;
 }
 
+String Buffer::getString() {
+	char buffer[_size];
+	get(buffer, _size);
+	return String(buffer);
+}
+
 void Buffer::increment(char *&ptr, size_t len) {
 	ptr += len;
 	if (ptr>_buffer+_size)
@@ -102,17 +151,3 @@ void Buffer::increment(char *&ptr, size_t len) {
 
 }
 
-void Buffer::print() {
-	char * p = _p_begin;
-	Serial.print("Buffer state (" + String((int)_p_begin) + "," + String((int)_p_end) + ") --- ");
-	while(p!=_p_end){
-		if(*p=='\r')
-			Serial.print("\\r");
-		else if(*p=='\n')
-			Serial.print("\\n");
-		else
-			Serial.print(*p);
-		increment(p);
-	}
-	Serial.println("-----");
-}

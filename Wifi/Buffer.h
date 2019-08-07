@@ -15,24 +15,29 @@ public:
 	Buffer(size_t size);
 	virtual ~Buffer();
 
-	void clear();
-
-	char peek();
-	inline size_t len();
-
+	void   clear();
+	void   drop(size_t nchar);
 	size_t push(char c);
-	char read();
+
+	inline size_t len();
+	char peek();
+	bool startsWith(const char *str);
+	bool startsWith(const __FlashStringHelper *str);
+	void print();
+
+	char   read();
 	size_t get(char *dest, size_t max);
 	size_t get(char *dest, size_t max, char until);
-	void print();
+	String getString();
 
 private:
 	void increment(char*& ptr, size_t len=1);
+
 	bool _allow_overwrite;
-	size_t _size;
 	char* _buffer;
 	char* _p_begin;
 	char* _p_end;
+	size_t _size;
 };
 
 #endif /* BUFFER_H_ */
