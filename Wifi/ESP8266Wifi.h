@@ -18,28 +18,32 @@ public:
 
 	void setLogSerial(Stream* serial);
 
-	bool sendSomething(String cmd);
-	bool sendCommand(String cmd);
-	bool sendData(String data);
+	bool sendSomething(const char *cmd);
+	bool sendCommand(const char *cmd);
+	bool sendData(const char *data);
 	bool readAndPrint();
 
 	bool checkBoardConnection();
 	bool checkWifiConnection();
-	bool connectWifi(String ssid, String passwd);
+	bool connectWifi(const char *ssid, const char *passwd);
 	bool disConnectWifi();
 
 	bool startServer(int port);
 	bool stopServer();
 
-	bool sendPacket(String data, uint8_t conn);
+	bool sendPacket(const char *data, uint8_t conn);
 	bool closeConnection(uint8_t conn);
-	int  openConnection(String address, uint16_t port);
+	int  openConnection(const char *address, uint16_t port);
 
 	bool restartBoard();
 
 	int8_t payloadAvailable();
 	String getPayload(uint8_t conn_number);
 private:
+	static bool startsWith(const char *str, const char *search);
+	static bool startsWith(const char *str, const __FlashStringHelper *search);
+	static bool endsWith(const char *str, const char *search);
+	static bool endsWith(const char *str, const __FlashStringHelper *search);
 	uint8_t new_connection(String data);
 	void read_payload(String initdata);
 	void read_payload_raw(String initdata);

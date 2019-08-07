@@ -24,38 +24,40 @@ void ESP8266Wifi::setLogSerial(Stream *serial){
 	_client.setLogSerial(_logSerial);
 }
 
-bool ESP8266Wifi::sendSomething(String cmd) {
+bool ESP8266Wifi::sendSomething(const char *cmd) {
 	if(cmd[0]=='&')
-		return _client.sendData(cmd.substring(1));
-	else if(cmd.substring(0,3)=="+++")
+		return _client.sendData(cmd+1);
+	else if(cmd[0]=='+' && cmd[1]=='+' && cmd[1]=='+')
 		return Serial1.print("+++");
 	else
 		return _client.sendCommand(cmd);
 }
 
-bool ESP8266Wifi::sendCommand(String cmd) {
+bool ESP8266Wifi::sendCommand(const char *cmd) {
 	return _client.sendCommand(cmd);
 }
 
-bool ESP8266Wifi::sendData(String data) {
+bool ESP8266Wifi::sendData(const char *data) {
 	return _client.sendData(data);
 }
 
 bool ESP8266Wifi::readAndPrint() {
-	String response = _client.read();
-	bool has_response = response.length() > 0;
+	char response[200];
+	size_t len = _client.readUntil(response, 200, '\n');
+	bool has_response = len > 0;
 
 	if (has_response) {
 		_logSerial->println(F("Response Received:"));
-		while (response.length() > 0) {
-			_logSerial->println("> " + response);
-			if(response[0]=='+' && response[1]=='I'){ //+IPD
-				read_payload_raw(response);
+		while (len > 0) {
+			_logSerial->print("> ");
+			_logSerial->println(response);
+			if(startsWith(response, F("+IPD"))){ //+IPD
+				read_payload(response);
 				break;
 			}
 			//else if(response.substring(2)=="CONNECT")
 			//	new_connection(response);
-			response = _client.read();
+			len = _client.readUntil(response, 200, '\n');
 		}
 
 		_logSerial->println();
@@ -75,38 +77,36 @@ bool ESP8266Wifi::checkWifiConnection() {
 	if(!success)
 		return false;
 
-	String *data = _client.getLastData();
+	char data[200];
+	char ip_line[18] = {'\0'};
+	char mac_line[20] = {'\0'};
+	char *ptr;
+	_client.getLastData(data, 200);
 
-	_logSerial->println(_client.getLastDataSize());
-	if(_client.getLastDataSize()<2) // Expecting 2 data lines + eventual empty lines
-		return false;
-	_logSerial->println(data[0]);
-	_logSerial->println(data[1]);
-	if(data[0].indexOf(F("+CIFSR:STAIP"))!=0) //First one is expected to be IP
-		return false;
-	if(data[1].indexOf(F("+CIFSR:STAMAC"))!=0) //Second one is expected to be MAC
-		return false;
-
-	String substr = data[0].substring(14, data[0].length()-1); //Remove header and last "
-
-	// Extract 4 numbers of the IP address (separated by .)
-	int last_index = 0;
-	for(int i=0; i<4; ++i){
-		int dotpos = substr.indexOf('.', last_index); //Find next dot
-		String add = substr.substring(last_index, dotpos); //Extract number
-		_ip_address[i] = add.toInt(); //Save it
-		last_index = dotpos+1;
+	ptr = strtok(data, "\n");
+	while(ptr!=nullptr){
+		if(!ip_line[0] && strstr_P(ptr, PSTR("+CIFSR:STAIP"))==ptr) { // This is the ip address line (and we have not got it yet)
+			strncpy(ip_line, ptr+14, 17); //Copy the ip address
+			ip_line[17] = '\0';
+		}
+		if(!mac_line[0] && strstr_P(ptr, PSTR("+CIFSR:STAMAC"))==ptr) { // This is the mac address line (and we have not got it yet)
+			strncpy(mac_line, ptr+15, 17); //Copy the mac address
+			mac_line[17] = '\0';
+		}
 	}
 
-	substr = data[1].substring(15, data[1].length()-1); //Remove header and last "
+	// Extract 4 numbers of the IP address (separated by .)
+	ptr = strtok(ip_line, ".");
+	for(int i=0; i<4 && ptr!=nullptr; ++i){
+		_ip_address[i] = strtol(ptr, nullptr, 10);
+		ptr = strtok(nullptr, ".");
+	}
 
 	// Extract 6 numbers of the MAC address (separated by :)
-	last_index = 0;
-	for(int i=0; i<6; ++i){
-		int dotpos = substr.indexOf(':', last_index); //Find next :
-		String add = substr.substring(last_index, dotpos); //Extract number
-		_mac_address[i] = strtol(add.c_str(), nullptr, 16); //Save it (from hex)
-		last_index = dotpos+1;
+	ptr = strtok(ip_line, ":");
+	for(int i=0; i<6 && ptr!=nullptr; ++i){
+		_mac_address[i] = strtol(ptr, nullptr, 16);
+		ptr = strtok(nullptr, ":");
 	}
 	return _ip_address[0]!=0 || _ip_address[1]!=0  || _ip_address[2]!=0 || _ip_address[3]!=0; //Success if we have a non-zero ip address
 }
@@ -124,33 +124,31 @@ bool ESP8266Wifi::stopServer() {
 	return _client.CIPSERVER(false);
 }
 
-bool ESP8266Wifi::connectWifi(String ssid, String passwd) {
+bool ESP8266Wifi::connectWifi(const char *ssid, const char *passwd) {
 	bool success = _client.CWJAP(ssid, passwd);
 
 	if(!success)
 		return false;
 
-	String *data = _client.getLastData();
-	uint8_t datas = _client.getLastDataSize();
+	char data[200];
+	char *ptr;
+	_client.getLastData(data, 200);
 
-	if(datas!=2 || datas!=3) //Expecting 2 or 3 data lines
-		return false;
+	bool got_connect = false;
+	bool got_ip = false;
 
-	if(datas==4){
-		if(data[0]!=F("WIFI CONNECTED"))
+
+	ptr = strtok(data, "\n");
+	while(ptr!=nullptr){
+		if(!got_connect && !got_ip && strstr_P(ptr, PSTR("WIFI DISCONNECT"))==ptr) // If we have this, it must be first
 			return false;
-		if(data[1]!=F("WIFI GOT IP"))
-			return false;
+		if(!got_ip && strstr_P(ptr, PSTR("WIFI CONNECTED"))==ptr) // We must have this before the IP
+			got_connect = true;
+		if(got_connect && strstr_P(ptr, PSTR("WIFI GOT IP"))==ptr) // We must have this right after the connect
+			got_ip = true;
 	}
-	else{
-		if(data[0]!=F("WIFI DISCONNECT"))
-			return false;
-		if(data[1]!=F("WIFI CONNECTED"))
-			return false;
-		if(data[2]!=F("WIFI GOT IP"))
-			return false;
-	}
-	return true;
+
+	return got_connect && got_ip;
 }
 
 bool ESP8266Wifi::disConnectWifi() {
@@ -159,25 +157,36 @@ bool ESP8266Wifi::disConnectWifi() {
 	if(!success)
 		return false;
 
-	if(_client.getLastDataSize()!=1) // Expecting 1 data line
-		return false;
+	char data[200];
+	char *ptr;
+	_client.getLastData(data, 200);
 
-	if(_client.getLastData()[0]!=F("WIFI DISCONNECT"))
-		return false;
+	bool got_disconnect = false;
 
-	return true;
+	ptr = strtok(data, "\n");
+	while(ptr!=nullptr){
+		if(strstr_P(ptr, PSTR("WIFI DISCONNECT"))==ptr) // Found it
+			return true;
+	}
+
+	return false;
 }
 
 bool ESP8266Wifi::restartBoard() {
 	if(!_client.RST())
 		return false;
-	for(uint8_t i=0; i<_client.getLastDataSize(); ++i){
-		_logSerial->println(_client.getLastData()[i]);
+
+	char data[200];
+	char *ptr;
+	while(_client.dataAvailable()>0){
+		_client.getLastData(data, 200);
+		_logSerial->print(data);
 	}
+
 	return true;
 }
 
-int ESP8266Wifi::openConnection(String address, uint16_t port) {
+int ESP8266Wifi::openConnection(const char *address, uint16_t port) {
 	if(_client.CIPSTART(ATClient::TCP, address, port, 4))
 		return 4;
 	return -1;
@@ -235,7 +244,7 @@ void ESP8266Wifi::read_payload(String initdata) {
 	}
 }
 
-bool ESP8266Wifi::sendPacket(String data, uint8_t conn) {
+bool ESP8266Wifi::sendPacket(const char *data, uint8_t conn) {
 	return _client.CIPSEND(data, conn);
 }
 
@@ -243,7 +252,7 @@ bool ESP8266Wifi::closeConnection(uint8_t conn) {
 	return _client.CIPCLOSE(conn);
 }
 
-void ESP8266Wifi::read_payload_raw(String initdata) {
+void ESP8266Wifi::read_payload_raw(const char *initdata) {
 	String response = _client.readRaw();
 
 	uint8_t conn_number = initdata.substring(5,6).toInt();
