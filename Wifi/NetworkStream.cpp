@@ -76,13 +76,14 @@ int NetworkStream::availableForWrite() {
 
 void NetworkStream::flush() {
 	HTTPRequest r = HTTPRequest::http_post();
-	char buff[NETWORK_TX_BUFFER_SIZE];
+	char buff[NETWORK_TX_BUFFER_SIZE*2]; //Must be able to contain data + header
 	_tx_buffer.get(buff, NETWORK_TX_BUFFER_SIZE);
 	clear();
-	String d(buff);
-	r.addContent(d);
+	r.addContent(buff);
 	int conn = _wifi.openConnection(_dest_address, _dest_port);
-	_wifi.sendPacket(r.generate().c_str(), conn);
+	r.generate();
+	r.getRawRequest(buff);
+	_wifi.sendPacket(buff, conn);
 }
 
 void NetworkStream::clear() {
