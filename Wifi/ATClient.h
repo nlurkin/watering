@@ -22,6 +22,7 @@ public:
 	void setLogSerial(Stream* serial);
 
 	bool sendCommand(String cmd);
+	bool sendCommand(const __FlashStringHelper *cmd);
 	bool sendData(String data);
 	bool sendDataConfirm(String data);
 	String read();
@@ -86,9 +87,9 @@ public:
 private:
 	String readWait();
 	bool checkAnswer(String command);
+	bool checkAnswer(const __FlashStringHelper *message);
 	bool waitMessage(String message, bool anywhere=false);
-	String formMAC(uint8_t mac[6]);
-	String formIP(uint8_t ip[4]);
+	bool waitMessage(const __FlashStringHelper *message);
 	void addDataLine(String data);
 
 	bool _set_default;

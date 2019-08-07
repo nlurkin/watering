@@ -25,24 +25,35 @@ void ATClient::setLogSerial(Stream *serial){
 }
 
 bool ATClient::sendCommand(String cmd) {
-	_logSerial->println("Sending: " + cmd);
+	_logSerial->print(F("Sending: "));
+	_logSerial->println(cmd);
 	_logSerial->println();
-	_atSerial->println("AT+" + cmd);
+	_atSerial->println(cmd);
 	return true;
 }
 
-bool ATClient::sendData(String data) {
-	_logSerial->println("Sending data: " + data);
+bool ATClient::sendCommand(const __FlashStringHelper* cmd) {
+	_logSerial->print(F("Sending: "));
+	_logSerial->println(cmd);
+	_logSerial->println();
+	_atSerial->println(cmd);
+	return true;
+}
+
+bool ATClient::sendData(const char *data) {
+	_logSerial->print(F("Sending data: "));
+	_logSerial->println(data);
 	_logSerial->println();
 	_atSerial->print(data);
 	return true;
 }
 
 bool ATClient::sendDataConfirm(String data) {
-	_logSerial->println("Sending data: " + data);
+	_logSerial->print(F("Sending data: "));
+	_logSerial->println(data);
 	_logSerial->println();
 	_atSerial->println(data);
-	return waitMessage("SEND OK");
+	return waitMessage(F("SEND OK"));
 }
 
 const String* ATClient::getLastData() {
@@ -55,31 +66,32 @@ uint8_t ATClient::getLastDataSize() {
 
 // ######################## General commands
 bool ATClient::AT() {
-	_atSerial->println("AT");
-	return checkAnswer("AT");
+	sendCommand(F("AT"));
+	return checkAnswer(F("AT"));
 }
 
 bool ATClient::RST() {
-	sendCommand("RST");
-	bool success = checkAnswer("AT+RST");
+	sendCommand(F("AT+RST"));
+	bool success = checkAnswer(F("AT+RST"));
 	if(!success)
 		return false;
 
-	return waitMessage("ready");
+	return waitMessage(F("ready"));
 }
 
 bool ATClient::GMR() {
-	sendCommand("GMR");
-	return checkAnswer("AT+GMR");
+	sendCommand(F("AT+GMR"));
+	return checkAnswer(F("AT+GMR"));
 }
 
 
 bool ATClient::SLEEP(uint8_t mode) {
 	if(mode>2)
 		return false;
-	String cmd = "SLEEP="+String(mode);
+	char cmd[30];
+	sprintf_P(cmd, PSTR("AT+SLEEP=%u"), mode);
 	sendCommand(cmd);
-	return checkAnswer("AT+" + cmd);
+	return checkAnswer(cmd);
 }
 
 // ######################## WIFI commands
@@ -87,121 +99,121 @@ bool ATClient::CWMODE(uint8_t mode) {
 	if(mode>3 || mode<1)
 		return false;
 
-	String command;
+	char cmd[30];
 	if(_set_default) // Store in flash
-		command = "CWMODE_DEF=" + mode;
+		sprintf_P(cmd, PSTR("AT+CWMODE_DEF=%u"), mode);
 	else //Only temporary
-		command = "CWMODE_CUR=" + mode;
+		sprintf_P(cmd, PSTR("AT+CWMODE_CUR=%u"), mode);
 
-	sendCommand(command);
-	return checkAnswer("AT+" + command);
+	sendCommand(cmd);
+	return checkAnswer(cmd);
 }
 
 bool ATClient::CWJAP(String &ssid, String &passwd) {
-	String cmd;
+	char cmd[50];
 	if(_set_default) // Store in flash
-		cmd = "CWJAP_DEF=";
+		sprintf_P(cmd, PSTR("AT+CWJAP_DEF=\"%s\",\"%s\""), ssid, passwd);
 	else //Only temporary
-		cmd = "CWJAP_CUR=";
+		sprintf_P(cmd, PSTR("AT+CWJAP_CUR=\"%s\",\"%s\""), ssid, passwd);
 
-	cmd += "\""+ssid+"\",\""+passwd+"\"";
 	sendCommand(cmd);
-	return checkAnswer("AT+" + cmd);
+	unsigned long old_to = _timeout;
+	_timeout = 5000;
+	bool ans = checkAnswer(cmd);
+	_timeout = old_to;
+	return ans;
 }
 
 bool ATClient::CWLAP() {
-	sendCommand("CWLAP");
-	return checkAnswer("AT+CWLAP");
+	sendCommand(F("AT+CWLAP"));
+	return checkAnswer(F("AT+CWLAP"));
 }
 
 bool ATClient::CWQAP() {
-	sendCommand("CWQAP");
-	return checkAnswer("AT+CWQAP");
+	sendCommand(F("AT+CWQAP"));
+	return checkAnswer(F("AT+CWQAP"));
 }
 
 bool ATClient::CWSAP(String &ssid, String &passwd, uint8_t channel, uint8_t ecn) {
 	if(ecn>4 || ecn==1) //Can be only 0,2,3,4
 		return false;
 
-	String cmd;
+	char cmd[100];
 	if(_set_default) // Store in flash
-		cmd = "CWSAP_DEF=";
+		sprintf_P(cmd, PSTR("AT+CWSAP_DEF=\"%s\",\"%s\",%u,%u"), ssid, passwd, channel, ecn);
 	else //Only temporary
-		cmd = "CWSAP_CUR=";
+		sprintf_P(cmd, PSTR("AT+CWSAP_CUR=\"%s\",\"%s\",%u,%u"), ssid, passwd, channel, ecn);
 
-	cmd += "\"" + ssid + "\",\"" + passwd + "," + String(channel) + "," + String(ecn);
 	sendCommand(cmd);
-	return checkAnswer("AT+" + cmd);
+	return checkAnswer(cmd);
 }
 
 bool ATClient::CWLIF() {
-	sendCommand("CWLIF");
-	return checkAnswer("AT+CWLIF");
+	sendCommand(F("AT+CWLIF"));
+	return checkAnswer(F("AT+CWLIF"));
 }
 
 bool ATClient::CWDHCP(bool en, uint8_t mode) {
 	if(mode>2)
 		return false;
 
-	String cmd;
+	char cmd[30];
 	if(_set_default) // Store in flash
-		cmd = "CWDHCP_DEF=";
+		sprintf_P(cmd, PSTR("AT+CWDHCP_DEF=%d,%u"), en, mode);
 	else //Only temporary
-		cmd = "CWDHCP_CUR=";
+		sprintf_P(cmd, PSTR("AT+CWDHCP_CUR=%d,%u"), en, mode);
 
-	cmd += String(mode) + "," + String(en);
 	sendCommand(cmd);
-	return checkAnswer("AT+" + cmd);
+	return checkAnswer(cmd);
 }
 
 bool ATClient::CWAUTOCONN(bool en) {
-	String cmd = "CWAUTOCONN=" + String(en);
+	char cmd[30];
+	sprintf_P(cmd, PSTR("AT+CWAUTOCONN=%d"), en);
 	sendCommand(cmd);
-	return checkAnswer("AT+" + cmd);
+	return checkAnswer(cmd);
 }
 
 bool ATClient::CIPSTAMAC(uint8_t mac[6]) {
-	String cmd;
+	char cmd[30];
 	if(_set_default) // Store in flash
-		cmd = "CIPSTAMAC_DEF=\"";
+		sprintf_P(cmd, PSTR("AT+CIPSTAMAC_DEF=\"%X:%X:%X:%X:%X:%X\""), mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 	else //Only temporary
-		cmd = "CIPSTAMAC_CUR=\"";
+		sprintf_P(cmd, PSTR("AT+CIPSTAMAC_CUR=\"%X:%X:%X:%X:%X:%X\""), mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 
-	cmd += formMAC(mac) + "\"";
 	sendCommand(cmd);
-	return checkAnswer("AT+" + cmd);
+	return checkAnswer(cmd);
 }
 
 bool ATClient::CIPAPMAC(uint8_t mac[6]) {
-	String cmd;
+	char cmd[30];
 	if(_set_default) // Store in flash
-		cmd = "CIPAPMAC_DEF=\"";
+		sprintf_P(cmd, PSTR("AT+CIPAPMAC_DEF=\"%X:%X:%X:%X:%X:%X\""), mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 	else //Only temporary
-		cmd = "CIPAPMAC_CUR=\"";
+		sprintf_P(cmd, PSTR("AT+CIPAPMAC_CUR=\"%X:%X:%X:%X:%X:%X\""), mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 
-	cmd += formMAC(mac) + "\"";
 	sendCommand(cmd);
-	return checkAnswer("AT+" + cmd);
+	return checkAnswer(cmd);
 }
 
 bool ATClient::CIPSTA(uint8_t ip[4], uint8_t gtw[4], uint8_t netmask[4]) {
 	if(netmask!=nullptr && gtw==nullptr)
 		return false; //if netmask is set, gtw must be set too
 
-	String cmd;
+	char cmd[70];
+	int len = 0;
 	if(_set_default) // Store in flash
-		cmd = "CIPSTA_DEF=\"";
+		len += sprintf_P(cmd, PSTR("AT+CIPSTA_DEF=\"%u.%u.%u.%u\""), ip[0], ip[1], ip[2], ip[3]);
 	else //Only temporary
-		cmd = "CIPSTA_CUR=\"";
+		len += sprintf_P(cmd, PSTR("AT+CIPSTA_CUR=\"%u.%u.%u.%u\""), ip[0], ip[1], ip[2], ip[3]);
 
-	cmd += formIP(ip) + "\"";
 	if(gtw!=nullptr)
-		cmd += ",\"" + formIP(gtw) + "\"";
+		len += sprintf_P(cmd+len, PSTR(",\"%u.%u.%u.%u\""), gtw[0], gtw[1], gtw[2], gtw[3]);
 	if(netmask!=nullptr)
-		cmd += ",\"" + formIP(netmask) + "\"";
+		len += sprintf_P(cmd+len, PSTR(",\"%u.%u.%u.%u\""), netmask[0], netmask[1], netmask[2], netmask[3]);
 
 	sendCommand(cmd);
-	return checkAnswer("AT+" + cmd);
+	return checkAnswer(cmd);
 
 }
 
@@ -209,32 +221,33 @@ bool ATClient::CIPAP(uint8_t ip[4], uint8_t gtw[4], uint8_t netmask[4]) {
 	if( !(netmask==nullptr && gtw==nullptr) || !(netmask!=nullptr && gtw!=nullptr) )
 		return false; //must both be set or nullptr
 
-	String cmd;
+	char cmd[70];
+	int len = 0;
 	if(_set_default) // Store in flash
-		cmd = "CIPAP_DEF=\"";
+		len += sprintf_P(cmd, PSTR("AT+CIPAP_DEF=\"%u.%u.%u.%u\""), ip[0], ip[1], ip[2], ip[3]);
 	else //Only temporary
-		cmd = "CIPAP_CUR=\"";
+		len += sprintf_P(cmd, PSTR("AT+CIPAP_CUR=\"%u.%u.%u.%u\""), ip[0], ip[1], ip[2], ip[3]);
 
-	cmd += formIP(ip) + "\"";
 	if(gtw!=nullptr)
-		cmd += ",\"" + formIP(gtw) + "\"";
+		len += sprintf_P(cmd+len, PSTR(",\"%u.%u.%u.%u\""), gtw[0], gtw[1], gtw[2], gtw[3]);
 	if(netmask!=nullptr)
-		cmd += ",\"" + formIP(netmask) + "\"";
+		len += sprintf_P(cmd+len, PSTR(",\"%u.%u.%u.%u\""), netmask[0], netmask[1], netmask[2], netmask[3]);
 
 	sendCommand(cmd);
-	return checkAnswer("AT+" + cmd);
+	return checkAnswer(cmd);
 }
 
 bool ATClient::WPS(bool en){
-	String cmd = "WPS=" + String(en);
+	char cmd[15];
+	sprintf_P(cmd, PSTR("AT+WPS=%d"), en);
 	sendCommand(cmd);
-	return checkAnswer("AT+" + cmd);
+	return checkAnswer(cmd);
 }
 
 // ######################## TCP/IP commands
 bool ATClient::CIPSTATUS() {
-	sendCommand("CIPSTATUS");
-	return checkAnswer("AT+CIPSTATUS");
+	sendCommand(F("AT+CIPSTATUS"));
+	return checkAnswer(F("AT+CIPSTATUS"));
 }
 
 bool ATClient::CIPSTART(TCP_TYPE type, uint8_t ip[4], int port, int8_t link_id, int udp_port, uint8_t udp_mode, int keepalive) {
@@ -247,21 +260,26 @@ bool ATClient::CIPSTART(TCP_TYPE type, uint8_t ip[4], int port, int8_t link_id, 
 	if(keepalive!=-1 && keepalive>7200)
 		return false;
 
-	String cmd = "CIPSTART=";
-	if(link_id!=-1)
-		cmd += String(link_id) + ",";
+	char cmd[80] PROGMEM = "AT+CIPSTART="; //TODO needs to be static if PROGMEM
+	int len = strlen(cmd);
+	if(link_id!=-1){
+		len += sprintf_P(cmd+len, PSTR("%d,"), link_id);
+	}
 	if(type==TCP)
-		cmd += "\"TCP\",";
+		strcat_P(cmd, PSTR("\"TCP\","));
 	else if(type==UDP)
-		cmd += "\"UDP\",";
-	cmd += "\"" + formIP(ip) + "\"," + String(port);
+		strcat_P(cmd, PSTR("\"UDP\","));
+	len = strlen(cmd);
+
+	len += sprintf_P(cmd+len, PSTR("\"%u.%u.%u.%u\",%d"), ip[0], ip[1], ip[2], ip[3], port);
+
 	if(udp_port!=-1)
-		cmd += "," + String(port) + "," + String(udp_mode);
+		len += sprintf_P(cmd+len, PSTR(",%d,%u"), udp_port, udp_mode);
 	if(keepalive!=-1)
-		cmd += "," + String(keepalive);
+		len += sprintf_P(cmd+len, PSTR(",%d"), keepalive);
 
 	sendCommand(cmd);
-	return checkAnswer("AT+" + cmd);
+	return checkAnswer(cmd);
 }
 
 bool ATClient::CIPSTART(TCP_TYPE type, String address, int port, int8_t link_id, int udp_port, uint8_t udp_mode, int keepalive) {
@@ -274,21 +292,24 @@ bool ATClient::CIPSTART(TCP_TYPE type, String address, int port, int8_t link_id,
 	if(keepalive!=-1 && keepalive>7200)
 		return false;
 
-	String cmd = "CIPSTART=";
+	char cmd[200] = "AT+CIPSTART=";
+	int len = strlen(cmd);
 	if(link_id!=-1)
-		cmd += String(link_id) + ",";
+		len += sprintf_P(cmd+len, PSTR("%d,"), link_id);
 	if(type==TCP)
-		cmd += "\"TCP\",";
+		strcat_P(cmd, PSTR("\"TCP\","));
 	else if(type==UDP)
-		cmd += "\"UDP\",";
-	cmd += "\"" + address + "\"," + String(port);
+		strcat_P(cmd, PSTR("\"UDP\","));
+
+	len = strlen(cmd);
+	len += sprintf_P(cmd+len, PSTR("\"%s\",%d"), address, port);
 	if(udp_port!=-1)
-		cmd += "," + String(port) + "," + String(udp_mode);
+		len += sprintf_P(cmd+len, PSTR(",%d,%u"), port, udp_mode);
 	if(keepalive!=-1)
-		cmd += "," + String(keepalive);
+		len += sprintf_P(cmd+len, PSTR(",%d"), keepalive);
 
 	sendCommand(cmd);
-	return checkAnswer("AT+" + cmd);
+	return checkAnswer(cmd);
 }
 
 bool ATClient::CIPSEND(String &data, int link_id, uint8_t ip[4], int port) {
@@ -302,21 +323,22 @@ bool ATClient::CIPSEND(String &data, int link_id, uint8_t ip[4], int port) {
 	if(datas>2048) //Maximum size of a single transmission
 		return false;
 
-	String cmd = "CIPSEND=";
+	char cmd[80] PROGMEM = "AT+CIPSEND=";
+	int len = strlen(cmd);
 	if(link_id!=-1)
-		cmd += String(link_id) + ",";
-	cmd += String(datas);
+		len += sprintf_P(cmd+len, PSTR("%d,"), link_id);
+	len += sprintf_P(cmd+len, PSTR("%u"), datas);
 	if(ip!=nullptr)
-		cmd += ",\"" + formIP(ip) + "\"," + String(port);
+		len += sprintf_P(cmd+len, PSTR(",\"%u.%u.%u.%u\",%d"), ip[0], ip[1], ip[2], ip[3], port);
 
 	sendCommand(cmd);
-	bool success = waitMessage(">");
+	bool success = waitMessage(F(">"));
 	if(!success)
 		return false;
 
 	sendData(data);
 
-	return waitMessage("SEND OK");
+	return waitMessage(F("SEND OK"));
 }
 
 bool ATClient::CIPSENDEX(uint16_t length, int link_id, uint8_t ip[4], int port) {
@@ -329,15 +351,16 @@ bool ATClient::CIPSENDEX(uint16_t length, int link_id, uint8_t ip[4], int port) 
 	if(length>2048) //Maximum size of a single transmission
 		return false;
 
-	String cmd = "CIPSENDEX=";
+	char cmd[30] PROGMEM = "AT+CIPSEND=";
+	int len = strlen(cmd);
 	if(link_id!=-1)
-		cmd += String(link_id) + ",";
-	cmd += String(length);
+		len += sprintf_P(cmd+len, PSTR("%d,"), link_id);
+	len += sprintf_P(cmd+len, PSTR("%u"), length);
 	if(ip!=nullptr)
-		cmd += ",\"" + formIP(ip) + "\"," + String(port);
+		len += sprintf_P(cmd+len, PSTR(",\"%u.%u.%u.%u\",%d"), ip[0], ip[1], ip[2], ip[3], port);
 
 	sendCommand(cmd);
-	return waitMessage(">");
+	return waitMessage(F(">"));
 }
 
 bool ATClient::CIPSENDBUF(String &data, uint8_t &bufferNr, int link_id) {
@@ -347,13 +370,14 @@ bool ATClient::CIPSENDBUF(String &data, uint8_t &bufferNr, int link_id) {
 	if(datas>2048) //Maximum size of a single transmission
 		return false;
 
-	String cmd = "CIPSENDBUF=";
+	char cmd[30] PROGMEM = "AT+CIPSENDBUF=";
+	int len = strlen(cmd);
 	if(link_id!=-1)
-		cmd += String(link_id) + ",";
-	cmd += String(datas);
+		len += sprintf_P(cmd+len, PSTR("%d,"), link_id);
+	len += sprintf_P(cmd+len, PSTR("%u"), datas);
 
 	sendCommand(cmd);
-	bool success = waitMessage(">");
+	bool success = waitMessage(F(">"));
 	if(!success)
 		return false;
 	sendData(data);
@@ -380,68 +404,72 @@ bool ATClient::CIPBUFSTATUS(uint8_t link_id) {
 	if(link_id!=-1 && link_id>4) //Maximum 4 links in CIPMUX=1, if CIPMUX=0, must be -1 (we do not check ourselves here)
 		return false;
 
-	String cmd = "CIPBUFSTATUS";
+	char cmd[30] PROGMEM = "AT+CIPBUFSTATUS";
 	if(link_id!=-1)
-		cmd += "=" + String(link_id);
+		sprintf_P(cmd+strlen(cmd), PSTR("=%u"), link_id);
 
 	sendCommand(cmd);
-	return checkAnswer("AT+" + cmd);
+	return checkAnswer(cmd);
 }
 
 bool ATClient::CIPCHECKSEQ(uint8_t segment, uint8_t link_id) {
 	if(link_id!=-1 && link_id>4) //Maximum 4 links in CIPMUX=1, if CIPMUX=0, must be -1 (we do not check ourselves here)
 		return false;
 
-	String cmd = "CIPCHECKSEQ=";
+	char cmd[30] = "AT+CIPCHECKSEQ=";
+	int len = strlen(cmd);
 	if(link_id!=-1)
-		cmd += String(link_id) + ",";
-	cmd += String(segment);
+		len += sprintf_P(cmd+len, PSTR("%u,"), link_id);
+	sprintf_P(cmd+len, PSTR("%u"), segment);
 
 	sendCommand(cmd);
-	return checkAnswer("AT+" + cmd);
+	return checkAnswer(cmd);
 }
 
 bool ATClient::CIPBUFRESET(uint8_t link_id) {
 	if(link_id!=-1 && link_id>4) //Maximum 4 links in CIPMUX=1, if CIPMUX=0, must be -1 (we do not check ourselves here)
 		return false;
 
-	String cmd = "CIPBUFRESET";
+	char cmd[30] PROGMEM = "AT+CIPBUFRESET";
 	if(link_id!=-1)
-		cmd += "=" + String(link_id);
+		sprintf_P(cmd+strlen(cmd), PSTR("=%u"), link_id);
 
 	sendCommand(cmd);
-	return checkAnswer("AT+" + cmd);
+	return checkAnswer(cmd);
 }
 
 bool ATClient::CIPCLOSE(uint8_t link_id) {
 	if(link_id!=-1 && link_id>5) //Maximum 4 links in CIPMUX=1, if CIPMUX=0, must be -1 (we do not check ourselves here). 5 is special, close all connections
 		return false;
 
-	String cmd = "CIPCLOSE";
+	char cmd[30] PROGMEM = "AT+CIPCLOSE";
 	if(link_id!=-1)
-		cmd += "=" + String(link_id);
+		sprintf_P(cmd+strlen(cmd), PSTR("=%u"), link_id);
 
 	sendCommand(cmd);
-	return checkAnswer("AT+" + cmd);
+	return checkAnswer(cmd);
 }
 
 bool ATClient::CIFSR() {
-	sendCommand("CIFSR");
-	return checkAnswer("AT+CIFSR");
+	sendCommand(F("AT+CIFSR"));
+	return checkAnswer(F("AT+CIFSR"));
 }
 
 bool ATClient::CIPMUX(bool mode) {
-	String cmd = "CIPMUX=" + String(mode);
+	char cmd[15];
+	sprintf_P(cmd, PSTR("AT+CIPMUX=%d"), mode);
 	sendCommand(cmd);
-	return checkAnswer("AT+" + cmd);
+	return checkAnswer(cmd);
 }
 
 bool ATClient::CIPSERVER(bool on, int port) {
-	String cmd = "CIPSERVER=" + String(on);
+	char cmd[30];
+	int len = sprintf_P(cmd, PSTR("CIPSERVER=%d"), on);
 	if(on && port>=0)
-		cmd += "," + String(port);
+		sprintf_P(cmd+len, PSTR(",%d"), port);
+
 	sendCommand(cmd);
-	return checkAnswer("AT+" + cmd);
+	return checkAnswer(cmd);
 }
 
 
@@ -455,56 +483,56 @@ bool ATClient::CIPSAVETRANSLINK(bool on, uint8_t ip[4], int port, TCP_TYPE type,
 	if(ip!=nullptr && port==-1)
 		return false;
 
-	String cmd = "CIPSAVETRANSLINK=" + String(on);
+	char cmd[80];
+	int len = sprintf_P(cmd, PSTR("AT+CIPSAVETRANSLINK=%d"), on);
 	if(on)
-		cmd += ",\"" + formIP(ip) + "\"," + String(port);
+		len += sprintf_P(cmd+len, PSTR(",\"%u.%u.%u.%u\",%d"), ip[0], ip[1], ip[2], ip[3], port);
 	if(type==TCP)
-		cmd += ",\"TCP\"";
+		strcat_P(cmd, PSTR(",\"TCP\""));
 	else if(type==UDP)
-		cmd += ",\"UDP\"";
+		strcat_P(cmd, PSTR(",\"UDP\""));
+	len = strlen(cmd);
 	if(keepalive>=0)
-		cmd += "," + String(keepalive);
+		len += sprintf_P(cmd+len, PSTR(",%d"), keepalive);
 	if(udp_port!=-1)
-		cmd += "," + String(udp_port);
+		len += sprintf_P(cmd+len, PSTR(",%d"), udp_port);
 
 	sendCommand(cmd);
-	return checkAnswer("AT+" + cmd);
+	return checkAnswer(cmd);
 }
 
 bool ATClient::CIPSTO(int keepalive) {
 	if(keepalive<0 || keepalive>7200)
 		return false;
 
-	String cmd = "CIPSTO=" + String(keepalive);
+	char cmd[20];
+	sprintf_P(cmd, PSTR("AT+CIPSTO=%d"), keepalive);
 	sendCommand(cmd);
-	return checkAnswer("AT+" + cmd);
+	return checkAnswer(cmd);
 }
 
-bool ATClient::PINGA(String address) {
-	String cmd = "PING=\"" + address + "\"";
+bool ATClient::PINGA(const char *address) {
+	char cmd[100];
+	sprintf_P(cmd, PSTR("AT+PING=\"%s\""), address);
 	sendCommand(cmd);
-	return checkAnswer("AT+" + cmd);
+	return checkAnswer(cmd);
 }
 
 bool ATClient::PINGA(uint8_t ip[4]) {
-	String cmd = "PING=\"" + formIP(ip) + "\"";
+	char cmd[30];
+	sprintf_P(cmd, PSTR("AT+PING=\"%u.%u.%u.%u\""), ip[0], ip[1], ip[2], ip[3]);
 	sendCommand(cmd);
-	return checkAnswer("AT+" + cmd);
+	return checkAnswer(cmd);
 }
 
 bool ATClient::CIPDINFO(bool on) {
-	String cmd = "CIPDINFO=" + String(on);
+	char cmd[20];
+	sprintf_P(cmd, PSTR("AT+CIPDINFO=%d"), on);
 	sendCommand(cmd);
-	return checkAnswer("AT+" + cmd);
+	return checkAnswer(cmd);
 }
 
 //######################## PRIVATE ##################
-String ATClient::formMAC(uint8_t mac[6]){
-	return String(mac[0], HEX) + ":" + String(mac[1], HEX) + ":"
-			+ String(mac[2], HEX) + ":" + String(mac[3], HEX) + ":" + String(mac[4], HEX)
-			+ ":" + String(mac[5], HEX);
-}
-
 String ATClient::read() {
 	String response;
 	if (_atSerial->available() > 0) {
@@ -583,11 +611,6 @@ bool ATClient::waitMessage(String message, bool anywhere) {
 	while(answer.length()!=0 && !got_message && (millis()-startWait)<5*_timeout);
 
 	return got_message;
-}
-
-String ATClient::formIP(uint8_t ip[4]){
-	return String(ip[0]) + "." + String(ip[1]) + "."
-			+ String(ip[2]) + "." + String(ip[3]);
 }
 
 template<uint8_t N>
