@@ -211,7 +211,7 @@ int8_t ESP8266Wifi::payloadAvailable() {
 String ESP8266Wifi::getPayload(uint8_t conn_number) {
 	if(conn_number>4)
 		return "";
-	String val = _payload[conn_number];
+	String val = _payload[conn_number].getString();
 	_payload[conn_number] = "";
 	return val;
 }
@@ -240,3 +240,48 @@ bool ESP8266Wifi::sendPacket(const char *data, uint8_t conn) {
 bool ESP8266Wifi::closeConnection(uint8_t conn) {
 	return _client.CIPCLOSE(conn);
 }
+
+bool ESP8266Wifi::startsWith(const char *str, const char *search) {
+	while( (*str!='\0') && (*search!='\0') ){
+		if(*(str++)!=*(search++)) // Not the same char -> we are done
+			return false;
+	}
+	return *search=='\0'; // The loop went through the whole string, finding each character equal
+}
+
+bool ESP8266Wifi::startsWith(const char *str, const __FlashStringHelper* search) {
+	PGM_P p_search = reinterpret_cast<PGM_P>(search);
+	unsigned char c;
+	c = pgm_read_byte(p_search++);
+	while( (*str!='\0') && (c!='\0') ){
+		if(*(str++)!=c) // Not the same char -> we are done
+			return false;
+		c = pgm_read_byte(p_search++);
+	}
+	return c=='\0'; // The loop went through the whole string, finding each character equal
+}
+
+bool ESP8266Wifi::endsWith(const char *str, const char *search) {
+	char *str_end = str + strlen(str);
+	char *search_end = search + strlen(search);
+	while( (str_end!=str) && (search_end!=search) ){
+		if(*(str_end--)!=*(search_end--)) // Not the same char -> we are done
+			return false;
+	}
+	return search==search_end; // The loop went through the whole string, finding each character equal
+}
+
+bool ESP8266Wifi::endsWith(const char *str, const __FlashStringHelper* search) {
+	char *str_end = str + strlen(str);
+	PGM_P p_search = reinterpret_cast<PGM_P>(search);
+	PGM_P p_search_end = p_search + strlen_P(p_search);
+	unsigned char c;
+	c = pgm_read_byte(p_search_end--);
+	while( (str_end!=str) && (p_search_end!=p_search) ){
+		if(*(str_end--)!=c) // Not the same char -> we are done
+			return false;
+		c = pgm_read_byte(p_search_end--);
+	}
+	return c=='\0'; // The loop went through the whole string, finding each character equal
+}
+
