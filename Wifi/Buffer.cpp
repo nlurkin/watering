@@ -52,17 +52,17 @@ size_t Buffer::push(const char *str) {
 	return p-str;
 }
 
-size_t Buffer::len() {
+size_t Buffer::len() const {
 	if(_p_end<_p_begin)
 		return _p_end-_p_begin+_size;
 	return _p_end-_p_begin;
 }
 
-char Buffer::peek() {
+char Buffer::peek() const {
 	return *_p_begin;
 }
 
-bool Buffer::startsWith(const char *str) {
+bool Buffer::startsWith(const char *str) const {
 	char *p = _p_begin;
 	while( (p!=_p_end) && (*str!='\0') ){
 		if(*(p++)!=*(str++)) // Not the same char -> we are done
@@ -71,7 +71,7 @@ bool Buffer::startsWith(const char *str) {
 	return *str=='\0'; // The loop went through the whole string, finding each character equal
 }
 
-bool Buffer::startsWith(const __FlashStringHelper* str) {
+bool Buffer::startsWith(const __FlashStringHelper* str) const {
 	char *p = _p_begin;
 	PGM_P p_search = reinterpret_cast<PGM_P>(str);
 	unsigned char c;
@@ -84,7 +84,7 @@ bool Buffer::startsWith(const __FlashStringHelper* str) {
 	return c=='\0'; // The loop went through the whole string, finding each character equal
 }
 
-void Buffer::print() {
+void Buffer::print() const {
 	char * p = _p_begin;
 	Serial.print("Buffer state (" + String((int)_p_begin) + "," + String((int)_p_end) + ") --- ");
 	while(p!=_p_end){
@@ -154,7 +154,7 @@ String Buffer::getString() {
 	return String(buffer);
 }
 
-void Buffer::increment(char *&ptr, size_t len) {
+void Buffer::increment(char *&ptr, size_t len) const {
 	ptr += len;
 	if (ptr>_buffer+_size)
 		ptr = ptr-_size-1;

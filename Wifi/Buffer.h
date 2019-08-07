@@ -20,11 +20,11 @@ public:
 	size_t push(char c);
 	size_t push(const char *str);
 
-	inline size_t len();
-	char peek();
-	bool startsWith(const char *str);
-	bool startsWith(const __FlashStringHelper *str);
-	void print();
+	inline size_t len() const;
+	char peek() const;
+	bool startsWith(const char *str) const;
+	bool startsWith(const __FlashStringHelper *str) const;
+	void print() const;
 
 	char   read();
 	size_t get(char *dest, size_t max);
@@ -32,7 +32,7 @@ public:
 	String getString();
 
 private:
-	void increment(char*& ptr, size_t len=1);
+	void increment(char*& ptr, size_t len=1) const;
 
 	bool _allow_overwrite;
 	char* _buffer;
