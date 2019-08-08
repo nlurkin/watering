@@ -8,6 +8,8 @@
 #ifndef ATCLIENT_H_
 #define ATCLIENT_H_
 
+//#define BUFFERED 1 //Uncomment to use an additional buffer between _atSerial and the processing (Should not be needed)
+
 #include <Arduino.h>
 #include "Buffer.h"
 
@@ -15,7 +17,7 @@
 class ATClient {
 public:
 	enum TCP_TYPE {TCP, UDP};
-	static constexpr size_t BUFFER_SIZE = 100;
+	static constexpr size_t BUFFER_SIZE = 64; // Doubles the effective buffer size (64 from serial + 64 here)
 	static constexpr size_t DATA_BUFFER_SIZE = 100;
 
 	ATClient(Stream* serial=&Serial1);
@@ -88,7 +90,9 @@ public:
 	//template<uint8_t N>
 	//bool checkSequenceCapture(const char* seq[N], String (&data)[N]);
 private:
+#ifdef BUFFERED
 	size_t transferBuffer();
+#endif
 	size_t waitData(size_t length);
 	char read();
 
@@ -99,10 +103,12 @@ private:
 
 	bool _set_default;
 	unsigned long _timeout;
-	Buffer _dataCapture;
-	Buffer _buffer;
 	Stream *_atSerial;
 	Stream *_logSerial;
+	Buffer _dataCapture;
+#ifdef BUFFERED
+	Buffer _buffer;
+#endif
 };
 
 #endif /* ATCLIENT_H_ */

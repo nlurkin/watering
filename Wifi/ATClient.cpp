@@ -10,10 +10,12 @@
 ATClient::ATClient(Stream* serial) :
 	_set_default(false),
 	_timeout(5000),
-	_dataCapture(DATA_BUFFER_SIZE),
-	_buffer(BUFFER_SIZE),
 	_atSerial(serial),
-	_logSerial(&Serial)
+	_logSerial(&Serial),
+	_dataCapture(DATA_BUFFER_SIZE)
+#ifdef BUFFERED
+	,_buffer(BUFFER_SIZE)
+#endif
 {
 }
 
@@ -57,21 +59,29 @@ bool ATClient::sendDataConfirm(const char *data) {
 }
 
 size_t ATClient::readUntil(char * to, size_t max, const char c_search) {
+#ifdef BUFFERED
 	if(transferBuffer()==0){
 		*to = '\0';
 		return 0;
 	}
 
 	return _buffer.get(to, max, c_search);
+#else
+	return _atSerial->readBytesUntil(c_search, to, max);
+#endif
 }
 
 size_t ATClient::readRaw(char * to, size_t max) {
+#ifdef BUFFERED
 	if(transferBuffer()==0){
 		*to = '\0';
 		return 0;
 	}
 
 	return _buffer.get(to, max);
+#else
+	return _atSerial->readBytes(to, max);
+#endif
 }
 
 size_t ATClient::getLastData(char *to, size_t max) {
@@ -591,18 +601,24 @@ bool ATClient::CIPDINFO(bool on) {
 }
 
 //######################## PRIVATE ##################
+#ifdef BUFFERED
 size_t ATClient::transferBuffer() {
 	while (_atSerial->available() > 0)
 		_buffer.push(_atSerial->read());
 
 	return _buffer.len();
 }
+#endif
 
 size_t ATClient::waitData(size_t length) {
 	unsigned long start_time = millis();
 	size_t available;
 	do {
+#ifdef BUFFERED
 		available = transferBuffer();
+#else
+		available = _atSerial->available();
+#endif
 	}
 	while( (available<length) && ((millis()-start_time) < _timeout) );
 
@@ -610,10 +626,14 @@ size_t ATClient::waitData(size_t length) {
 }
 
 char ATClient::read() {
+#ifdef BUFFERED
 	if(transferBuffer()==0)
 		return '\0';
 
 	return _buffer.read();
+#else
+	return _atSerial->read();
+#endif
 }
 
 bool ATClient::checkAnswer(const char *command) {
@@ -630,12 +650,23 @@ bool ATClient::checkAnswer(const __FlashStringHelper* command) {
 
 bool ATClient::waitMessage(const char *message) {
 	bool got_message = false;
-	int str_len = strlen(message);
-	size_t available = waitData(str_len);
+	size_t str_len = strlen(message);
 	unsigned long start_time = millis();
+	size_t available = waitData(str_len);
+
+#ifndef BUFFERED
+	// The buffer to contain temporary data matching the message is shorter than the message.
+	// We assume that there will be no string longer than 20 characters coming from the _atSerial
+	// where the first 20 characters are identical to the message, but with differences after.
+	// If the assumption is wrong, we will lose the last characters.
+	char buff[20];
+	char c;
+	size_t pos = 0;
+#endif
 
 	// Loop while we have enough data in buffer and while we are not in timeout
 	while( available>0 && ((millis()-start_time) < _timeout) ){
+#ifdef BUFFERED
 		if(_buffer.startsWith(message)) { //If the buffer starts with what we are looking for, we are done
 			got_message = true;
 			_buffer.drop(str_len); //Make sure the buffer removes the message we were looking for
@@ -645,6 +676,27 @@ bool ATClient::waitMessage(const char *message) {
 		_dataCapture.push(_buffer.read());
 		// Then wait for at least as much data as we need
 		available = waitData(str_len);
+#else
+		c = read();
+		if(c==message[pos]) { // Current char is okay
+			if(pos<20) //Do not overflow
+				buff[pos] = c;
+			++pos;
+			if(pos==str_len){ // This is the end of the message. We have it.
+				got_message = true;
+				break;
+			}
+		}
+		else{ //We might have had a bit of string looking like the message, but it is not it
+			for(size_t i=0; i<pos && i<20; ++i)
+				_dataCapture.push(buff[i]); // Fill the data capture with all the characters we thought were part of the message
+			_dataCapture.push(c); // Add the last character that is not like the message
+			pos = 0; //Restart from the beginning of the message
+			// Then wait for at least as much data as we need
+			available = waitData(str_len);
+		}
+		//No need to wait here, we had enough data and we didn't finish going through
+#endif
 	}
 
 	return got_message;
@@ -653,11 +705,24 @@ bool ATClient::waitMessage(const char *message) {
 bool ATClient::waitMessage(const __FlashStringHelper* message) {
 	bool got_message = false;
 	int str_len = strlen_P(reinterpret_cast<PGM_P>(message));
-	size_t available = waitData(str_len);
 	unsigned long start_time = millis();
+	size_t available = waitData(str_len);
+
+#ifndef BUFFERED
+	// The buffer to contain temporary data matching the message is shorter than the message.
+	// We assume that there will be no string longer than 20 characters coming from the _atSerial
+	// where the first 20 characters are identical to the message, but with differences after.
+	// If the assumption is wrong, we will lose the last characters.
+	char buff[20];
+	char c;
+	size_t pos = 0;
+	PGM_P p_msg = reinterpret_cast<PGM_P>(message);
+	char c_msg = pgm_read_byte(p_msg);
+#endif
 
 	// Loop while we have enough data in buffer and while we are not in timeout
 	while( available>0 && ((millis()-start_time) < _timeout) ){
+#ifdef BUFFERED
 		if(_buffer.startsWith(message)) { //If the buffer starts with what we are looking for, we are done
 			got_message = true;
 			_buffer.drop(str_len); //Make sure the buffer removes the message we were looking for
@@ -667,6 +732,29 @@ bool ATClient::waitMessage(const __FlashStringHelper* message) {
 		_dataCapture.push(_buffer.read());
 		// Then wait for at least as much data as we need
 		available = waitData(str_len);
+#else
+		c = read();
+		if(c==c_msg) { // Current char is okay
+			if(pos<20) //Do not overflow
+				buff[pos] = c;
+			++pos;
+			if(pos==str_len){ // This is the end of the message. We have it.
+				got_message = true;
+				break;
+			}
+			c_msg = pgm_read_byte(p_msg+pos);
+		}
+		else{ //We might have had a bit of string looking like the message, but it is not it
+			for(size_t i=0; i<pos && i<20; ++i)
+				_dataCapture.push(buff[i]); // Fill the data capture with all the characters we thought were part of the message
+			_dataCapture.push(c); // Add the last character that is not like the message
+			pos = 0; //Restart from the beginning of the message
+			c_msg = pgm_read_byte(p_msg);
+			// Then wait for at least as much data as we need
+			available = waitData(str_len);
+		}
+		//No need to wait here, we had enough data and we didn't finish going through
+#endif
 	}
 
 	return got_message;
