@@ -278,7 +278,8 @@ bool ATClient::CIPSTART(TCP_TYPE type, uint8_t ip[4], int port, int8_t link_id, 
 	if(keepalive!=-1 && keepalive>7200)
 		return false;
 
-	char cmd[80] PROGMEM = "AT+CIPSTART="; //TODO needs to be static if PROGMEM
+	char cmd[80];
+	strcpy_P(cmd, PSTR("AT+CIPSTART="));
 	int len = strlen(cmd);
 	if(link_id!=-1){
 		len += sprintf_P(cmd+len, PSTR("%d,"), link_id);
@@ -310,7 +311,8 @@ bool ATClient::CIPSTART(TCP_TYPE type, const char *address, int port, int8_t lin
 	if(keepalive!=-1 && keepalive>7200)
 		return false;
 
-	char cmd[200] = "AT+CIPSTART=";
+	char cmd[200];
+	strcpy_P(cmd, PSTR("AT+CIPSTART="));
 	int len = strlen(cmd);
 	if(link_id!=-1)
 		len += sprintf_P(cmd+len, PSTR("%d,"), link_id);
@@ -341,7 +343,8 @@ bool ATClient::CIPSEND(const char *data, int link_id, uint8_t ip[4], int port) {
 	if(datas>2048) //Maximum size of a single transmission
 		return false;
 
-	char cmd[80] PROGMEM = "AT+CIPSEND=";
+	char cmd[80];
+	strcpy_P(cmd, PSTR("AT+CIPSEND="));
 	int len = strlen(cmd);
 	if(link_id!=-1)
 		len += sprintf_P(cmd+len, PSTR("%d,"), link_id);
@@ -369,7 +372,8 @@ bool ATClient::CIPSENDEX(uint16_t length, int link_id, uint8_t ip[4], int port) 
 	if(length>2048) //Maximum size of a single transmission
 		return false;
 
-	char cmd[30] PROGMEM = "AT+CIPSEND=";
+	char cmd[30];
+	strcpy_P(cmd, PSTR("AT+CIPSEND="));
 	int len = strlen(cmd);
 	if(link_id!=-1)
 		len += sprintf_P(cmd+len, PSTR("%d,"), link_id);
@@ -388,7 +392,8 @@ bool ATClient::CIPSENDBUF(const char *data, uint8_t &bufferNr, int link_id) {
 	if(datas>2048) //Maximum size of a single transmission
 		return false;
 
-	char cmd[30] PROGMEM = "AT+CIPSENDBUF=";
+	char cmd[30];
+	strcpy_P(cmd, PSTR("AT+CIPSENDBUF="));
 	int len = strlen(cmd);
 	if(link_id!=-1)
 		len += sprintf_P(cmd+len, PSTR("%d,"), link_id);
@@ -422,7 +427,8 @@ bool ATClient::CIPBUFSTATUS(uint8_t link_id) {
 	if(link_id!=-1 && link_id>4) //Maximum 4 links in CIPMUX=1, if CIPMUX=0, must be -1 (we do not check ourselves here)
 		return false;
 
-	char cmd[30] PROGMEM = "AT+CIPBUFSTATUS";
+	char cmd[30];
+	strcpy_P(cmd, PSTR("AT+CIPBUFSTATUS"));
 	if(link_id!=-1)
 		sprintf_P(cmd+strlen(cmd), PSTR("=%u"), link_id);
 
@@ -434,7 +440,8 @@ bool ATClient::CIPCHECKSEQ(uint8_t segment, uint8_t link_id) {
 	if(link_id!=-1 && link_id>4) //Maximum 4 links in CIPMUX=1, if CIPMUX=0, must be -1 (we do not check ourselves here)
 		return false;
 
-	char cmd[30] = "AT+CIPCHECKSEQ=";
+	char cmd[30];
+	strcpy_P(cmd, PSTR("AT+CIPCHECKSEQ="));
 	int len = strlen(cmd);
 	if(link_id!=-1)
 		len += sprintf_P(cmd+len, PSTR("%u,"), link_id);
@@ -448,7 +455,8 @@ bool ATClient::CIPBUFRESET(uint8_t link_id) {
 	if(link_id!=-1 && link_id>4) //Maximum 4 links in CIPMUX=1, if CIPMUX=0, must be -1 (we do not check ourselves here)
 		return false;
 
-	char cmd[30] PROGMEM = "AT+CIPBUFRESET";
+	char cmd[30];
+	strcpy_P(cmd, PSTR("AT+CIPBUFRESET"));
 	if(link_id!=-1)
 		sprintf_P(cmd+strlen(cmd), PSTR("=%u"), link_id);
 
@@ -460,7 +468,8 @@ bool ATClient::CIPCLOSE(uint8_t link_id) {
 	if(link_id!=-1 && link_id>5) //Maximum 4 links in CIPMUX=1, if CIPMUX=0, must be -1 (we do not check ourselves here). 5 is special, close all connections
 		return false;
 
-	char cmd[30] PROGMEM = "AT+CIPCLOSE";
+	char cmd[30];
+	strcpy_P(cmd, PSTR("AT+CIPCLOSE"));
 	if(link_id!=-1)
 		sprintf_P(cmd+strlen(cmd), PSTR("=%u"), link_id);
 
@@ -631,31 +640,3 @@ bool ATClient::waitMessage(const __FlashStringHelper* message) {
 
 	return got_message;
 }
-
-/*template<uint8_t N>
-bool ATClient::checkSequence(const char *seq[N]) {
-	for (uint8_t i = 0; i < N; ++i) {
-		String answer = readWait();
-		_logSerial->println("S: " + answer + " " + answer.length() + " " + answer.indexOf(seq[i]));
-		if (answer.length() == 0 || answer.indexOf(seq[i]) != 0)
-			return false;
-	}
-
-	return true;
-}
-
-template<uint8_t N>
-bool ATClient::checkSequenceCapture(const char *seq[N], String (&data)[N]) {
-	for (uint8_t i = 0; i < N; ++i) {
-		String answer = readWait();
-		_logSerial->println("SC:" + answer);
-		if (answer.length() == 0 || answer.indexOf(seq[i]) != 0)
-			return false;
-		int seq_length = String(seq[i]).length();
-		if (answer.length() > seq_length)
-			data[i] = answer.substring(seq_length);
-	}
-
-	return true;
-}*/
-
