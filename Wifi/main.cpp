@@ -10,7 +10,6 @@
 #include <Arduino.h>
 #include <HardwareSerial.h>
 #include "LibESP8266/ESP8266Wifi.h"
-#include "LibHTTP/HTTPServer.h"
 #include "LibNetwork/NetworkStream.h"
 
 ESP8266Wifi wifi;
