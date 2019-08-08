@@ -483,7 +483,7 @@ bool ATClient::CIPMUX(bool mode) {
 
 bool ATClient::CIPSERVER(bool on, int port) {
 	char cmd[30];
-	int len = sprintf_P(cmd, PSTR("CIPSERVER=%d"), on);
+	int len = sprintf_P(cmd, PSTR("AT+CIPSERVER=%d"), on);
 	if(on && port>=0)
 		sprintf_P(cmd+len, PSTR(",%d"), port);
 
