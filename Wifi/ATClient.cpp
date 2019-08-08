@@ -106,7 +106,7 @@ bool ATClient::GMR() {
 bool ATClient::SLEEP(uint8_t mode) {
 	if(mode>2)
 		return false;
-	char cmd[30];
+	char cmd[11];
 	sprintf_P(cmd, PSTR("AT+SLEEP=%u"), mode);
 	sendCommand(cmd);
 	return checkAnswer(cmd);
@@ -117,7 +117,7 @@ bool ATClient::CWMODE(uint8_t mode) {
 	if(mode>3 || mode<1)
 		return false;
 
-	char cmd[30];
+	char cmd[16];
 	if(_set_default) // Store in flash
 		sprintf_P(cmd, PSTR("AT+CWMODE_DEF=%u"), mode);
 	else //Only temporary
@@ -128,7 +128,7 @@ bool ATClient::CWMODE(uint8_t mode) {
 }
 
 bool ATClient::CWJAP(const char *ssid, const char *passwd) {
-	char cmd[50];
+	char cmd[60];
 	if(_set_default) // Store in flash
 		sprintf_P(cmd, PSTR("AT+CWJAP_DEF=\"%s\",\"%s\""), ssid, passwd);
 	else //Only temporary
@@ -156,7 +156,7 @@ bool ATClient::CWSAP(const char *ssid, const char *passwd, uint8_t channel, uint
 	if(ecn>4 || ecn==1) //Can be only 0,2,3,4
 		return false;
 
-	char cmd[100];
+	char cmd[65];
 	if(_set_default) // Store in flash
 		sprintf_P(cmd, PSTR("AT+CWSAP_DEF=\"%s\",\"%s\",%u,%u"), ssid, passwd, channel, ecn);
 	else //Only temporary
@@ -175,7 +175,7 @@ bool ATClient::CWDHCP(bool en, uint8_t mode) {
 	if(mode>2)
 		return false;
 
-	char cmd[30];
+	char cmd[18];
 	if(_set_default) // Store in flash
 		sprintf_P(cmd, PSTR("AT+CWDHCP_DEF=%d,%u"), en, mode);
 	else //Only temporary
@@ -186,14 +186,14 @@ bool ATClient::CWDHCP(bool en, uint8_t mode) {
 }
 
 bool ATClient::CWAUTOCONN(bool en) {
-	char cmd[30];
+	char cmd[16];
 	sprintf_P(cmd, PSTR("AT+CWAUTOCONN=%d"), en);
 	sendCommand(cmd);
 	return checkAnswer(cmd);
 }
 
 bool ATClient::CIPSTAMAC(uint8_t mac[6]) {
-	char cmd[30];
+	char cmd[37];
 	if(_set_default) // Store in flash
 		sprintf_P(cmd, PSTR("AT+CIPSTAMAC_DEF=\"%X:%X:%X:%X:%X:%X\""), mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 	else //Only temporary
@@ -204,7 +204,7 @@ bool ATClient::CIPSTAMAC(uint8_t mac[6]) {
 }
 
 bool ATClient::CIPAPMAC(uint8_t mac[6]) {
-	char cmd[30];
+	char cmd[36];
 	if(_set_default) // Store in flash
 		sprintf_P(cmd, PSTR("AT+CIPAPMAC_DEF=\"%X:%X:%X:%X:%X:%X\""), mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 	else //Only temporary
@@ -218,7 +218,7 @@ bool ATClient::CIPSTA(uint8_t ip[4], uint8_t gtw[4], uint8_t netmask[4]) {
 	if(netmask!=nullptr && gtw==nullptr)
 		return false; //if netmask is set, gtw must be set too
 
-	char cmd[70];
+	char cmd[68];
 	int len = 0;
 	if(_set_default) // Store in flash
 		len += sprintf_P(cmd, PSTR("AT+CIPSTA_DEF=\"%u.%u.%u.%u\""), ip[0], ip[1], ip[2], ip[3]);
@@ -239,7 +239,7 @@ bool ATClient::CIPAP(uint8_t ip[4], uint8_t gtw[4], uint8_t netmask[4]) {
 	if( !(netmask==nullptr && gtw==nullptr) || !(netmask!=nullptr && gtw!=nullptr) )
 		return false; //must both be set or nullptr
 
-	char cmd[70];
+	char cmd[67];
 	int len = 0;
 	if(_set_default) // Store in flash
 		len += sprintf_P(cmd, PSTR("AT+CIPAP_DEF=\"%u.%u.%u.%u\""), ip[0], ip[1], ip[2], ip[3]);
@@ -256,7 +256,7 @@ bool ATClient::CIPAP(uint8_t ip[4], uint8_t gtw[4], uint8_t netmask[4]) {
 }
 
 bool ATClient::WPS(bool en){
-	char cmd[15];
+	char cmd[8];
 	sprintf_P(cmd, PSTR("AT+WPS=%d"), en);
 	sendCommand(cmd);
 	return checkAnswer(cmd);
@@ -278,7 +278,7 @@ bool ATClient::CIPSTART(TCP_TYPE type, uint8_t ip[4], int port, int8_t link_id, 
 	if(keepalive!=-1 && keepalive>7200)
 		return false;
 
-	char cmd[80];
+	char cmd[56];
 	strcpy_P(cmd, PSTR("AT+CIPSTART="));
 	int len = strlen(cmd);
 	if(link_id!=-1){
@@ -311,7 +311,7 @@ bool ATClient::CIPSTART(TCP_TYPE type, const char *address, int port, int8_t lin
 	if(keepalive!=-1 && keepalive>7200)
 		return false;
 
-	char cmd[200];
+	char cmd[150];
 	strcpy_P(cmd, PSTR("AT+CIPSTART="));
 	int len = strlen(cmd);
 	if(link_id!=-1)
@@ -343,7 +343,7 @@ bool ATClient::CIPSEND(const char *data, int link_id, uint8_t ip[4], int port) {
 	if(datas>2048) //Maximum size of a single transmission
 		return false;
 
-	char cmd[80];
+	char cmd[42];
 	strcpy_P(cmd, PSTR("AT+CIPSEND="));
 	int len = strlen(cmd);
 	if(link_id!=-1)
@@ -372,7 +372,7 @@ bool ATClient::CIPSENDEX(uint16_t length, int link_id, uint8_t ip[4], int port) 
 	if(length>2048) //Maximum size of a single transmission
 		return false;
 
-	char cmd[30];
+	char cmd[42];
 	strcpy_P(cmd, PSTR("AT+CIPSEND="));
 	int len = strlen(cmd);
 	if(link_id!=-1)
@@ -392,7 +392,7 @@ bool ATClient::CIPSENDBUF(const char *data, uint8_t &bufferNr, int link_id) {
 	if(datas>2048) //Maximum size of a single transmission
 		return false;
 
-	char cmd[30];
+	char cmd[22];
 	strcpy_P(cmd, PSTR("AT+CIPSENDBUF="));
 	int len = strlen(cmd);
 	if(link_id!=-1)
@@ -427,7 +427,7 @@ bool ATClient::CIPBUFSTATUS(uint8_t link_id) {
 	if(link_id!=-1 && link_id>4) //Maximum 4 links in CIPMUX=1, if CIPMUX=0, must be -1 (we do not check ourselves here)
 		return false;
 
-	char cmd[30];
+	char cmd[18];
 	strcpy_P(cmd, PSTR("AT+CIPBUFSTATUS"));
 	if(link_id!=-1)
 		sprintf_P(cmd+strlen(cmd), PSTR("=%u"), link_id);
@@ -440,7 +440,7 @@ bool ATClient::CIPCHECKSEQ(uint8_t segment, uint8_t link_id) {
 	if(link_id!=-1 && link_id>4) //Maximum 4 links in CIPMUX=1, if CIPMUX=0, must be -1 (we do not check ourselves here)
 		return false;
 
-	char cmd[30];
+	char cmd[21];
 	strcpy_P(cmd, PSTR("AT+CIPCHECKSEQ="));
 	int len = strlen(cmd);
 	if(link_id!=-1)
@@ -455,7 +455,7 @@ bool ATClient::CIPBUFRESET(uint8_t link_id) {
 	if(link_id!=-1 && link_id>4) //Maximum 4 links in CIPMUX=1, if CIPMUX=0, must be -1 (we do not check ourselves here)
 		return false;
 
-	char cmd[30];
+	char cmd[17];
 	strcpy_P(cmd, PSTR("AT+CIPBUFRESET"));
 	if(link_id!=-1)
 		sprintf_P(cmd+strlen(cmd), PSTR("=%u"), link_id);
@@ -468,7 +468,7 @@ bool ATClient::CIPCLOSE(uint8_t link_id) {
 	if(link_id!=-1 && link_id>5) //Maximum 4 links in CIPMUX=1, if CIPMUX=0, must be -1 (we do not check ourselves here). 5 is special, close all connections
 		return false;
 
-	char cmd[30];
+	char cmd[14];
 	strcpy_P(cmd, PSTR("AT+CIPCLOSE"));
 	if(link_id!=-1)
 		sprintf_P(cmd+strlen(cmd), PSTR("=%u"), link_id);
@@ -483,14 +483,14 @@ bool ATClient::CIFSR() {
 }
 
 bool ATClient::CIPMUX(bool mode) {
-	char cmd[15];
+	char cmd[12];
 	sprintf_P(cmd, PSTR("AT+CIPMUX=%d"), mode);
 	sendCommand(cmd);
 	return checkAnswer(cmd);
 }
 
 bool ATClient::CIPSERVER(bool on, int port) {
-	char cmd[30];
+	char cmd[21];
 	int len = sprintf_P(cmd, PSTR("AT+CIPSERVER=%d"), on);
 	if(on && port>=0)
 		sprintf_P(cmd+len, PSTR(",%d"), port);
@@ -510,7 +510,7 @@ bool ATClient::CIPSAVETRANSLINK(bool on, uint8_t ip[4], int port, TCP_TYPE type,
 	if(ip!=nullptr && port==-1)
 		return false;
 
-	char cmd[80];
+	char cmd[63];
 	int len = sprintf_P(cmd, PSTR("AT+CIPSAVETRANSLINK=%d"), on);
 	if(on)
 		len += sprintf_P(cmd+len, PSTR(",\"%u.%u.%u.%u\",%d"), ip[0], ip[1], ip[2], ip[3], port);
@@ -532,28 +532,28 @@ bool ATClient::CIPSTO(int keepalive) {
 	if(keepalive<0 || keepalive>7200)
 		return false;
 
-	char cmd[20];
+	char cmd[15];
 	sprintf_P(cmd, PSTR("AT+CIPSTO=%d"), keepalive);
 	sendCommand(cmd);
 	return checkAnswer(cmd);
 }
 
 bool ATClient::PINGA(const char *address) {
-	char cmd[100];
+	char cmd[50];
 	sprintf_P(cmd, PSTR("AT+PING=\"%s\""), address);
 	sendCommand(cmd);
 	return checkAnswer(cmd);
 }
 
 bool ATClient::PINGA(uint8_t ip[4]) {
-	char cmd[30];
+	char cmd[26];
 	sprintf_P(cmd, PSTR("AT+PING=\"%u.%u.%u.%u\""), ip[0], ip[1], ip[2], ip[3]);
 	sendCommand(cmd);
 	return checkAnswer(cmd);
 }
 
 bool ATClient::CIPDINFO(bool on) {
-	char cmd[20];
+	char cmd[14];
 	sprintf_P(cmd, PSTR("AT+CIPDINFO=%d"), on);
 	sendCommand(cmd);
 	return checkAnswer(cmd);
