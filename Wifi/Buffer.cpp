@@ -86,17 +86,21 @@ bool Buffer::startsWith(const __FlashStringHelper* str) const {
 
 void Buffer::print() const {
 	char * p = _p_begin;
-	Serial.print("Buffer state (" + String((int)_p_begin) + "," + String((int)_p_end) + ") --- ");
+	Serial.print(F("Buffer state ("));
+	Serial.print((int)_p_begin);
+	Serial.print(F(","));
+	Serial.print((int)_p_end);
+	Serial.print(F(") --- "));
 	while(p!=_p_end){
 		if(*p=='\r')
-			Serial.print("\\r");
+			Serial.print(F("\\r"));
 		else if(*p=='\n')
-			Serial.print("\\n");
+			Serial.print(F("\\n"));
 		else
 			Serial.print(*p);
 		increment(p);
 	}
-	Serial.println("-----");
+	Serial.println(F("-----"));
 }
 
 char Buffer::read() {
