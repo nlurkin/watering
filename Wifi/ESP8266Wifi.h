@@ -48,6 +48,7 @@ private:
 	static bool endsWith(const char *str, const char *search);
 	static bool endsWith(const char *str, const __FlashStringHelper *search);
 	uint8_t new_connection(const char *data);
+	uint8_t end_connection(const char *data);
 	void read_payload(const char *initdata);
 
 	static Buffer _persistent_buffer;

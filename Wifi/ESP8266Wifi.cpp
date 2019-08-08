@@ -71,6 +71,8 @@ bool ESP8266Wifi::readAndPrint() {
 			}
 			else if(endsWith(response, F("CONNECT")))
 				new_connection(response);
+			else if(endsWith(response, F("CLOSED")))
+				new_connection(response);
 			len = _client.readUntil(response, read_size, '\n');
 		}
 
@@ -226,6 +228,21 @@ uint8_t ESP8266Wifi::new_connection(const char *data) {
 		_payload[conn_number]->clear();
 	else // Else create it
 		_payload[conn_number] = new Buffer(PAYLOAD_SIZE);
+
+	return conn_number;
+}
+
+uint8_t ESP8266Wifi::end_connection(const char *data) {
+	uint8_t conn_number = strtoul(data, nullptr, 10);
+	if(conn_number>4)
+		return 99;
+	_conn_opened[conn_number] = false;
+	if(conn_number==0) // _payload for connection 0 cannot be deleted
+		_payload[conn_number]->clear();
+	else{ // Delete of not needed
+		delete _payload[conn_number];
+		_payload[conn_number] = nullptr;
+	}
 
 	return conn_number;
 }
