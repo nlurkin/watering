@@ -67,7 +67,14 @@ size_t ATClient::readUntil(char * to, size_t max, const char c_search) {
 
 	return _buffer.get(to, max, c_search);
 #else
-	return _atSerial->readBytesUntil(c_search, to, max);
+	size_t len = _atSerial->readBytesUntil(c_search, to, max-2);
+	if(len>0){
+		to[len++] = c_search;
+		to[len++] = '\0';
+	}
+	else
+		to[0] = '\0';
+	return len;
 #endif
 }
 
@@ -80,7 +87,10 @@ size_t ATClient::readRaw(char * to, size_t max) {
 
 	return _buffer.get(to, max);
 #else
-	return _atSerial->readBytes(to, max);
+	size_t len = _atSerial->readBytes(to, max-1);
+	if(len>0)
+		to[len++] = '\0';
+	return len;
 #endif
 }
 
