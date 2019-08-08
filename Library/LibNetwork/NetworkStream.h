@@ -9,9 +9,10 @@
 #define NETWORKSTREAM_H_
 
 #include <Arduino.h>
-#include "ESP8266Wifi.h"
-#include "HTTPServer.h"
-#include "Buffer.h"
+
+#include "../LibHTTP/HTTPServer.h"
+#include "../LibESP8266/ESP8266Wifi.h"
+#include "../LibMemory/Buffer.h"
 
 class NetworkStream : public Stream {
 public:

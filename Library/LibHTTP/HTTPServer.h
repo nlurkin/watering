@@ -8,7 +8,7 @@
 #ifndef HTTPSERVER_H_
 #define HTTPSERVER_H_
 
-#include "ESP8266Wifi.h"
+#include "../LibESP8266/ESP8266Wifi.h"
 
 class HTTPServer {
 public:

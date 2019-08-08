@@ -9,7 +9,9 @@
 #define ESP8266WIFI_H_
 
 #include <Arduino.h>
+
 #include "ATClient.h"
+#include "../LibMemory/Buffer.h"
 
 class ESP8266Wifi {
 public:
