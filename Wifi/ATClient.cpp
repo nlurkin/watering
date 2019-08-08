@@ -43,16 +43,16 @@ bool ATClient::sendCommand(const __FlashStringHelper* cmd) {
 
 bool ATClient::sendData(const char *data) {
 	_logSerial->print(F("Sending data: "));
-	_logSerial->println(data);
-	_logSerial->println();
+	_logSerial->print(data);
+	_logSerial->println(F("--- end data ---"));
 	_atSerial->print(data);
 	return true;
 }
 
 bool ATClient::sendDataConfirm(const char *data) {
 	_logSerial->print(F("Sending data: "));
-	_logSerial->println(data);
-	_logSerial->println();
+	_logSerial->print(data);
+	_logSerial->println(F("--- end data ---"));
 	_atSerial->println(data);
 	return waitMessage(F("SEND OK"));
 }
