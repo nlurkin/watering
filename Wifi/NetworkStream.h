@@ -15,8 +15,8 @@
 
 class NetworkStream : public Stream {
 public:
-	static const uint16_t NETWORK_RX_BUFFER_SIZE = 200;
-	static const uint16_t NETWORK_TX_BUFFER_SIZE = 200;
+	static const uint16_t NETWORK_RX_BUFFER_SIZE = 64; // Matching what we have in Serial
+	static const uint16_t NETWORK_TX_BUFFER_SIZE = 64; // Matching what we have in Serial
 
 	NetworkStream(ESP8266Wifi &wifi);
 	virtual ~NetworkStream();
