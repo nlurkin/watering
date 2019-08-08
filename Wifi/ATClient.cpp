@@ -9,7 +9,6 @@
 
 ATClient::ATClient(Stream* serial) :
 	_set_default(false),
-	_waitingForAnswer(0),
 	_timeout(5000),
 	_dataCapture(DATA_BUFFER_SIZE),
 	_buffer(BUFFER_SIZE),

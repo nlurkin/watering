@@ -15,8 +15,8 @@
 class ATClient {
 public:
 	enum TCP_TYPE {TCP, UDP};
-	static const size_t BUFFER_SIZE = 100;
-	static const size_t DATA_BUFFER_SIZE = 100;
+	static constexpr size_t BUFFER_SIZE = 100;
+	static constexpr size_t DATA_BUFFER_SIZE = 100;
 
 	ATClient(Stream* serial=&Serial1);
 	virtual ~ATClient();
@@ -98,7 +98,6 @@ private:
 	bool waitMessage(const __FlashStringHelper *message);
 
 	bool _set_default;
-	unsigned long _waitingForAnswer;
 	unsigned long _timeout;
 	Buffer _dataCapture;
 	Buffer _buffer;
