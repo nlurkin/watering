@@ -8,9 +8,9 @@
 #include "MenuWelcome.h"
 
 MenuWelcome::MenuWelcome(LiquidCrystal& ref, const char name[16]) :
-	SubMenu(ref)
+	SubMenu(ref),
+	_project_name{name}
 {
-	strncpy(_project_name, name, 16);
 	init();
 }
 
