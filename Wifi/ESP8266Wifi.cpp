@@ -11,17 +11,24 @@ static const char g_SEP_NEWLINE[] PROGMEM = {"\n"};
 static const char g_SEP_DOT[]     PROGMEM = {"."};
 static const char g_SEP_COLUMN[]  PROGMEM = {":"};
 
+Buffer ESP8266Wifi::_persistent_buffer(ESP8266Wifi::PAYLOAD_SIZE);
+
 ESP8266Wifi::ESP8266Wifi(Stream* serial) :
 	_conn_opened({false,false,false,false,false}),
 	_ip_address({0,0,0,0}),
 	_mac_address({0,0,0,0,0,0}),
-	_payload({Buffer(PAYLOAD_SIZE), Buffer(PAYLOAD_SIZE), Buffer(PAYLOAD_SIZE), Buffer(PAYLOAD_SIZE), Buffer(PAYLOAD_SIZE)}),
+	_payload({&_persistent_buffer, nullptr, nullptr, nullptr, nullptr}),
 	_client(serial),
 	_logSerial(&Serial)
 {
 }
 
 ESP8266Wifi::~ESP8266Wifi() {
+	for(uint8_t i=1; i<4; i++){
+		if(_payload[i])
+			delete _payload[i];
+		_payload[i] = nullptr;
+	}
 }
 
 void ESP8266Wifi::setLogSerial(Stream *serial){
@@ -215,25 +222,32 @@ uint8_t ESP8266Wifi::new_connection(const char *data) {
 	if(conn_number>4)
 		return 99;
 	_conn_opened[conn_number] = true;
-	_payload[conn_number].clear();
+	if(_payload[conn_number]) //If the payload already exists, clear it
+		_payload[conn_number]->clear();
+	else // Else create it
+		_payload[conn_number] = new Buffer(PAYLOAD_SIZE);
+
 	return conn_number;
 }
 
 int8_t ESP8266Wifi::payloadAvailable() const {
 	for(int8_t i=4; i>=0; i--)
-		if(_payload[i].len()>0) return i;
+		// Not available if payload not defined or empty
+		if(_payload[i] && _payload[i]->len()>0) return i;
 	return -1;
 }
 
 size_t ESP8266Wifi::getPayload(char *buff, uint8_t conn_number, size_t max) {
-	if(conn_number>4)
+	// Do not try to get payload for undefined payloads
+	if(conn_number>4 || !_payload[conn_number])
 		return 0;
-	return _payload[conn_number].get(buff, max);
+	return _payload[conn_number]->get(buff, max);
 }
 
 void ESP8266Wifi::read_payload(const char *initdata) {
 	uint8_t conn_number = strtoul(initdata+5, nullptr, 10);
-	if(conn_number>4)
+	// Do not try to read payload for undefined payloads
+	if(conn_number>4 || !_payload[conn_number])
 		return;
 	size_t datas = strtol(initdata+7, nullptr, 10);
 	if(datas>PAYLOAD_SIZE) // This is the maximum size of the packet that we are accepting
@@ -242,10 +256,10 @@ void ESP8266Wifi::read_payload(const char *initdata) {
 	if(data_start==nullptr)
 		return;
 
-	_payload[conn_number].push(data_start+1);
+	_payload[conn_number]->push(data_start+1);
 	char buff[PAYLOAD_SIZE];
 	_client.readRaw(buff, datas);
-	_payload[conn_number].push(buff);
+	_payload[conn_number]->push(buff);
 }
 
 bool ESP8266Wifi::sendPacket(const char *data, uint8_t conn) const {

@@ -50,10 +50,11 @@ private:
 	uint8_t new_connection(const char *data);
 	void read_payload(const char *initdata);
 
+	static Buffer _persistent_buffer;
 	bool _conn_opened[5];
 	uint8_t _ip_address[4];
 	uint8_t _mac_address[6];
-	Buffer _payload[5];
+	Buffer *_payload[5];
 	mutable ATClient _client;
 	Stream* _logSerial;
 };
