@@ -90,7 +90,7 @@ void Buffer::print() const {
 	Serial.print((int)_p_begin);
 	Serial.print(F(","));
 	Serial.print((int)_p_end);
-	Serial.print(F(") --- "));
+	Serial.print(F(") ---"));
 	while(p!=_p_end){
 		if(*p=='\r')
 			Serial.print(F("\\r"));
