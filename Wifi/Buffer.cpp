@@ -12,7 +12,7 @@ Buffer::Buffer(size_t size):
 	_size(size)
 {
 	_buffer = new char[_size+1];
-	_p_begin = &_buffer[_size-5];
+	_p_begin = &_buffer[0];
 	_p_end = _p_begin;
 }
 
@@ -123,7 +123,7 @@ size_t Buffer::get(char *dest, size_t max) {
 		memcpy(dest, _p_begin, t_len);
 		increment(_p_begin, t_len);
 		dest += t_len;
-		strlen -= t_len;
+		strlen -= t_len-1;
 	}
 
 	memcpy(dest, _p_begin, strlen);
