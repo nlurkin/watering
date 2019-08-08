@@ -91,6 +91,7 @@ size_t HTTPRequest::generate() {
 		strcat(_raw_header, buf);
 	}
 
+	strcat_P(_raw_header, PSTR("\r\n"));
 	return getTotalLength();
 }
 
