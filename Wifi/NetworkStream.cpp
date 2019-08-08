@@ -91,7 +91,7 @@ void NetworkStream::clear() {
 }
 
 void NetworkStream::setDestination(const char *address, uint16_t port) {
-	_dest_address = new char[strlen(address)];
+	_dest_address = new char[strlen(address)+1];
 	strcpy(_dest_address, address);
 	_dest_port = port;
 }
