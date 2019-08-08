@@ -79,7 +79,7 @@ int NetworkStream::read() {
 }
 
 int NetworkStream::availableForWrite() {
-	return _tx_buffer.len();
+	return NETWORK_TX_BUFFER_SIZE-_tx_buffer.len();
 }
 
 void NetworkStream::flush() {
