@@ -53,6 +53,14 @@ void setup() {
 }
 
 void loop() {
+	if(!wifi.isConnected()){
+		//Seems we lost the wifi... try to reconnect
+		wifi.connectWifi(ssid, pwd);
+		wifi.checkWifiConnection();
+		return;
+	}
+	
+	//We will reach here only if we have wifi
 	if (Serial.available() > 0) {
 		String command = Serial.readStringUntil('\n');
 		wifi.sendSomething(command.c_str());
