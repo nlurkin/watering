@@ -24,7 +24,7 @@
  */
 class AutomaticWater {
 public:
-	static const short MAX_SENSORS = 5;
+	static constexpr uint8_t MAX_SENSORS = 5;
 	AutomaticWater(uint8_t pump_pin);
 	virtual ~AutomaticWater();
 
@@ -62,10 +62,10 @@ private:
 		           MODE_CALIB_WATER, MODE_CALIB_WATER_W, MODE_CALIB_DRY, MODE_CALIB_DRY_W, //Sub modes for CALIB
 				   MODE_SHOW_CONST}; //Sub modes for SHOW                   /** enum to identify the sub modes */
 
-	const int      LEVEL_WATER        = 600;                /** Value returned by the sensor below which watering is needed */
-	const long int LONG_INTERVAL      = 3600000;            /** Long interval between measurements */
-	const long int SHORT_INTERVAL     = 1000;               /** Long interval between measurements */
-	const SubMode  defaultMonitorMode = MODE_MONITOR_RUN;   /** Default starting sub mode of the monitoring mode when switching to the monitor mode (Running) */
+	static constexpr int      LEVEL_WATER        = 600;                /** Value returned by the sensor below which watering is needed */
+	static constexpr long int LONG_INTERVAL      = 3600000;            /** Long interval between measurements */
+	static constexpr long int SHORT_INTERVAL     = 1000;               /** Long interval between measurements */
+	static constexpr SubMode  defaultMonitorMode = MODE_MONITOR_RUN;   /** Default starting sub mode of the monitoring mode when switching to the monitor mode (Running) */
 
 	MainMode       _gMainMode         = MAIN_MODE_MONITOR;  /** Main mode currently running (defaults to MONITOR) */
 	SubMode        _gSubMode          = defaultMonitorMode; /** Sub mode currently running (defaults to defaultMonitorMode) */
