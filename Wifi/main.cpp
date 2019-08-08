@@ -21,8 +21,8 @@ Stream &logSerial = mySerial;
 Stream &logSerial = Serial;
 #endif
 
-char ssid[] = "";
-char pwd[]  = "";
+const char ssid[] PROGMEM = "";
+const char pwd[]  PROGMEM = "";
 
 void setup() {
 	Serial.begin(115200);
