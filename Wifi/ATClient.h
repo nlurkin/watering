@@ -14,6 +14,7 @@
 #include "Buffer.h"
 
 // https://cdn.sparkfun.com/assets/learn_tutorials/4/0/3/4A-ESP8266__AT_Instruction_Set__EN_v0.30.pdf
+// https://www.espressif.com/sites/default/files/documentation/4a-esp8266_at_instruction_set_en.pdf -- Also useful
 class ATClient {
 public:
 	enum TCP_TYPE {TCP, UDP};
