@@ -48,7 +48,6 @@ void setup() {
 	#ifdef USE_NETWORK_STREAM
 	mySerial.setDestination("192.168.0.20", 8000);
 	mySerial.begin(80);
-	wifi.setLogSerial(&mySerial);
 	#endif
 }
 
