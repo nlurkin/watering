@@ -59,7 +59,7 @@ void loop() {
 		wifi.checkWifiConnection();
 		return;
 	}
-	
+
 	//We will reach here only if we have wifi
 	if (Serial.available() > 0) {
 		String command = Serial.readStringUntil('\n');

@@ -9,6 +9,8 @@
 
 #include "HTTPRequest.h"
 
+#define FPSTR(pstr_pointer) (reinterpret_cast<const __FlashStringHelper *>(pstr_pointer))
+
 NetworkStream::NetworkStream(ESP8266Wifi &wifi) :
 	_dest_address(nullptr),
 	_dest_port(0),
@@ -28,8 +30,8 @@ NetworkStream::~NetworkStream() {
 void NetworkStream::begin(uint16_t port) {
 	if(_server.startServer(port)){
 		static const char message[] PROGMEM = {"Server started on port 80"};
-		Serial.println(message);
-		println(message);
+		Serial.println(FPSTR(message));
+		println(FPSTR(message));
 	}
 }
 
