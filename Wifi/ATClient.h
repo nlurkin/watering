@@ -18,7 +18,7 @@ class ATClient {
 public:
 	enum TCP_TYPE {TCP, UDP};
 	static constexpr size_t BUFFER_SIZE = 64; // Doubles the effective buffer size (64 from serial + 64 here)
-	static constexpr size_t DATA_BUFFER_SIZE = 100;
+	static constexpr size_t DATA_BUFFER_SIZE = 150; // Maximum amount of char while waiting for a specific message
 
 	ATClient(Stream* serial=&Serial1);
 	virtual ~ATClient();
