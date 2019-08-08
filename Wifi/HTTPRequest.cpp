@@ -7,6 +7,8 @@
 
 #include "HTTPRequest.h"
 
+static const char g_SEP_NEWLINE[] PROGMEM = {"\n"};
+
 HTTPRequest::HTTPRequest() :
 	_body({'\0'}),
 	_raw_header({'\0'})
@@ -36,9 +38,10 @@ void HTTPRequest::print() const {
 	else if(_header._request_type==HEAD)
 		Serial.println(F("> Type: HEAD"));
 	else if(_header._request_type==ANSWER){
-		char buff[50];
-		sprintf_P(buff, PSTR("> %d: %s"), _header._answer_code, _header._answer_reason);
-		Serial.println(buff);
+		Serial.print(F("> "));
+		Serial.print(_header._answer_code);
+		Serial.print(F(": "));
+		Serial.println(_header._answer_reason);
 	}
 
 	Serial.println(F("---- START BODY ----"));
@@ -65,7 +68,7 @@ void HTTPRequest::getRawRequest(char *to) const {
 
 void HTTPRequest::addContent(const char *data) {
 	size_t length = strlen(data);
-	strncat(_body, data, 1024-_header._length);
+	strncat(_body, data, MAX_DATA_LENGTH-_header._length);
 	_header._length += length;
 }
 
@@ -113,10 +116,10 @@ void HTTPRequest::extractParts(const char *payload) {
 	_raw_header[header_len] = '\0';
 	strncpy(_body, start_data, data_len); //Does include the null-terminating char
 
-	char *ptr = strtok(_raw_header, "\n");
+	char *ptr = strtok_P(_raw_header, g_SEP_NEWLINE);
 	while(ptr!=nullptr){
 		decodeHeader(ptr);
-		strtok(nullptr, "\n");
+		strtok_P(nullptr, g_SEP_NEWLINE);
 	}
 }
 
