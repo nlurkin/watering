@@ -7,7 +7,9 @@
 
 #include "HTTPRequest.h"
 
-HTTPRequest::HTTPRequest()
+HTTPRequest::HTTPRequest() :
+	_body({'\0'}),
+	_raw_header({'\0'})
 {
 }
 
