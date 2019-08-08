@@ -22,7 +22,7 @@ class HTTPRequest {
 		uint16_t _length;
 		char _answer_reason[30];
 		char _content_type[30];
-		char _path[100];
+		char _path[30];
 	};
 	typedef struct HTTPHeader header_t;
 
