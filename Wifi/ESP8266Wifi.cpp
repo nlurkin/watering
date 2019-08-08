@@ -33,7 +33,7 @@ ESP8266Wifi::~ESP8266Wifi() {
 
 void ESP8266Wifi::setLogSerial(Stream *serial){
 	_logSerial = serial;
-	_client.setLogSerial(_logSerial);
+	//_client.setLogSerial(_logSerial);
 }
 
 bool ESP8266Wifi::sendSomething(const char *cmd) const {
