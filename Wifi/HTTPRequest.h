@@ -27,8 +27,8 @@ class HTTPRequest {
 	typedef struct HTTPHeader header_t;
 
 public:
-	static const size_t MAX_HEADER_LENGTH=800;
-	static const size_t MAX_DATA_LENGTH  =1024;
+	static const size_t MAX_HEADER_LENGTH=100;
+	static const size_t MAX_DATA_LENGTH  =200;
 
 	HTTPRequest();
 	HTTPRequest(const char *payload);

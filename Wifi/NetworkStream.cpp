@@ -84,6 +84,7 @@ void NetworkStream::flush() {
 	r.generate();
 	r.getRawRequest(buff);
 	_wifi.sendPacket(buff, conn);
+	_wifi.closeConnection(conn);
 }
 
 void NetworkStream::clear() {

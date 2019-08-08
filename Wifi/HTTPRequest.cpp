@@ -92,6 +92,11 @@ size_t HTTPRequest::generate() {
 	}
 
 	strcat_P(_raw_header, PSTR("\r\n"));
+	Serial.println(F("---- Header ---"));
+	Serial.println(_raw_header);
+	Serial.println(F("---- Body ---"));
+	Serial.print(_body);
+	Serial.println(F("---- End ---"));
 	return getTotalLength();
 }
 
@@ -164,6 +169,6 @@ HTTPRequest HTTPRequest::http_post() {
 	h._header._answer_reason[0] = '\0';
 	strcpy_P(h._header._content_type, PSTR("application/json"));
 	h._header._length = 0;
-	strcpy_P(h._header._path, PSTR("/arduino"));
+	strcpy_P(h._header._path, PSTR("/"));
 	return h;
 }

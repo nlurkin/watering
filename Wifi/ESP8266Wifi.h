@@ -13,7 +13,7 @@
 
 class ESP8266Wifi {
 public:
-	static const size_t PAYLOAD_SIZE = 1024;
+	static const size_t PAYLOAD_SIZE = 500;
 
 	ESP8266Wifi(Stream* serial=&Serial1);
 	virtual ~ESP8266Wifi();
