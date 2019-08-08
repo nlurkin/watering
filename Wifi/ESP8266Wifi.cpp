@@ -198,6 +198,12 @@ int ESP8266Wifi::openConnection(const char *address, uint16_t port) const {
 	return -1;
 }
 
+int ESP8266Wifi::openConnection(uint8_t ip[4], uint16_t port) const {
+	if(_client.CIPSTART(ATClient::TCP, ip, port, 4))
+		return 4;
+	return -1;
+}
+
 uint8_t ESP8266Wifi::new_connection(const char *data) {
 	uint8_t conn_number = strtoul(data, nullptr, 10);
 	if(conn_number>4)
