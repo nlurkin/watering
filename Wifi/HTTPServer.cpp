@@ -29,9 +29,9 @@ bool HTTPServer::stopServer() {
 String HTTPServer::loop() {
 	int8_t conn = _wifi.payloadAvailable();
 	String data;
-	char buff[1024];
+	char buff[ESP8266Wifi::PAYLOAD_SIZE];
 	if (conn != -1) {
-		_wifi.getPayload(buff, conn, 1024);
+		_wifi.getPayload(buff, conn, ESP8266Wifi::PAYLOAD_SIZE);
 		HTTPRequest http(buff);
 		http.print();
 		if(http.needs_answer()){
@@ -48,7 +48,8 @@ String HTTPServer::loop() {
 
 bool HTTPServer::sendData(const char *address, uint16_t port) {
 	HTTPRequest r = HTTPRequest::http_post();
-	char buff[1024] = "{s:atm,v:5}";
+	char buff[HTTPRequest::MAX_PACKET_LENGTH];
+	strcpy_P(buff, PSTR("{s:atm,v:5}"));
 	r.addContent(buff);
 	int conn = _wifi.openConnection(address, port);
 	r.generate();
