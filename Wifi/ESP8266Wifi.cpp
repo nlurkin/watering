@@ -318,13 +318,13 @@ bool ESP8266Wifi::startsWith(const char *str, const __FlashStringHelper* search)
 }
 
 bool ESP8266Wifi::endsWith(const char *str, const char *search) {
-	char *str_end = str + strlen(str);
-	char *search_end = search + strlen(search);
-	while( (str_end!=str) && (search_end!=search) ){
+	char *str_end = str + strlen(str)-1;
+	char *search_end = search + strlen(search)-1;
+	while( (str_end!=str) && (search_end+1!=search) ){
 		if(*(str_end--)!=*(search_end--)) // Not the same char -> we are done
 			return false;
 	}
-	return search==search_end; // The loop went through the whole string, finding each character equal
+	return search==search_end+1; // The loop went through the whole string, finding each character equal
 }
 
 bool ESP8266Wifi::endsWith(const char *str, const __FlashStringHelper* search) {
