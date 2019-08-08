@@ -27,7 +27,7 @@ NetworkStream::~NetworkStream() {
 
 void NetworkStream::begin(uint16_t port) {
 	if(_server.startServer(port)){
-		const char message[] PROGMEM = {"Server started on port 80"};
+		static const char message[] PROGMEM = {"Server started on port 80"};
 		Serial.println(message);
 		println(message);
 	}
