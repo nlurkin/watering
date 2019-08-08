@@ -236,14 +236,14 @@ void ESP8266Wifi::read_payload(const char *initdata) {
 	if(conn_number>4)
 		return;
 	size_t datas = strtol(initdata+7, nullptr, 10);
-	if(datas>1024) // Only accepting up to 1024 bytes packets
+	if(datas>PAYLOAD_SIZE) // This is the maximum size of the packet that we are accepting
 		return;
 	char *data_start = strchr(initdata+7, ':');
 	if(data_start==nullptr)
 		return;
 
 	_payload[conn_number].push(data_start+1);
-	char buff[1024];
+	char buff[PAYLOAD_SIZE];
 	_client.readRaw(buff, datas);
 	_payload[conn_number].push(buff);
 }

@@ -13,7 +13,7 @@
 
 class ESP8266Wifi {
 public:
-	static constexpr size_t PAYLOAD_SIZE = 500;
+	static constexpr size_t PAYLOAD_SIZE = 300; //Payload received from network. Typically ~100 for header + data (max 200, coherent with HTTPRequest)
 
 	ESP8266Wifi(Stream* serial=&Serial1);
 	virtual ~ESP8266Wifi();
