@@ -328,7 +328,7 @@ void AutomaticWater::tick() {
  * one becomes the active sensor. If -1, the sensor before the current active one becomes the
  * active sensor.
  */
-void AutomaticWater::loopActiveSensor(short delta) {
+void AutomaticWater::loopActiveSensor(int8_t delta) {
 	// Only delta of +1 or -1 are allowed, just for simplicity.
 	// Also no sense to loop if there are no sensors.
 	if(abs(delta)!=1 || _nCircuits==0) return;
@@ -351,7 +351,7 @@ void AutomaticWater::tickSensors() {
  *
  * @param sensorID: ID of the sensor to set active
  */
-void AutomaticWater::setActiveSensor(unsigned short sensorID) {
+void AutomaticWater::setActiveSensor(uint8_t sensorID) {
 	if(sensorID<_nCircuits) _currentSensor = sensorID;
 }
 
@@ -372,7 +372,7 @@ void AutomaticWater::setSensorsMeasureInterval(unsigned long int interval) {
  * @param circuit_index: Index of the circuit to which the valve should be added
  * @return True of the valve has been successfully added, else false.
  */
-bool AutomaticWater::addValve(uint8_t pin, unsigned short circuit_index) {
+bool AutomaticWater::addValve(uint8_t pin, uint8_t circuit_index) {
 	if(circuit_index>=_nCircuits) return false; // Not allowed to have a valve without sensor
 	if(valves[circuit_index]!=nullptr) return false; // Already one valve assigned to that circuit
 

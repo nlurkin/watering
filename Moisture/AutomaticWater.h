@@ -35,7 +35,7 @@ public:
 	void runMonitorMode(LCDWaterDisplay::button button);
 
 	bool addSensor(uint8_t pin, uint8_t powerPin);
-	bool addValve(uint8_t pin, unsigned short circuit_index);
+	bool addValve(uint8_t pin, uint8_t circuit_index);
 	bool addCircuit(uint8_t sensor_pin, uint8_t sensor_powerPin, uint8_t valve_pin);
 
 	/**
@@ -47,8 +47,8 @@ public:
 	}
 
 	void tick();
-	void loopActiveSensor(short delta);
-	void setActiveSensor(unsigned short sensorID);
+	void loopActiveSensor(int8_t delta);
+	void setActiveSensor(uint8_t sensorID);
 
 private:
 	void tickSensors();
@@ -71,8 +71,8 @@ private:
 	SubMode        _gSubMode          = defaultMonitorMode; /** Sub mode currently running (defaults to defaultMonitorMode) */
 	unsigned int   _gTickInterval;                          /** Tick interval to be set to all classes used */
 	unsigned int   _currentCounter;                         /** Internal tick counter */
-	unsigned short _nCircuits;                              /** Number of circuits (sensors + valve couples)*/
-	unsigned short _currentSensor;                          /** Index of the currently active sensor. Active is defined as the one that is being displayed/calibrated */
+	uint8_t        _nCircuits;                              /** Number of circuits (sensors + valve couples)*/
+	uint8_t        _currentSensor;                          /** Index of the currently active sensor. Active is defined as the one that is being displayed/calibrated */
 	bool           _isWatering[MAX_SENSORS];                /** True if associated sensor is currently watering else false */
 
 	MoistureSensor  *sensors[MAX_SENSORS]; /** Moisture sensor controller */
