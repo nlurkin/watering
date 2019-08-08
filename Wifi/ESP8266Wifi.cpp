@@ -64,16 +64,16 @@ bool ESP8266Wifi::readAndPrint() {
 		_logSerial->println(F("Response Received:"));
 		while (len > 0) {
 			_logSerial->print(F("> "));
-			_logSerial->print(response);
+			_logSerial->println(response);
 			if(startsWith(response, F("+IPD"))){ //+IPD
 				read_payload(response);
 				break;
 			}
-			else if(endsWith(response, F("CONNECT")))
+			else if(endsWith(response, F("CONNECT\r")))
 				new_connection(response);
-			else if(endsWith(response, F("CLOSED")))
+			else if(endsWith(response, F("CLOSED\r")))
 				new_connection(response);
-			else if(endsWith(response, F("WIFI DISCONNECT")))
+			else if(endsWith(response, F("WIFI DISCONNECT\r")))
 				disconnect();
 			len = _client.readUntil(response, read_size, '\n');
 		}
@@ -328,16 +328,15 @@ bool ESP8266Wifi::endsWith(const char *str, const char *search) {
 }
 
 bool ESP8266Wifi::endsWith(const char *str, const __FlashStringHelper* search) {
-	char *str_end = str + strlen(str);
+	char *str_end = str + strlen(str)-1;
 	PGM_P p_search = reinterpret_cast<PGM_P>(search);
-	PGM_P p_search_end = p_search + strlen_P(p_search);
+	PGM_P p_search_end = p_search + strlen_P(p_search)-1;
 	unsigned char c;
-	c = pgm_read_byte(p_search_end--);
-	while( (str_end!=str) && (p_search_end!=p_search) ){
+	while( (str_end!=str) && (p_search_end+1!=p_search) ){
+		c = pgm_read_byte(p_search_end--);
 		if(*(str_end--)!=c) // Not the same char -> we are done
 			return false;
-		c = pgm_read_byte(p_search_end--);
 	}
-	return c=='\0'; // The loop went through the whole string, finding each character equal
+	return p_search==p_search_end+1; // The loop went through the whole string, finding each character equal
 }
 
