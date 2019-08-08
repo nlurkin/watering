@@ -39,6 +39,12 @@ size_t NetworkStream::write(uint8_t v) {
 		flush();
 		return 1;
 	}
+	else if(availableForWrite()<=1){ //Last char we can write
+		//Better flush
+		_tx_buffer.push(v);
+		flush();
+		return 1;
+	}
 	else
 		return _tx_buffer.push(v);
 }
