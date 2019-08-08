@@ -128,6 +128,9 @@ bool ATClient::CWMODE(uint8_t mode) {
 }
 
 bool ATClient::CWJAP(const char *ssid, const char *passwd) {
+	if(strlen(ssid)+strlen(passwd)>60) // Avoid buffer overflow
+		return false;
+
 	char cmd[80]; //19 char without ssid and passwd
 	if(_set_default) // Store in flash
 		sprintf_P(cmd, PSTR("AT+CWJAP_DEF=\"%s\",\"%s\""), ssid, passwd);
@@ -154,6 +157,8 @@ bool ATClient::CWQAP() {
 
 bool ATClient::CWSAP(const char *ssid, const char *passwd, uint8_t channel, uint8_t ecn) {
 	if(ecn>4 || ecn==1) //Can be only 0,2,3,4
+		return false;
+	if(strlen(ssid)+strlen(passwd)>60) // Avoid buffer overflow
 		return false;
 
 	char cmd[85]; //23 without ssid and passwd
@@ -277,6 +282,10 @@ bool ATClient::CIPSTART(TCP_TYPE type, uint8_t ip[4], int port, int8_t link_id, 
 		return false;
 	if(keepalive!=-1 && keepalive>7200)
 		return false;
+	if(port>65535) //Maximum port number
+		return false;
+	if(udp_port>65535) //Maximum port number
+		return false;
 
 	char cmd[60]; //57
 	strcpy_P(cmd, PSTR("AT+CIPSTART="));
@@ -310,6 +319,12 @@ bool ATClient::CIPSTART(TCP_TYPE type, const char *address, int port, int8_t lin
 		return false;
 	if(keepalive!=-1 && keepalive>7200)
 		return false;
+	if(port>65535) //Maximum port number
+		return false;
+	if(udp_port>65535) //Maximum port number
+		return false;
+	if(strlen(address)>105) //Max address size to avoid buffer overflow
+		return false;
 
 	char cmd[150]; //42 without the address
 	strcpy_P(cmd, PSTR("AT+CIPSTART="));
@@ -338,6 +353,8 @@ bool ATClient::CIPSEND(const char *data, int link_id, uint8_t ip[4], int port) {
 	if(ip==nullptr && port!=-1) //Port cannot be set if ip is not
 		return false;
 	if(link_id!=-1 && link_id>4) //Maximum 4 links in CIPMUX=1, if CIPMUX=0, must be -1 (we do not check ourselves here)
+		return false;
+	if(port>65535) //Maximum port number
 		return false;
 	uint16_t datas = strlen(data);
 	if(datas>2048) //Maximum size of a single transmission
@@ -368,6 +385,8 @@ bool ATClient::CIPSENDEX(uint16_t length, int link_id, uint8_t ip[4], int port) 
 	if(ip==nullptr && port!=-1) //Port cannot be set if ip is not
 		return false;
 	if(link_id!=-1 && link_id>4) //Maximum 4 links in CIPMUX=1, if CIPMUX=0, must be -1 (we do not check ourselves here)
+		return false;
+	if(port>65535) //Maximum port number
 		return false;
 	if(length>2048) //Maximum size of a single transmission
 		return false;
@@ -439,6 +458,8 @@ bool ATClient::CIPBUFSTATUS(uint8_t link_id) {
 bool ATClient::CIPCHECKSEQ(uint8_t segment, uint8_t link_id) {
 	if(link_id!=-1 && link_id>4) //Maximum 4 links in CIPMUX=1, if CIPMUX=0, must be -1 (we do not check ourselves here)
 		return false;
+	if(segment>=1000)
+		return false;
 
 	char cmd[25]; //22
 	strcpy_P(cmd, PSTR("AT+CIPCHECKSEQ="));
@@ -490,6 +511,9 @@ bool ATClient::CIPMUX(bool mode) {
 }
 
 bool ATClient::CIPSERVER(bool on, int port) {
+	if(port>65535) //Maximum port number
+		return false;
+
 	char cmd[25]; //21
 	int len = sprintf_P(cmd, PSTR("AT+CIPSERVER=%d"), on);
 	if(on && port>=0)
@@ -508,6 +532,10 @@ bool ATClient::CIPSAVETRANSLINK(bool on, uint8_t ip[4], int port, TCP_TYPE type,
 	if(on && ip==nullptr)
 		return false;
 	if(ip!=nullptr && port==-1)
+		return false;
+	if(port>65535) //Maximum port number
+		return false;
+	if(udp_port>65535) //Maximum port number
 		return false;
 
 	char cmd[65]; //63
@@ -539,6 +567,9 @@ bool ATClient::CIPSTO(int keepalive) {
 }
 
 bool ATClient::PINGA(const char *address) {
+	if(strlen(address)>105) //Max address size to avoid buffer overflow
+		return false;
+
 	char cmd[120]; //11 without the address
 	sprintf_P(cmd, PSTR("AT+PING=\"%s\""), address);
 	sendCommand(cmd);
