@@ -5,6 +5,8 @@
  *      Author: Nicolas Lurkin
  */
 
+#define USE_NETWORK_STREAM 1 //Comment this to use the standard Serial port
+
 #include <Arduino.h>
 #include <HardwareSerial.h>
 #include "ESP8266Wifi.h"
@@ -12,7 +14,6 @@
 #include "NetworkStream.h"
 
 ESP8266Wifi wifi;
-#define USE_NETWORK_STREAM 1 //Comment this to use the standard Serial port
 
 #ifdef USE_NETWORK_STREAM
 NetworkStream mySerial(wifi);
