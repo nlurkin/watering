@@ -41,7 +41,7 @@ void setup() {
 	while (!wifi.checkWifiConnection() && trials<10) {
 		++trials;
 		wifi.connectWifi(ssid, pwd);
-		delay(10000);
+		delay(1000);
 	}
 	Serial.println(F("Connected to wifi"));
 	#ifdef USE_NETWORK_STREAM
@@ -54,11 +54,11 @@ void setup() {
 void loop() {
 	if (Serial.available() > 0) {
 		String command = Serial.readStringUntil('\n');
-		wifi.sendSomething(command);
+		wifi.sendSomething(command.c_str());
 	}
 	else if (logSerial.available() > 0) {
 		String command = logSerial.readStringUntil('\n');
-		wifi.sendSomething(command);
+		wifi.sendSomething(command.c_str());
 	}
 
 	wifi.readAndPrint();
