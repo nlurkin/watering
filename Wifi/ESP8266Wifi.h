@@ -29,6 +29,7 @@ public:
 	bool checkWifiConnection();
 	bool connectWifi(const char *ssid, const char *passwd) const;
 	bool disConnectWifi();
+	bool isConnected() const;
 
 	bool startServer(int port) const;
 	bool stopServer() const;
@@ -49,6 +50,7 @@ private:
 	static bool endsWith(const char *str, const __FlashStringHelper *search);
 	uint8_t new_connection(const char *data);
 	uint8_t end_connection(const char *data);
+	void disconnect();
 	void read_payload(const char *initdata);
 
 	static Buffer _persistent_buffer;

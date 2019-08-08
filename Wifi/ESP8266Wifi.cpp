@@ -73,6 +73,8 @@ bool ESP8266Wifi::readAndPrint() {
 				new_connection(response);
 			else if(endsWith(response, F("CLOSED")))
 				new_connection(response);
+			else if(endsWith(response, F("WIFI DISCONNECT")))
+				disconnect();
 			len = _client.readUntil(response, read_size, '\n');
 		}
 
@@ -125,7 +127,7 @@ bool ESP8266Wifi::checkWifiConnection() {
 		_mac_address[i] = strtol(ptr, nullptr, 16);
 		ptr = strtok_P(nullptr, g_SEP_COLUMN);
 	}
-	return _ip_address[0]!=0 || _ip_address[1]!=0  || _ip_address[2]!=0 || _ip_address[3]!=0; //Success if we have a non-zero ip address
+	return isConnected();
 }
 
 bool ESP8266Wifi::startServer(int port) const {
@@ -183,14 +185,17 @@ bool ESP8266Wifi::disConnectWifi() {
 	ptr = strtok_P(data, g_SEP_NEWLINE);
 	while(ptr!=nullptr){
 		if(strstr_P(ptr, PSTR("WIFI DISCONNECT"))==ptr){ // Found it
-			memset(_ip_address, 0, 4 * sizeof(uint8_t));
-			memset(_mac_address, 0, 6 * sizeof(uint8_t));
+			disconnect();
 			return true;
 		}
 		ptr = strtok_P(nullptr, g_SEP_NEWLINE);
 	}
 
 	return false;
+}
+
+bool ESP8266Wifi::isConnected() const {
+	return _ip_address[0]!=0 || _ip_address[1]!=0  || _ip_address[2]!=0 || _ip_address[3]!=0; //Success if we have a non-zero ip address
 }
 
 bool ESP8266Wifi::restartBoard() const {
@@ -245,6 +250,11 @@ uint8_t ESP8266Wifi::end_connection(const char *data) {
 	}
 
 	return conn_number;
+}
+
+void ESP8266Wifi::disconnect() {
+	memset(_ip_address, 0, 4 * sizeof(uint8_t));
+	memset(_mac_address, 0, 6 * sizeof(uint8_t));
 }
 
 int8_t ESP8266Wifi::payloadAvailable() const {
