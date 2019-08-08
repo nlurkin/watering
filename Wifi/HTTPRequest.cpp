@@ -119,7 +119,7 @@ void HTTPRequest::extractParts(const char *payload) {
 	char *ptr = strtok_P(_raw_header, g_SEP_NEWLINE);
 	while(ptr!=nullptr){
 		decodeHeader(ptr);
-		strtok_P(nullptr, g_SEP_NEWLINE);
+		ptr = strtok_P(nullptr, g_SEP_NEWLINE);
 	}
 }
 
