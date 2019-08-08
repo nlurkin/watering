@@ -43,15 +43,16 @@ bool ESP8266Wifi::sendData(const char *data) const {
 }
 
 bool ESP8266Wifi::readAndPrint() {
-	char response[200];
-	delay(10);
-	size_t len = _client.readUntil(response, 200, '\n');
+	static constexpr size_t read_size = 100;
+	char response[read_size];
+	delay(10); // Give time to actually fill the buffer. Else we will most likely have only 1 char
+	size_t len = _client.readUntil(response, read_size, '\n');
 	bool has_response = len > 0;
 
 	if (has_response) {
 		_logSerial->println(F("Response Received:"));
 		while (len > 0) {
-			_logSerial->print("> ");
+			_logSerial->print(F("> "));
 			_logSerial->print(response);
 			if(startsWith(response, F("+IPD"))){ //+IPD
 				read_payload(response);
@@ -59,7 +60,7 @@ bool ESP8266Wifi::readAndPrint() {
 			}
 			else if(endsWith(response, F("CONNECT")))
 				new_connection(response);
-			len = _client.readUntil(response, 200, '\n');
+			len = _client.readUntil(response, read_size, '\n');
 		}
 
 		_logSerial->println();
@@ -79,17 +80,17 @@ bool ESP8266Wifi::checkWifiConnection() {
 	if(!success)
 		return false;
 
-	char data[200];
-	char ip_line[18] = {'\0'};
-	char mac_line[20] = {'\0'};
+	char data[ATClient::DATA_BUFFER_SIZE];
+	char ip_line[16] = {'\0'}; //3*4+3+(1 null)
+	char mac_line[18] = {'\0'}; //6*2+5+(1 null)
 	char *ptr;
-	_client.getLastData(data, 200);
+	_client.getLastData(data, ATClient::DATA_BUFFER_SIZE);
 
 	ptr = strtok(data, "\n");
 	while(ptr!=nullptr){
 		if(!ip_line[0] && strstr_P(ptr, PSTR("+CIFSR:STAIP"))==ptr) { // This is the ip address line (and we have not got it yet)
-			strncpy(ip_line, ptr+14, 17); //Copy the ip address
-			ip_line[17] = '\0';
+			strncpy(ip_line, ptr+14, 15); //Copy the ip address
+			ip_line[15] = '\0';
 		}
 		if(!mac_line[0] && strstr_P(ptr, PSTR("+CIFSR:STAMAC"))==ptr) { // This is the mac address line (and we have not got it yet)
 			strncpy(mac_line, ptr+15, 17); //Copy the mac address
@@ -133,9 +134,9 @@ bool ESP8266Wifi::connectWifi(const char *ssid, const char *passwd) const {
 	if(!success)
 		return false;
 
-	char data[200];
+	char data[ATClient::DATA_BUFFER_SIZE];
 	char *ptr;
-	_client.getLastData(data, 200);
+	_client.getLastData(data, ATClient::DATA_BUFFER_SIZE);
 
 	bool got_connect = false;
 	bool got_ip = false;
@@ -160,9 +161,9 @@ bool ESP8266Wifi::disConnectWifi() {
 	if(!success)
 		return false;
 
-	char data[200];
+	char data[ATClient::DATA_BUFFER_SIZE];
 	char *ptr;
-	_client.getLastData(data, 200);
+	_client.getLastData(data, ATClient::DATA_BUFFER_SIZE);
 
 	bool got_disconnect = false;
 
@@ -182,10 +183,10 @@ bool ESP8266Wifi::restartBoard() const {
 	if(!_client.RST())
 		return false;
 
-	char data[200];
+	char data[ATClient::DATA_BUFFER_SIZE];
 	char *ptr;
 	while(_client.dataAvailable()>0){
-		_client.getLastData(data, 200);
+		_client.getLastData(data, ATClient::DATA_BUFFER_SIZE);
 		_logSerial->print(data);
 	}
 
