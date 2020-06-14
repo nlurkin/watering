@@ -20,7 +20,7 @@ public:
 	virtual ~ValveController();
 
 	void Enable()  { _enable = true;  }
-	void Disable() { _enable = false; }
+	void Disable() { _enable = false; open(false); }
 	void open(bool state);
 	void toggle();
 
