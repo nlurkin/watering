@@ -14,7 +14,8 @@
  */
 ValveController::ValveController(uint8_t pin) :
 	_pin(pin),
-	_open(false)
+	_open(false),
+	_enable(true)
 {
 	// Initialise the pin. Must be in output
 	pinMode(pin, OUTPUT);
@@ -34,6 +35,9 @@ ValveController::~ValveController() {
  * @param state: True for opening the valve, false to close it
  */
 void ValveController::open(bool state) {
+	if(!_enable) // If disabled, do not allow to open the valve
+		state = false;
+
 	if(state && !_open){
 		// If request to open and valve is closed, open it
 		digitalWrite(_pin, LOW);

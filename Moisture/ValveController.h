@@ -19,12 +19,17 @@ public:
 	ValveController(uint8_t pin);
 	virtual ~ValveController();
 
+	void Enable()  { _enable = true; }
+	void Disable() { _enable = false; }
 	void open(bool state);
 	void toggle();
+
+	bool isEnabled() { return _enabled; }
 
 private:
 	uint8_t  _pin; /** Digital pin on which the pump is connected */
 	bool _open;    /** Current state of the pump */
+	bool _enable;  /** Enable/disable valve */
 };
 
 #endif /* VALVECONTROLLER_H_ */
