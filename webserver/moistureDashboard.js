@@ -118,13 +118,28 @@ function create_chart(name, display_name){
 }
 
 function factorData(data, label) {
-	// To improve
+	function get_val(elmt) {
+		if(elmt == undefined)
+			return elmt;
+		else if(elmt.constructor == Object)
+			return elmt["y"];
+		else
+			return elmt;
+	}
+	var first_index = 0;
 	let _data = data.map((e, i, a) => {
-		if(i==a.length) return {'x': label[i], 'y':e}; 
+		if(e.constructor == Object){
+			this_label = e["x"];
+			e = e["y"];
+			first_index += 1;
+		}
+		else
+			this_label = label[i-first_index];
+		if(i==a.length-1) return {'x': this_label, 'y':e}; 
 		let prev = a[i - 1];
 		let next = a[i + 1];
-		if (e === prev && e === next) return null;
-		return {'x': label[i], 'y':e};
+		if (e === get_val(prev) && e === get_val(next)) return null;
+		return {'x': this_label, 'y':e};
 	}).filter(function (el) { return el != null; });
 	return _data;
 }
