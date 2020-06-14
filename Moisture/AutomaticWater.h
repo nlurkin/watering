@@ -12,6 +12,9 @@
 #include "PumpControl.h"
 #include "LCDWaterDisplay.h"
 #include "ValveController.h"
+#include "LibNetwork/Publication.h"
+
+class RemoteControl;
 
 /**
  * \brief This is the main class of the program. It runs the state machine determining the actions to take.
@@ -29,6 +32,7 @@ public:
 	virtual ~AutomaticWater();
 
 	void initSystem();
+	void setPublicationServer(RemoteControl *server);
 
 	void runCalibrationMode(LCDWaterDisplay::button button);
 	void runShowMode(LCDWaterDisplay::button button);
@@ -56,6 +60,7 @@ private:
 	void setSensorsMeasureInterval(unsigned long int interval);
 	bool monitorCircuits();
 	bool isWatering();
+	void updatePublications();
 
 	enum MainMode {MAIN_MODE_MONITOR, MAIN_MODE_CALIB, MAIN_MODE_SHOW};     /** enum to identify the main modes */
 	enum SubMode  {MODE_MONITOR_IDLE, MODE_MONITOR_RUN,  //Sub modes for MONITOR
@@ -79,6 +84,11 @@ private:
 	ValveController *valves[MAX_SENSORS];  /** Valves controllers */
 	PumpControl      pump1;      /** Pump controller */
 	LCDWaterDisplay  lcdDisplay; /** LCD Display and buttons controller */
+
+	RemoteControl     *_publicationServer;
+	Publication<bool> *_pub_pump;
+	Publication<bool> *_pub_pump_valves[MAX_SENSORS];
+	Publication<int>  *_pub_sensors[MAX_SENSORS];
 };
 
 #endif /* AUTOMATICWATER_H_ */

@@ -7,6 +7,7 @@
 
 #include "AutomaticWater.h"
 #include <Arduino.h>
+#include "RemoteControl.h"
 
 /**
  * Constructor
@@ -20,7 +21,11 @@ AutomaticWater::AutomaticWater(uint8_t pump_pin) :
 	_nCircuits(0),
 	_currentSensor(0),
 	pump1(pump_pin),
-	_currentCounter(0)
+	_currentCounter(0),
+	_publicationServer(nullptr),
+	_pub_pump(nullptr),
+	_pub_pump_valves{nullptr},
+	_pub_sensors{nullptr}
 {
 	for(unsigned short i=0; i<MAX_SENSORS; ++i) {
 		sensors[i] = nullptr;
@@ -57,6 +62,32 @@ void AutomaticWater::initSystem(){
 
 	//Setup lcd
 	lcdDisplay.initMonitorMode();
+}
+
+/**
+ * Sets the publication server if it is to be used
+ * @param server: PubServer instance
+ */
+void AutomaticWater::setPublicationServer(RemoteControl *server){
+	_publicationServer = server;
+	if(server==nullptr)
+		return;
+	// Create publications and add them
+	_pub_pump = new Publication<bool>("pump1_state");
+	_pub_pump->updateValue(false);
+	_publicationServer->addPublication(_pub_pump);
+	for (unsigned short i = 0; i < _nCircuits; ++i) {
+		char name[15];
+		sprintf(name, "valve%d_state", i);
+		_pub_pump_valves[i] = new Publication<bool>(name);
+		_pub_pump_valves[i]->updateValue(false);
+		_publicationServer->addPublication(_pub_pump_valves[i]);
+		sprintf(name, "sensor%d", i);
+		_pub_sensors[i] = new Publication<int>(name);
+		_pub_sensors[i]->updateValue(-1);
+		_publicationServer->addPublication(_pub_sensors[i]);
+	}
+
 }
 
 /**
@@ -214,6 +245,7 @@ void AutomaticWater::runMonitorMode(LCDWaterDisplay::button button){
 		loopActiveSensor(-1);
 	}
 
+	updatePublications();
 	switch(_gSubMode){
 	case MODE_MONITOR_IDLE: // Mode IDLE
 		// In this case we only monitor the moisture level without taking any action
@@ -449,4 +481,15 @@ bool AutomaticWater::isWatering() {
 	}
 
 	return false;
+}
+
+void AutomaticWater::updatePublications() {
+	if(!_publicationServer)
+		return;
+
+	_pub_pump->updateValue(pump1.getStatus()==PumpControl::RUNNING);
+	for(unsigned short i=0; i<_nCircuits; ++i) {
+		_pub_pump_valves[i]->updateValue(valves[i]->isOpen());
+		_pub_sensors[i]->updateValue(sensors[i]->getPercentageMoisture());
+	}
 }

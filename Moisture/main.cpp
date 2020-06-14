@@ -9,6 +9,7 @@
 #include "AutomaticWater.h"
 #include "LibESP8266/ESP8266Wifi.h"
 #include "LibNetwork/NetworkStream.h"
+#include "RemoteControl.h"
 
 //TODO add detection of sensor failure and permanently disable pump
 //TODO add detection of empty tank and permanently disable pump
@@ -16,6 +17,7 @@
 AutomaticWater waterSystem(22);
 ESP8266Wifi wifi;
 NetworkStream mySerial(wifi);
+RemoteControl pubServer(wifi);
 
 const char ssid[] = {""};
 const char pwd[]  = {""};
@@ -44,12 +46,14 @@ void setup(){
 	Serial.println(F("Connected to wifi"));
 	mySerial.setDestination("192.168.1.20", 8000);
 	mySerial.begin(80);
+	pubServer.setDestination("192.168.1.20", 8000);
 
 	// Set tick at 1s - used for pump and sensor, not for display and buttons
 	waterSystem.setTickInterval(1000);
 	waterSystem.addCircuit(10, 50, 40);
 	waterSystem.addCircuit(11, 51, 41);
 	waterSystem.initSystem();
+	waterSystem.setPublicationServer(&pubServer);
 
 	last_millis = millis();
 }
@@ -79,6 +83,7 @@ void loop(){
 		last_millis = millis();
 		//delay(100);
 	}
+	pubServer.serve();
 
 }
 
