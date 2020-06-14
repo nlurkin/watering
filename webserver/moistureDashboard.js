@@ -117,10 +117,19 @@ function create_chart(name, display_name){
 	charts_list[name] = new Chart(ctx,config);
 }
 
+function factorData(data, label) {
+	// To improve
+	let _data = data.map((e, i, a) => {
+		if(i==a.length) return {'x': label[i], 'y':e}; 
+		let prev = a[i - 1];
+		let next = a[i + 1];
+		if (e === prev && e === next) return null;
+		return {'x': label[i], 'y':e};
+	}).filter(function (el) { return el != null; });
+	return _data;
+}
 function addData(chart, label, data) {
 	label.forEach(element => chart.data.labels.push(element));
-    chart.data.datasets.forEach((dataset) => {
-    	data.forEach(element => dataset.data.push(element));
-    });
+	chart.data.datasets[0].data = factorData(chart.data.datasets[0].data.concat(data), label)
     chart.update();
 }
