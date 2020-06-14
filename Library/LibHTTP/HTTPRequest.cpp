@@ -72,6 +72,10 @@ void HTTPRequest::addContent(const char *data) {
 	_header._length += length;
 }
 
+void HTTPRequest::setConnectionType(HDR_CONN type) {
+	_header._connection = type;
+}
+
 size_t HTTPRequest::generate() {
 	char buf[50];
 
@@ -85,6 +89,8 @@ size_t HTTPRequest::generate() {
 	strcpy(_raw_header, buf);
 	if (_header._connection == CONN_CLOSE)
 		strcat_P(_raw_header, PSTR("Connection: close\r\n"));
+	else if (_header._connection == CONN_KEEPALIVE)
+		strcat_P(_raw_header, PSTR("Connection: Keep-Alive\r\nKeep-Alive: timeout=5, max=100\r\n"));
 	sprintf_P(buf, PSTR("Content-Type: %s\r\n"), _header._content_type);
 	strcat(_raw_header, buf);
 

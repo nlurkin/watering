@@ -11,8 +11,10 @@
 #include <Arduino.h>
 
 class HTTPRequest {
+public:
 	enum REQ_TYPE {UNDEF, GET, POST, PUT, DEL, HEAD, ANSWER};
-	enum HDR_CONN {CONN_UNDEF, CONN_CLOSE};
+	enum HDR_CONN {CONN_UNDEF, CONN_CLOSE, CONN_KEEPALIVE};
+private:
 	struct HTTPHeader {
 		REQ_TYPE _request_type;
 		HDR_CONN _connection;
@@ -43,6 +45,7 @@ public:
 	void getRawRequest(char *to) const;
 
 	void addContent(const char *data);
+	void setConnectionType(HDR_CONN type);
 	size_t generate();
 
 	static HTTPRequest http_200();
