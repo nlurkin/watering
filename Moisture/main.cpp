@@ -42,7 +42,7 @@ void setup(){
 		delay(1000);
 	}
 	Serial.println(F("Connected to wifi"));
-	mySerial.setDestination("192.168.0.20", 8000);
+	mySerial.setDestination("192.168.1.20", 8000);
 	mySerial.begin(80);
 
 	// Set tick at 1s - used for pump and sensor, not for display and buttons
