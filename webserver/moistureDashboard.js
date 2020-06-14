@@ -29,6 +29,18 @@ function update_console() {
 		success: function(result){ result = result.replace(/\r/g, "").replace(/\n/g, "\n"); document.getElementById("arduino_text").innerHTML = result; },
 		error: function(error){ console.log(`Error ${error}`) }
 		   })
+//	$.ajax({
+//		url: Url+"MQTT",
+//		type: "GET",
+//		success: function(result){ result = result.replace(/\r/g, "").replace(/\n/g, "\n"); document.getElementById("arduino_mqtt").innerHTML = result; },
+//		error: function(error){ console.log(`Error ${error}`) }
+//		   })
+}
+
+function update_chart(chart_name, chart) {
+	const Url="http://localhost:8000/";
+	labels = chart.data.labels
+	last_time = labels[labels.length - 1]
 	$.ajax({
 		url: Url+"MQTT",
 		type: "GET",
