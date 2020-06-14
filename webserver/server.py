@@ -2,6 +2,8 @@
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from os.path import curdir, sep
 import urllib.request
+import json
+from datetime import datetime, timedelta
 
 clientAddress = "http://192.168.1.9:80/"
 clientAddress = "http://localhost:8001/"
@@ -9,6 +11,7 @@ clientAddress = "http://localhost:8001/"
 
 class MyHandler(BaseHTTPRequestHandler):
     arduino_buffer = ""
+    MQTT_pub = {}
 
     def do_OPTIONS(self):
         self.send_response(200, "ok")
@@ -19,13 +22,36 @@ class MyHandler(BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_GET(self):
+        url = urllib.parse.urlparse(self.path)
 
-        if self.path == "/console":
+        if url.path == "/console":
             self.send_response(200, "OK")
             self.send_header('Access-Control-Allow-Origin', '*')
             self.send_header('Content-type', 'text/html')
             self.end_headers()
             self.wfile.write(bytes(MyHandler.arduino_buffer, "utf8"))
+
+            return
+        elif url.path == "/MQTT":
+            self.send_response(200, "OK")
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.send_header('Content-type', 'text/html')
+            self.end_headers()
+
+            queries = urllib.parse.parse_qs(url.query)
+            to_send = {}
+            if len(queries) == 0:
+                to_send = MyHandler.MQTT_pub
+            else:
+                elmt = queries["element"][0]
+                if "from" in queries:
+                    date_from = datetime.strptime(queries["from"][0], '%Y-%m-%d %H:%M:%S')
+                else:
+                    date_from = datetime.today() - timedelta(days = 1)
+                if elmt in MyHandler.MQTT_pub:
+                    to_send = {"x": [x[0].strftime('%Y-%m-%d %H:%M:%S') for x in MyHandler.MQTT_pub[elmt] if x[0] > date_from], "y": [x[1] for x in MyHandler.MQTT_pub[elmt]if x[0] > date_from]}
+
+            self.wfile.write(bytes(json.dumps(to_send, default = str), "utf8"))
 
             return
 
@@ -59,7 +85,15 @@ class MyHandler(BaseHTTPRequestHandler):
 
         content_length = int(self.headers['Content-Length'])
         post_data = self.rfile.read(content_length)
-        MyHandler.arduino_buffer += post_data.decode("utf8") + "\n"
+        post_data = post_data.decode("utf8").strip()
+        if post_data[:6] == "#MQTT#":
+            topic, value = post_data[6:].split(":")
+            topic = topic.strip()
+            if topic not in MyHandler.MQTT_pub:
+                MyHandler.MQTT_pub[topic] = []
+            MyHandler.MQTT_pub[topic.strip()].append((datetime.now(), value.strip()))
+        else:
+            MyHandler.arduino_buffer += post_data.strip() + "\n"
         return
 
     def do_PUT(self):
