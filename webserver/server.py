@@ -4,13 +4,23 @@ from os.path import curdir, sep
 import urllib.request
 
 
+
 class MyHandler(BaseHTTPRequestHandler):
     arduino_buffer = ""
+
+    def do_OPTIONS(self):
+        self.send_response(200, "ok")
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'GET, OPTIONS, PUT, DELETE')
+        self.send_header("Access-Control-Allow-Headers", "X-Requested-With")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        self.end_headers()
 
     def do_GET(self):
 
         if self.path == "/console":
             self.send_response(200, "OK")
+            self.send_header('Access-Control-Allow-Origin', '*')
             self.send_header('Content-type', 'text/html')
             self.end_headers()
             self.wfile.write(bytes(MyHandler.arduino_buffer, "utf8"))
@@ -39,6 +49,7 @@ class MyHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         '''Post output from arduino'''
         self.send_response(200, "OK")
+        self.send_header('Access-Control-Allow-Origin', '*')
         self.send_header('Content-type', 'text/html')
         self.end_headers()
 
@@ -50,6 +61,7 @@ class MyHandler(BaseHTTPRequestHandler):
     def do_PUT(self):
         '''Send commands to ARDUINO'''
         self.send_response(200, "OK")
+        self.send_header('Access-Control-Allow-Origin', '*')
         self.end_headers()
 
         content_length = int(self.headers['Content-Length'])
@@ -63,6 +75,7 @@ class MyHandler(BaseHTTPRequestHandler):
     def do_DELETE(self):
         '''Empty buffer'''
         self.send_response(200, "OK")
+        self.send_header('Access-Control-Allow-Origin', '*')
         self.end_headers()
 
         MyHandler.arduino_buffer = ""

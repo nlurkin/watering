@@ -18,6 +18,7 @@ class MyHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         self.send_response(200, "OK")
+        self.send_header('Access-Control-Allow-Origin', '*')
         self.end_headers()
 
         self.print_it()
@@ -34,6 +35,7 @@ class MyHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         '''trigger Post output from arduino'''
         self.send_response(200, "OK")
+        self.send_header('Access-Control-Allow-Origin', '*')
         self.end_headers()
 
         self.print_it()
@@ -45,6 +47,7 @@ class MyHandler(BaseHTTPRequestHandler):
     def do_PUT(self):
         '''Received a command from server'''
         self.send_response(200, "OK")
+        self.send_header('Access-Control-Allow-Origin', '*')
         self.end_headers()
 
         self.print_it()
@@ -58,6 +61,5 @@ def run(server_class = HTTPServer, handler_class = MyHandler):
     server_address = ('', 8001)
     httpd = server_class(server_address, handler_class)
     httpd.serve_forever()
-
 
 run()
