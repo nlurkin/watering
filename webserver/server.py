@@ -3,6 +3,8 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 from os.path import curdir, sep
 import urllib.request
 
+clientAddress = "http://192.168.1.9:80/"
+clientAddress = "http://localhost:8001/"
 
 
 class MyHandler(BaseHTTPRequestHandler):
@@ -66,7 +68,7 @@ class MyHandler(BaseHTTPRequestHandler):
 
         content_length = int(self.headers['Content-Length'])
         post_data = self.rfile.read(content_length)
-        url = "http://127.0.0.1:8001/"
+        url = clientAddress
 
         req = urllib.request.Request(url = url, data = post_data, method = 'PUT')
         with urllib.request.urlopen(req):
