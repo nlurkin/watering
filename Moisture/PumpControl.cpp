@@ -14,6 +14,7 @@
  * @param pin: Digital pin on which the pump is connected
  */
 PumpControl::PumpControl(uint8_t pin) :
+	_enable(true),
 	_pin(pin),
 	_deadTime(-1),
 	_runningTime(-1),
@@ -77,6 +78,9 @@ void PumpControl::tick() {
  * @param state: True will start the pump running, false will make it stop
  */
 void PumpControl::run(bool state) {
+	if(!_enable) // If disabled, prevent any running
+		state = false;
+
 	if(state && _on==IDLE){
 		// We ask it to run, and it is currently IDLE
 		// Enable to pump, move to RUNNING state and reset the
