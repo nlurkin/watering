@@ -11,12 +11,63 @@ $(document).ready(
 			}
 		)
 </script>
+<style>
+	.subgrid {
+		display: grid;
+  		grid-template-columns: repeat(4, 1fr);
+  		grid-gap: 0px;
+	}
+	.large {
+		grid-column: span 2;
+	}
+    .wrapper {
+  		display: grid;
+  		grid-template-columns: repeat(2, 1fr);
+  		grid-gap: 0px;
+  		grid-auto-rows: minmax(100px, auto);
+	}
+	.long {
+		grid-row: span 2;
+		border-top: 1px solid #000000;
+		border-right: 1px solid #000000;
+		border-left: 1px solid #000000;
+		border-bottom: 1px solid #000000;
+	}
+	.cell {
+		border-top: 1px solid #000000;
+		border-left: 1px solid #000000;
+		border-right: 1px solid #000000;
+		border-bottom: 1px solid #000000;
+	}
+	
+</style>
 </head>
 <body>
-<textarea cols=120 rows=30 id="arduino_text"></textarea>
-</br>
-<input type="text" size=139px id="arduino_cmd">
-<input type="button" onClick="javascript:submit_cmd();" value="Submit"/>
-<input type="button" onClick="javascript:clear_buffer();"  value="Clear"/>
+
+<div class="wrapper">
+  <div class="long"><textarea cols=120 rows=30 id="arduino_text"></textarea></div>
+  <div class="cell">
+  	<div class="subgrid">
+  		<div>Send command</div>
+  		<div class="large"><input type="text" style="width:100%" id="arduino_cmd"></div>
+  		<div><input type="button" onClick="javascript:submit_cmd();" value="Submit"/>
+			 <input type="button" onClick="javascript:clear_buffer();"  value="Clear"/></div>
+		<div>Inhibit pump</div>
+		<div><input type="checkbox" id="pump1_inhibit"></div>			 
+		<div></div>
+		<div></div>			 
+		<div>Inhibit valve1</div>
+		<div><input type="checkbox" id="valve1_inhibit"></div>			 
+		<div>Inhibit valve2</div>
+		<div><input type="checkbox" id="valve2_inhibit"></div>			 
+	</div>
+  </div>
+  <div class="cell">&nbsp;</div>
+  <div class="cell">&nbsp;</div>
+  <div class="long"><textarea cols=120 rows=30 id="arduino_mqtt"></textarea></div>
+  <div class="cell">&nbsp;</div>
+  <div class="cell">&nbsp;</div>
+  <div class="cell">&nbsp;</div>
+</div>
 </body>
 </html>
