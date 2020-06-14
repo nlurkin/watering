@@ -53,6 +53,8 @@ class MyHandler(BaseHTTPRequestHandler):
         self.send_response(200, "OK")
         self.send_header('Access-Control-Allow-Origin', '*')
         self.send_header('Content-type', 'text/html')
+        self.send_header("Connection", "keep-alive")
+        self.send_header("Content-Length", 0)
         self.end_headers()
 
         content_length = int(self.headers['Content-Length'])
