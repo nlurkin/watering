@@ -11,7 +11,7 @@ import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 from dash.dependencies import Input, Output
 from waterapp import app
-from apps import add_sensor
+from apps import add_sensor, add_dashboard
 from waterapp import mongoClient
 
 left_col = []
@@ -38,6 +38,8 @@ def display_page(pathname):
         return dash.no_update
     elif pathname == "/add/sensor":
         return add_sensor.layout
+    elif pathname == "/add/dashboard":
+        return add_dashboard.layout
     else:
         return '404'
 
