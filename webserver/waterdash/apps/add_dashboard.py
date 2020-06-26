@@ -108,7 +108,7 @@ def save_dashboard(submit, close, dashboard_name, dashboard_name_pattern, update
 # =======================
 def generate_dashboard_column(col_description, index):
     col = [html.Div()]
-    sensor_docs = {str(_["_id"]): _ for _ in mongoClient.get_dashboard_by_id(col_description)}
+    sensor_docs = mongoClient.get_sensor_by_id(col_description)
     for sensor in col_description:
         add_element_col(None, col, index, str(sensor_docs[sensor]["_id"]))
     return col
@@ -131,7 +131,7 @@ def add_element_col(_, column, index, value = None):
     sensor_list = dcc.Dropdown(
         id = {"type": "sensor_list", "index":f"{index}_{elt_num}"},
         options = db_sensor_list,
-        placeholder = "Select a sensor",
+        placeholder = "Select a sensor or controller",
         value = value
         )
     column.append(dbc.Card([html.Div(id = {"type": "sensor_content", "index": f"{index}_{elt_num}"}), sensor_list]))
@@ -142,7 +142,6 @@ def build_sensor_lists(sensors, sensors_ids):
     left_sensors = {}
     right_sensors = {}
     for sensor, sensor_id in zip(sensors, sensors_ids):
-        print(sensor_id, sensor)
         col, my_id = sensor_id["index"].split("_")
         if col == "left":
             left_sensors[int(my_id)] = sensor

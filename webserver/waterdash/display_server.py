@@ -31,11 +31,10 @@ index_layout = html.Div(
 def get_dashboard_list():
     elements = [
         html.H3("Add new elements"),
-        dbc.Row([dbc.Col(dcc.Link('New dashboard', href = '/add/dashboard'), width=1),
-                 dbc.Col(dcc.Link('Update dashboard', href = '/update/dashboard'), width=1)]),
-        dbc.Row([dbc.Col(dcc.Link('New sensor', href = '/add/sensor'), width=1),
-                 dbc.Col(dcc.Link('Update sensor', href = '/update/sensor'), width=1)]),
-        dbc.Row(dbc.Col(dcc.Link('New controller', href = '/add/controller'), width=1)),
+        dbc.Row([dbc.Col(dcc.Link('New dashboard', href = '/add/dashboard'), width = 1),
+                 dbc.Col(dcc.Link('Update dashboard', href = '/update/dashboard'), width = 1)]),
+        dbc.Row([dbc.Col(dcc.Link('New sensor', href = '/add/sensor'), width = 1),
+                 dbc.Col(dcc.Link('Update sensor', href = '/update/sensor'), width = 1)]),
         html.H3("Available dashboards"), ]
 
     db_list = mongoClient.get_dashboards_dropdown()
@@ -57,13 +56,13 @@ def display_page(pathname):
     if pathname == "/":
         return get_dashboard_list()
     elif pathname == "/add/sensor":
-        return add_sensor.get_layout(update=False)
+        return add_sensor.get_layout(update = False)
     elif pathname == "/update/sensor":
-        return add_sensor.get_layout(update=True)
+        return add_sensor.get_layout(update = True)
     elif pathname == "/add/dashboard":
-        return add_dashboard.get_layout(update=False)
+        return add_dashboard.get_layout(update = False)
     elif pathname == "/update/dashboard":
-        return add_dashboard.get_layout(update=True)
+        return add_dashboard.get_layout(update = True)
     elif pathname[:11] == '/dashboard/':
         return dashboard.generate_layout(pathname.split("/")[-1])
     else:

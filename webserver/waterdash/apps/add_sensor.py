@@ -46,6 +46,12 @@ def get_layout(update):
                                  clearable = False), width = 2),
             ], row = True),
         dbc.FormGroup([
+            dbc.Label("", html_for = "add_sensor_controller", width = 2),
+            dbc.Col(dbc.Checklist(id = "add_sensor_controller",
+                                  options = [{"label": "Is controller", "value": 1}, ],
+                                  switch = True), width = 2),
+            ], row = True),
+        dbc.FormGroup([
             dbc.Col(width = 2),
             dbc.Col(dbc.Button(button_text, id = "add_sensor_submit", color = "primary"), width = 2),
             ], row = True),
@@ -93,6 +99,7 @@ def update_display(sensor_name):
                State('update_sensor_name', 'value'),
                State('add_sensor_display', 'value'),
                State('add_sensor_type', 'value'),
+               State('add_sensor_controller', 'value'),
                State("add_sensor_modal", "is_open")])
 def create_update_sensor(submit, close, name, name_pattern, update_name, display, stype, is_open):
     ctx = dash.callback_context
@@ -106,7 +113,7 @@ def create_update_sensor(submit, close, name, name_pattern, update_name, display
         if display is None:
             display = name
 
-        data_dict = {"sensor": name, "display": display, "data-type": stype}
+        data_dict = {"sensor": name, "display": display, "data-type": stype, "controller": is_controller == 1}
         sensor_doc = mongoClient.get_sensor_by_name(name)
         if sensor_doc is not None:
             return True, "message-error", f"A sensor with same name already exists. Choose another name."
@@ -116,6 +123,7 @@ def create_update_sensor(submit, close, name, name_pattern, update_name, display
     
     elif update_name is not None:
         # We are updating a sensor
-        mongoClient.update_sensor_by_id(update_name, {"display": display, "data-type": stype})
+        data_dict = {"display": display, "data-type": stype, "controller": is_controller == 1}
+        mongoClient.update_sensor_by_id(update_name, data_dict)
         return True, "message-valid", f"Sensor with ID {update_name} successfully updated"
 
