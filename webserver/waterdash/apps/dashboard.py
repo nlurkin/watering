@@ -70,8 +70,11 @@ def update_bool_metrics(_, sensor_name):
     day = datetime.now().strftime("%Y-%m-%d")
     value_doc = mongoClient.get_sensor_values(sensor_name["sensor"], day)
     sensor_doc = mongoClient.get_sensor_by_name(sensor_name["sensor"])
-    df = pd.DataFrame(value_doc["samples"])
-    df.index = pd.to_datetime(df['ts'], unit="s")
+    if value_doc is None:
+        df = pd.DataFrame({"val": []})
+    else:
+        df = pd.DataFrame(value_doc["samples"])
+        df.index = pd.to_datetime(df['ts'], unit = "s")
 
     figure = go.Figure(
         layout_title_text = sensor_doc["display"],

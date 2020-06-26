@@ -110,7 +110,10 @@ def generate_dashboard_column(col_description, index):
     col = [html.Div()]
     sensor_docs = mongoClient.get_sensor_by_id(col_description)
     for sensor in col_description:
-        add_element_col(None, col, index, str(sensor_docs[sensor]["_id"]))
+        if not sensor in sensor_docs:
+            add_element_col(None, col, index, None)
+        else:
+            add_element_col(None, col, index, str(sensor_docs[sensor]["_id"]))
     return col
 
 
