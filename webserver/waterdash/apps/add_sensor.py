@@ -12,17 +12,17 @@ from dash.dependencies import Input, Output, State
 from waterapp import app, mongoClient
 import re
 
+
 def get_layout(update):
     if update:
-        field_to_use = [dbc.Input(id = "add_sensor_name", placeholder = "Sensor name", type = "text", pattern = "[a-zA-Z0-9_]+", style= {"display": "None"}),
-                        dcc.Dropdown(id = "update_sensor_name", placeholder = "Sensor name", options=mongoClient.get_sensors_dropdown())]
+        field_to_use = [dbc.Input(id = "add_sensor_name", placeholder = "Sensor name", type = "text", pattern = "[a-zA-Z0-9_]+", style = {"display": "None"}),
+                        dcc.Dropdown(id = "update_sensor_name", placeholder = "Sensor name", options = mongoClient.get_sensors_dropdown())]
         button_text = "Update"
     else:
         field_to_use = [dbc.Input(id = "add_sensor_name", placeholder = "Sensor name", type = "text", pattern = "[a-zA-Z0-9_]+"),
-                        dcc.Dropdown(id = "update_sensor_name", placeholder = "Sensor name", options=mongoClient.get_sensors_dropdown(), style= {"display": "None"})]
+                        dcc.Dropdown(id = "update_sensor_name", placeholder = "Sensor name", options = mongoClient.get_sensors_dropdown(), style = {"display": "None"})]
         button_text = "Add"
-    
-    
+
     return [html.Div(
     [
         dbc.FormGroup([
@@ -77,6 +77,7 @@ def get_layout(update):
         ),
     ]
 
+
 @app.callback([Output('update_sensor_modal', 'is_open'), Output('update_sensor_modal_message', 'className'), Output('update_sensor_modal_message', 'children'),
                Output("add_sensor_display", "value"), Output("add_sensor_type", "value")],
                [Input("update_sensor_name", "value")])
@@ -84,13 +85,13 @@ def update_display(sensor_name):
     ctx = dash.callback_context
     if not ctx.triggered:
         return dash.no_update
-    
+
     sensor_doc = mongoClient.get_sensor_by_id(sensor_name)
     if sensor_doc is None:
         return True, "message-error", f"Unable to find sensor id {sensor_name}", dash.no_update, dash.no_update
-    
+
     return False, "", "", sensor_doc["display"], sensor_doc["data-type"]
-    
+
 
 @app.callback([Output('add_sensor_modal', 'is_open'), Output('add_sensor_modal_message', 'className'), Output('add_sensor_modal_message', 'children')],
               [Input('add_sensor_submit', 'n_clicks'), Input("add_sensor_modal_close", "n_clicks")],
@@ -101,7 +102,7 @@ def update_display(sensor_name):
                State('add_sensor_type', 'value'),
                State('add_sensor_controller', 'value'),
                State("add_sensor_modal", "is_open")])
-def create_update_sensor(submit, close, name, name_pattern, update_name, display, stype, is_open):
+def create_update_sensor(submit, close, name, name_pattern, update_name, display, stype, is_controller, is_open):
     ctx = dash.callback_context
     if not ctx.triggered or is_open:
         return False, "", ""
@@ -120,7 +121,7 @@ def create_update_sensor(submit, close, name, name_pattern, update_name, display
 
         sensor_id = mongoClient.add_sensor(data_dict)
         return True, "message-valid", f"Sensor successfully added with ID:{sensor_id}"
-    
+
     elif update_name is not None:
         # We are updating a sensor
         data_dict = {"display": display, "data-type": stype, "controller": is_controller == 1}

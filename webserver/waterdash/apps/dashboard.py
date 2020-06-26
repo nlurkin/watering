@@ -14,6 +14,7 @@ import pandas as pd
 from waterapp import app, mongoClient
 from datetime import datetime
 
+
 def build_sensor_card(sensor):
     sensor_element = None
     if sensor["data-type"] == "string":
@@ -88,8 +89,6 @@ def update_bool_metrics(_, sensor_name):
                     y = df["val"],
                     mode = "lines+markers",
                     )
-                )    
+                )
     return figure
 
-    
-    
