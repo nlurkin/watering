@@ -57,7 +57,9 @@ def display_page(pathname):
     if pathname == "/":
         return get_dashboard_list()
     elif pathname == "/add/sensor":
-        return add_sensor.layout
+        return add_sensor.get_layout(update=False)
+    elif pathname == "/update/sensor":
+        return add_sensor.get_layout(update=True)
     elif pathname == "/add/dashboard":
         return add_dashboard.layout
     elif pathname[:11] == '/dashboard/':
