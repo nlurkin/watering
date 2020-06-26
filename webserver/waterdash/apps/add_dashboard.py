@@ -48,7 +48,7 @@ def add_element_left(_, column, group_id):
     if not ctx.triggered:
         return column
     elt_num = len(column) - 1
-    db_sensor_list = [{"label":sensor["sensor"], "value":str(sensor["_id"])} for sensor in mongoClient.sensors_db.find({}, {"sensor":1, "_id": 1})]
+    db_sensor_list = mongoClient.get_sensors_dropdown()
     sensor_list = dcc.Dropdown(
         id = {"type": "sensor_list", "index":f"{group_id['index']}_{elt_num}"},
         options = db_sensor_list,
@@ -85,7 +85,7 @@ def update_output(submit, close, dashboard_name, dashboard_name_pattern, sensors
     if dashboard_name is None or not re.match(dashboard_name_pattern, dashboard_name):
         return True, "message-error", "Dashboard name is invalid, only alphanumerical characters and _ are allowed"
 
-    db_doc = mongoClient.dashboard_db.find_one({"name": dashboard_name})
+    db_doc = mongoClient.get_dashboard_by_name(dashboard_name)
     if db_doc is not None:
         return True, "message-error", f"A dashboard with same name already exists. Choose another name."
 
@@ -105,6 +105,6 @@ def update_output(submit, close, dashboard_name, dashboard_name_pattern, sensors
     right_sensors = [right_sensors[_] for _ in sorted(right_sensors)]
     data_dict = {"name": dashboard_name, "left": left_sensors, "right": right_sensors}
 
-    db_doc = mongoClient.dashboard_db.insert_one(data_dict)
+    db_doc = mongoClient.add_dashboard(data_dict)
     return True, "message-valid", f"Dashboard successfully added with ID:{db_doc.inserted_id}"
 

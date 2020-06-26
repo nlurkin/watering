@@ -12,7 +12,6 @@ from dash.dependencies import Input, Output, State, ALL, MATCH
 import plotly.graph_objects as go
 import pandas as pd
 from waterapp import app, server, mongoClient
-from bson.objectid import ObjectId
 from datetime import datetime
 
 df = pd.read_csv('data/stockdata2.csv', parse_dates = True)
@@ -58,14 +57,14 @@ def build_sensor_card(sensor):
 
 def generate_dashboard_column(col_description):
     col = []
-    sensor_docs = mongoClient.sensors_db.find({"_id": {"$in": [ObjectId(_) for _ in col_description]}})
+    sensor_docs = mongoClient.get_dashboard_by_id(col_description)
     for sensor in sensor_docs:
         col.append(build_sensor_card(sensor))
     return col
 
 
 def generate_layout(dashboard_name):
-    db_doc = mongoClient.dashboard_db.find_one({"name": dashboard_name})
+    db_doc = mongoClient.get_dashboard_by_name(dashboard_name)
     left_col = generate_dashboard_column(db_doc["left"])
     right_col = generate_dashboard_column(db_doc["right"])
 
@@ -79,5 +78,5 @@ def generate_layout(dashboard_name):
               [State({"type": "string_sensor", "sensor": MATCH}, 'id')])
 def update_metrics(_, sensor_name):
     day = datetime.now().strftime("%Y-%m-%d")
-    value_doc = mongoClient.client["sensors"][sensor_name["sensor"]].find_one({"day": day})
+    value_doc = mongoClient.get_sensor_values(sensor_name["sensor"], day)
     return "\n".join([_["val"] for _ in value_doc["samples"]])

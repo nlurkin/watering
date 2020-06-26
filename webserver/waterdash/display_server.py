@@ -38,9 +38,9 @@ def get_dashboard_list():
         dcc.Link('New controller', href = '/add/controller'),
         html.H3("Available dashboards"), ]
 
-    db_list = mongoClient.dashboard_db.find({}, {"name":1, "_id": 0})
+    db_list = mongoClient.get_dashboards_dropdown()
     for db in db_list:
-        elements.append(dcc.Link(db["name"], href = f"/dashboard/{db['name']}"))
+        elements.append(dcc.Link(db["label"], href = f"/dashboard/{db['label']}"))
 
     return elements
 
