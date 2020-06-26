@@ -38,9 +38,9 @@ def build_sensor_card(sensor):
 
 def generate_dashboard_column(col_description):
     col = []
-    sensor_docs = mongoClient.get_dashboard_by_id(col_description)
-    for sensor in sensor_docs:
-        col.append(build_sensor_card(sensor))
+    sensor_docs = mongoClient.get_sensor_by_id(col_description)
+    for sensor in col_description:
+        col.append(build_sensor_card(sensor_docs[sensor]))
     return col
 
 
