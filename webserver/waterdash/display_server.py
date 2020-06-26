@@ -31,16 +31,17 @@ index_layout = html.Div(
 def get_dashboard_list():
     elements = [
         html.H3("Add new elements"),
-        dcc.Link('New dashboard', href = '/add/dashboard'),
-        html.Br(),
-        dcc.Link('New sensor', href = '/add/sensor'),
-        html.Br(),
-        dcc.Link('New controller', href = '/add/controller'),
+        dbc.Row([dbc.Col(dcc.Link('New dashboard', href = '/add/dashboard'), width=1),
+                 dbc.Col(dcc.Link('Update dashboard', href = '/update/dashboard'), width=1)]),
+        dbc.Row([dbc.Col(dcc.Link('New sensor', href = '/add/sensor'), width=1),
+                 dbc.Col(dcc.Link('Update sensor', href = '/update/sensor'), width=1)]),
+        dbc.Row(dbc.Col(dcc.Link('New controller', href = '/add/controller'), width=1)),
         html.H3("Available dashboards"), ]
 
     db_list = mongoClient.get_dashboards_dropdown()
     for db in db_list:
-        elements.append(dcc.Link(db["label"], href = f"/dashboard/{db['label']}"))
+        elements.append(
+            dbc.Row(dbc.Col(dcc.Link(db["label"], href = f"/dashboard/{db['label']}"))))
 
     return elements
 
