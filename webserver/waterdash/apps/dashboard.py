@@ -11,38 +11,13 @@ import dash_core_components as dcc
 from dash.dependencies import Input, Output, State, ALL, MATCH
 import plotly.graph_objects as go
 import pandas as pd
-from waterapp import app, server, mongoClient
+from waterapp import app, mongoClient
 from datetime import datetime
-
-df = pd.read_csv('data/stockdata2.csv', parse_dates = True)
-df.index = pd.to_datetime(df['Date'])
-
-# graph = dcc.Graph(
-#    id = 'pump1_status',
-#    # config = {'displayModeBar': False},
-#    animate = True,
-#    figure = go.Figure(
-#        layout_title_text = "Pump1 status",
-#        layout_title_x = 0.5,
-#        layout_margin_t = 50,
-#        layout_margin_b = 10,
-#        layout_height = 300,
-#        layout_template = "plotly_dark",
-#        )
-#        .add_trace(go.Scatter(
-#            x = df['Date'],
-#            y = df['value'],
-#            mode = "lines+markers",
-#            ))
-#    )
-#
-# graph2 = html.H2("Text")
-
 
 def build_sensor_card(sensor):
     sensor_element = None
     if sensor["data-type"] == "string":
-        sensor_element = dcc.Textarea(
+        sensor_element = [html.H5(sensor["display"]), dcc.Textarea(
           value = '',
           style = {'width': '100%', 'height': '300px'},
           id = {"type": "string_sensor", "sensor": sensor["sensor"]},
@@ -50,7 +25,13 @@ def build_sensor_card(sensor):
           contentEditable = True,
           persistence = False,
           rows = 30,
-        )
+        )]
+    elif sensor["data-type"] == "bool":
+        sensor_element = dcc.Graph(
+            id = {"type": "bool_sensor", "sensor": sensor["sensor"]},
+            # config = {'displayModeBar': False},
+            animate = True,
+            )
 
     return dbc.Card(sensor_element)
 
@@ -76,7 +57,36 @@ def generate_layout(dashboard_name):
 @app.callback(Output({"type": "string_sensor", "sensor": MATCH}, 'value'),
               [Input('interval-component', 'n_intervals')],
               [State({"type": "string_sensor", "sensor": MATCH}, 'id')])
-def update_metrics(_, sensor_name):
+def update_string_metrics(_, sensor_name):
     day = datetime.now().strftime("%Y-%m-%d")
     value_doc = mongoClient.get_sensor_values(sensor_name["sensor"], day)
-    return "\n".join([_["val"] for _ in value_doc["samples"]])
+    return "".join([_["val"] for _ in value_doc["samples"]])
+
+
+@app.callback(Output({"type": "bool_sensor", "sensor": MATCH}, 'figure'),
+              [Input('interval-component', 'n_intervals')],
+              [State({"type": "bool_sensor", "sensor": MATCH}, 'id')])
+def update_bool_metrics(_, sensor_name):
+    day = datetime.now().strftime("%Y-%m-%d")
+    value_doc = mongoClient.get_sensor_values(sensor_name["sensor"], day)
+    sensor_doc = mongoClient.get_sensor_by_name(sensor_name["sensor"])
+    df = pd.DataFrame(value_doc["samples"])
+    df.index = pd.to_datetime(df['ts'], unit="s")
+
+    figure = go.Figure(
+        layout_title_text = sensor_doc["display"],
+        layout_title_x = 0.5,
+        layout_margin_t = 50,
+        layout_margin_b = 10,
+        layout_height = 200,
+        layout_template = "plotly_dark",
+        ).add_trace(go.Scatter(
+                    x = df.index,
+                    y = df["val"],
+                    mode = "lines+markers",
+                    )
+                )    
+    return figure
+
+    
+    
