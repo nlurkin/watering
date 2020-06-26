@@ -8,6 +8,7 @@ Created on 19-Jun-2020
 from flask import Flask, request, g
 from flask import make_response, jsonify
 from werkzeug.exceptions import abort
+from werkzeug.serving import WSGIRequestHandler
 
 from mongodb import myMongoClient
 from datetime import datetime
@@ -32,6 +33,7 @@ def close_db(e = None):
 
 @server.route("/", methods = ["GET"])
 def home():
+    print("Home route")
     return "<h1>Welcome to the waterdash Data-Server</h1>"
 
 
@@ -39,15 +41,22 @@ def home():
 def api_sensor(sensor_name):
     db = get_db()
     sensor_doc = db.sensors_db.find_one({"sensor": sensor_name})
-
+    
     if not sensor_doc:
         return abort(404, description = f"Sensor {sensor_name} does not exist")
 
+    print(sensor_name, request.data)
     if request.method == "POST":
         sensor_coll = db.client["sensors"][sensor_name]
         ts = datetime.now().timestamp()
         day = datetime.now().strftime("%Y-%m-%d")
-        sample = {"val": request.data.decode("utf8"), "ts": ts}
+        val = request.data.decode("utf8")
+        if sensor_doc["data-type"] == "float":
+            val = float(val)
+        elif sensor_doc["data-type"] == "bool":
+            val = int(val)
+            
+        sample = {"val": val, "ts": ts}
         sensor_coll.update_one({"sensorid": str(sensor_doc["_id"]), "nsamples": {"$lt": 200}, "day": day},
                               {"$push": { "samples": sample},
                                "$min": { "first": ts},
@@ -64,4 +73,5 @@ def not_found(error):
 
 
 if __name__ == '__main__':
-    server.run(port = 8051, debug = True)
+    WSGIRequestHandler.protocol_version = "HTTP/1.1"
+    server.run(host="192.168.1.20", port = 8000, debug = True)
