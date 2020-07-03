@@ -7,8 +7,8 @@
 
 #include <Arduino.h>
 #include "AutomaticWater.h"
-#include "LibESP8266/ESP8266Wifi.h"
-#include "LibNetwork/NetworkStream.h"
+#include "ESP8266Wifi.h"
+#include "NetworkStream.h"
 #include "RemoteControl.h"
 
 //TODO add detection of sensor failure and permanently disable pump

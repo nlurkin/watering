@@ -12,7 +12,7 @@
 #include "PumpControl.h"
 #include "LCDWaterDisplay.h"
 #include "ValveController.h"
-#include "LibNetwork/Publication.h"
+#include "Publication.h"
 
 class RemoteControl;
 
