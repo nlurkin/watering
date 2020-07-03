@@ -168,7 +168,7 @@ HTTPRequest HTTPRequest::http_200() {
 	return h;
 }
 
-HTTPRequest HTTPRequest::http_post() {
+HTTPRequest HTTPRequest::http_post(const char* path) {
 	HTTPRequest h;
 	h._header._request_type = POST;
 	h._header._version_major = 1;
@@ -178,6 +178,7 @@ HTTPRequest HTTPRequest::http_post() {
 	h._header._answer_reason[0] = '\0';
 	strcpy_P(h._header._content_type, PSTR("application/json"));
 	h._header._length = 0;
-	strcpy_P(h._header._path, PSTR("/"));
+	//strcpy_P(h._header._path, PSTR("/"));
+	strcpy(h._header._path, path);
 	return h;
 }

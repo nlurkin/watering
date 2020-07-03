@@ -49,7 +49,7 @@ public:
 	size_t generate();
 
 	static HTTPRequest http_200();
-	static HTTPRequest http_post();
+	static HTTPRequest http_post(const char* path);
 private:
 	void extractParts(const char *payload);
 	void decodeHeader(const char *line);

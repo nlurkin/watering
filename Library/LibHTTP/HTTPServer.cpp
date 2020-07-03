@@ -47,7 +47,7 @@ String HTTPServer::loop() {
 }
 
 bool HTTPServer::sendData(const char *address, uint16_t port) {
-	HTTPRequest r = HTTPRequest::http_post();
+	HTTPRequest r = HTTPRequest::http_post("/");
 	char buff[HTTPRequest::MAX_PACKET_LENGTH];
 	strcpy_P(buff, PSTR("{s:atm,v:5}"));
 	r.addContent(buff);
