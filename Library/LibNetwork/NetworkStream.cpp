@@ -83,7 +83,7 @@ int NetworkStream::availableForWrite() {
 }
 
 void NetworkStream::flush() {
-	HTTPRequest r = HTTPRequest::http_post();
+	HTTPRequest r = HTTPRequest::http_post("/api/v1/arduino_console");
 	char buff[NETWORK_TX_BUFFER_SIZE+HTTPRequest::MAX_HEADER_LENGTH]; //Must be able to contain data + header
 	_tx_buffer.get(buff, NETWORK_TX_BUFFER_SIZE);
 	clear();

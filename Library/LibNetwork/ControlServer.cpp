@@ -41,7 +41,7 @@ void ControlServer::setDestination(const char *address, uint16_t port) {
 
 
 bool ControlServer::serve() {
-	char buff1[MAX_MESSAGE_LENGTH] = "#MQTT#"; //Must be able to contain data + header
+	char buff1[MAX_MESSAGE_LENGTH] = ""; //Must be able to contain data + header
 	char buff[MAX_MESSAGE_LENGTH+HTTPRequest::MAX_HEADER_LENGTH]; //Must be able to contain data + header
 	uint8_t nPubReady=0;
 	PublicationBase *updatedPublications[MAX_PUBLICATIONS];
@@ -56,13 +56,13 @@ bool ControlServer::serve() {
 	if(nPubReady==0)
 		return false;
 
-	int conn = _wifi.openConnection(_dest_address, _dest_port);
-
 	for(uint8_t iPub=0; iPub<nPubReady; ++iPub){
 			Serial.print("Updating publication ");
 			Serial.println(updatedPublications[iPub]->getName());
-			HTTPRequest r = HTTPRequest::http_post();
-			updatedPublications[iPub]->to_string(buff1+6);
+			char path_buf[30] = "/api/v1/";
+			strcpy(path_buf+8, updatedPublications[iPub]->getName());
+			HTTPRequest r = HTTPRequest::http_post(path_buf);
+			updatedPublications[iPub]->to_string(buff1);
 			r.addContent(buff1);
 			if(iPub<nPubReady-1)
 				r.setConnectionType(HTTPRequest::CONN_KEEPALIVE);
@@ -70,10 +70,13 @@ bool ControlServer::serve() {
 				r.setConnectionType(HTTPRequest::CONN_CLOSE);
 			r.generate();
 			r.getRawRequest(buff);
-			_wifi.sendPacket(buff, conn);
+			int conn = _wifi.openConnection(_dest_address, _dest_port);
+			if(_wifi.sendPacket(buff, conn)){
+				Serial.println("Send successful");
+			}
+			_wifi.closeConnection(conn);
 			updatedPublications[iPub]->updated(false);
 	}
-	_wifi.closeConnection(conn);
 
 	return true;
 }
