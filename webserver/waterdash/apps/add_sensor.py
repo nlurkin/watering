@@ -13,7 +13,26 @@ from waterapp import app, mongoClient
 import re
 
 
-def get_layout(update):
+def get_layout(update = False, dolist = False):
+    if dolist:
+        return build_list_layout()
+    else:
+        return build_mod_layout(update)
+
+
+def build_list_layout():
+    t_header = [html.Thead(html.Tr([html.Th("Sensor"), html.Th("Display Name"), html.Th("Type"), html.Th("Controller?")]))]
+
+    t_body = [html.Tr([
+        html.Td(sensor['sensor']), html.Td(sensor['display']),
+        html.Td(sensor['data-type']), html.Td(dbc.Checklist(options = [{"label": "", "value": 1, "disabled":True}],
+            value = [1] if sensor["controller"] else [], id = sensor["sensor"], switch = True,))
+        ]) for sensor in mongoClient.get_sensors_list()]
+
+    return [html.Div(dbc.Table(t_header + t_body, dark = True, striped = True))]
+
+
+def build_mod_layout(update):
     if update:
         field_to_use = [dbc.Input(id = "add_sensor_name", placeholder = "Sensor name", type = "text", pattern = "[a-zA-Z0-9_]+", style = {"display": "None"}),
                         dcc.Dropdown(id = "update_sensor_name", placeholder = "Sensor name", options = mongoClient.get_sensors_dropdown())]
