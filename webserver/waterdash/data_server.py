@@ -47,7 +47,6 @@ def api_sensor(sensor_name):
 
     print(sensor_name, request.data)
     if request.method == "POST":
-        sensor_coll = db.client["sensors"][sensor_name]
         ts = datetime.now().timestamp()
         day = datetime.now().strftime("%Y-%m-%d")
         val = request.data.decode("utf8")
@@ -55,15 +54,8 @@ def api_sensor(sensor_name):
             val = float(val)
         elif sensor_doc["data-type"] == "bool":
             val = int(val)
+        db.update_sensor_values(sensor_doc, sensor_name, val, day, ts)
 
-        sample = {"val": val, "ts": ts}
-        sensor_coll.update_one({"sensorid": str(sensor_doc["_id"]), "nsamples": {"$lt": 200}, "day": day},
-                              {"$push": { "samples": sample},
-                               "$min": { "first": ts},
-                               "$max": { "last": ts},
-                               "$inc": { "nsamples": 1}
-                               },
-                              upsert = True)
         return jsonify({"status": 'Success'}), 200
 
 

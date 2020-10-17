@@ -75,3 +75,28 @@ class myMongoClient(object):
 
     def get_sensors_list(self):
         return list(self.sensors_db.find({}))
+
+    def update_sensor_values(self, sensor_doc, sensor_name, val, day, ts):
+        sensor_coll = self.client["sensors"][sensor_name]
+
+        sample = {"val": val, "ts": ts}
+        sensor_coll.update_one({"sensorid": str(sensor_doc["_id"]), "nsamples": {"$lt": 200}, "day": day},
+                              {"$push": { "samples": sample},
+                               "$min": { "first": ts},
+                               "$max": { "last": ts},
+                               "$inc": { "nsamples": 1}
+                               },
+                              upsert = True)
+
+    def update_controller_values(self, sensor_doc, sensor_name, val, day, ts):
+        sensor_coll = self.client["sensors"][sensor_name]
+
+        sample = {"val": val, "ts": ts}
+        sensor_coll.update_one({"sensorid": str(sensor_doc["_id"]), "nsamples": {"$lt": 200}, "day": day},
+                              {"$push": { "setpoint": sample},
+                               "$min": { "first": ts},
+                               "$max": { "last": ts},
+                               "$setOnInsert": { "nsamples": 0}
+                               },
+                              upsert = True)
+
