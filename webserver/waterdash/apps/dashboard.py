@@ -5,6 +5,7 @@ Created on 87 Jun 2020
 @author: Nicolas Lurkin
 '''
 
+import dash
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
@@ -75,11 +76,21 @@ def update_bool_metrics(_, sensor_name):
     day = datetime.now().strftime("%Y-%m-%d")
     value_doc = mongoClient.get_sensor_values(sensor_name["sensor"], day)
     sensor_doc = mongoClient.get_sensor_by_name(sensor_name["sensor"])
+    with_setpoint = False
     if value_doc is None:
         df = pd.DataFrame({"val": []})
     else:
-        df = pd.DataFrame(value_doc["samples"])
-        df.index = pd.to_datetime(df['ts'], unit = "s")
+        if "samples" not in value_doc:
+            df = pd.DataFrame({"val": []})
+        else:
+            df = pd.DataFrame(value_doc["samples"])
+            df.index = pd.to_datetime(df['ts'], unit = "s")
+        if "setpoint" in value_doc:
+            dsp = pd.DataFrame(value_doc["setpoint"])
+            dsp.index = pd.to_datetime(dsp['ts'], unit = "s")
+            dsp = dsp.rename(columns = {"val": "sp"})
+            df = pd.merge(df, dsp, how = 'outer', left_index = True, right_index = True)
+            with_setpoint = True
 
     figure = go.Figure(
         layout_title_text = sensor_doc["display"],
@@ -92,8 +103,17 @@ def update_bool_metrics(_, sensor_name):
                     x = df.index,
                     y = df["val"],
                     mode = "lines+markers",
+                    name = "Read"
                     )
                 )
+    if with_setpoint:
+        figure = figure.add_trace(go.Scatter(
+                    x = df.index,
+                    y = df["sp"],
+                    mode = "lines+markers",
+                    name = "Set"
+                    )
+        )
     return figure
 
 
