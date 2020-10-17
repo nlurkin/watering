@@ -28,11 +28,15 @@ def build_sensor_card(sensor):
           rows = 30,
         )]
     elif sensor["data-type"] == "bool":
-        sensor_element = dcc.Graph(
+        sensor_element = [dcc.Graph(
             id = {"type": "bool_sensor", "sensor": sensor["sensor"]},
             # config = {'displayModeBar': False},
             animate = True,
-            )
+            )]
+        if "controller" in sensor and sensor["controller"]:
+            sensor_element.append(dbc.Checklist(options = [{"label": "", "value": 1}],
+            value = [1], id = {"type": "bool_controller", "sensor": sensor["sensor"]}, switch = True,))
+            sensor_element.append(html.P(id = {"type": "dummy", "sensor": sensor["sensor"]}))
 
     return dbc.Card(sensor_element)
 
@@ -92,3 +96,22 @@ def update_bool_metrics(_, sensor_name):
                 )
     return figure
 
+
+@app.callback(Output({"type": "dummy", "sensor": MATCH}, 'value'),
+              [Input({"type": "bool_controller", "sensor": MATCH}, 'value')],
+              [State({"type": "bool_sensor", "sensor": MATCH}, 'id')])
+def update_bool_controller_setpoint(controller_value, sensor_name):
+    ctx = dash.callback_context
+    if not ctx.triggered:
+        return dash.no_update
+
+    sensor_name = sensor_name["sensor"]
+
+    sensor_doc = mongoClient.sensors_db.find_one({"sensor": sensor_name})
+
+    ts = datetime.now().timestamp()
+    day = datetime.now().strftime("%Y-%m-%d")
+    val = 0 if len(controller_value) == 0 else 1
+    mongoClient.update_controller_values(sensor_doc, sensor_name, val, day, ts)
+
+    return ""
