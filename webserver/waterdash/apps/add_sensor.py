@@ -26,7 +26,7 @@ def build_list_layout():
     t_body = [html.Tr([
         html.Td(sensor['sensor']), html.Td(sensor['display']),
         html.Td(sensor['data-type']), html.Td(dbc.Checklist(options = [{"label": "", "value": 1, "disabled":True}],
-            value = [1] if sensor["controller"] else [], id = sensor["sensor"], switch = True,))
+            value = [1] if ("controller" in sensor and sensor["controller"]) else [], id = sensor["sensor"], switch = True,))
         ]) for sensor in mongoClient.get_sensors_list()]
 
     return [html.Div(dbc.Table(t_header + t_body, dark = True, striped = True))]
@@ -98,7 +98,7 @@ def build_mod_layout(update):
 
 
 @app.callback([Output('update_sensor_modal', 'is_open'), Output('update_sensor_modal_message', 'className'), Output('update_sensor_modal_message', 'children'),
-               Output("add_sensor_display", "value"), Output("add_sensor_type", "value")],
+               Output("add_sensor_display", "value"), Output("add_sensor_type", "value"), Output("add_sensor_controller", "value")],
                [Input("update_sensor_name", "value")])
 def update_display(sensor_name):
     ctx = dash.callback_context
@@ -109,7 +109,7 @@ def update_display(sensor_name):
     if sensor_doc is None:
         return True, "message-error", f"Unable to find sensor id {sensor_name}", dash.no_update, dash.no_update
 
-    return False, "", "", sensor_doc["display"], sensor_doc["data-type"]
+    return False, "", "", sensor_doc["display"], sensor_doc["data-type"], [1] if ("controller" in sensor_doc and sensor_doc["controller"]) else []
 
 
 @app.callback([Output('add_sensor_modal', 'is_open'), Output('add_sensor_modal_message', 'className'), Output('add_sensor_modal_message', 'children')],
