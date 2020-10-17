@@ -2,3 +2,8 @@ build/
 .project
 .cproject
 .settings/
+Release/
+spec.d
+__pycache__/
+.pydevproject
+dbdata/
