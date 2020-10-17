@@ -7,3 +7,4 @@ spec.d
 __pycache__/
 .pydevproject
 dbdata/
+*.pyc

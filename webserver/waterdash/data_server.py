@@ -41,7 +41,7 @@ def home():
 def api_sensor(sensor_name):
     db = get_db()
     sensor_doc = db.sensors_db.find_one({"sensor": sensor_name})
-    
+
     if not sensor_doc:
         return abort(404, description = f"Sensor {sensor_name} does not exist")
 
@@ -55,7 +55,7 @@ def api_sensor(sensor_name):
             val = float(val)
         elif sensor_doc["data-type"] == "bool":
             val = int(val)
-            
+
         sample = {"val": val, "ts": ts}
         sensor_coll.update_one({"sensorid": str(sensor_doc["_id"]), "nsamples": {"$lt": 200}, "day": day},
                               {"$push": { "samples": sample},

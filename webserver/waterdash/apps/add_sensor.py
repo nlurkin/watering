@@ -13,7 +13,26 @@ from waterapp import app, mongoClient
 import re
 
 
-def get_layout(update):
+def get_layout(update = False, dolist = False):
+    if dolist:
+        return build_list_layout()
+    else:
+        return build_mod_layout(update)
+
+
+def build_list_layout():
+    t_header = [html.Thead(html.Tr([html.Th("Sensor"), html.Th("Display Name"), html.Th("Type"), html.Th("Controller?")]))]
+
+    t_body = [html.Tr([
+        html.Td(sensor['sensor']), html.Td(sensor['display']),
+        html.Td(sensor['data-type']), html.Td(dbc.Checklist(options = [{"label": "", "value": 1, "disabled":True}],
+            value = [1] if sensor["controller"] else [], id = sensor["sensor"], switch = True,))
+        ]) for sensor in mongoClient.get_sensors_list()]
+
+    return [html.Div(dbc.Table(t_header + t_body, dark = True, striped = True))]
+
+
+def build_mod_layout(update):
     if update:
         field_to_use = [dbc.Input(id = "add_sensor_name", placeholder = "Sensor name", type = "text", pattern = "[a-zA-Z0-9_]+", style = {"display": "None"}),
                         dcc.Dropdown(id = "update_sensor_name", placeholder = "Sensor name", options = mongoClient.get_sensors_dropdown())]
@@ -114,7 +133,7 @@ def create_update_sensor(submit, close, name, name_pattern, update_name, display
         if display is None:
             display = name
 
-        data_dict = {"sensor": name, "display": display, "data-type": stype, "controller": is_controller == 1}
+        data_dict = {"sensor": name, "display": display, "data-type": stype, "controller": 1 in is_controller}
         sensor_doc = mongoClient.get_sensor_by_name(name)
         if sensor_doc is not None:
             return True, "message-error", f"A sensor with same name already exists. Choose another name."
@@ -124,7 +143,7 @@ def create_update_sensor(submit, close, name, name_pattern, update_name, display
 
     elif update_name is not None:
         # We are updating a sensor
-        data_dict = {"display": display, "data-type": stype, "controller": is_controller == 1}
+        data_dict = {"display": display, "data-type": stype, "controller": 1 in is_controller}
         mongoClient.update_sensor_by_id(update_name, data_dict)
         return True, "message-valid", f"Sensor with ID {update_name} successfully updated"
 

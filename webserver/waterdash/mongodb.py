@@ -44,7 +44,7 @@ class myMongoClient(object):
 
     def update_sensor_by_id(self, sensor_id, updated_data):
         self.sensors_db.update_one({"_id": ObjectId(sensor_id)}, {"$set": updated_data})
-        
+
     def get_dashboard_by_id(self, dashboard_id):
         if isinstance(dashboard_id, list):
             return self.dashboard_db.find({"_id": {"$in": [ObjectId(_) for _ in dashboard_id]}})
@@ -66,10 +66,12 @@ class myMongoClient(object):
 
     def get_sensors_dropdown(self):
         return [{"label":sensor["sensor"], "value":str(sensor["_id"])} for sensor in self.sensors_db.find({}, {"sensor":1, "_id": 1})]
-    
+
     def get_dashboards_dropdown(self):
         return [{"label": db["name"], "value": str(db["_id"])} for db in self.dashboard_db.find({}, {"name":1, "_id": 1})]
 
     def get_sensor_values(self, sensor_name, day):
         return self.client["sensors"][sensor_name].find_one({"day": {"$lte": day}}, {"samples": 1, "_id": 0})
 
+    def get_sensors_list(self):
+        return list(self.sensors_db.find({}))

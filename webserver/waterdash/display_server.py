@@ -34,7 +34,8 @@ def get_dashboard_list():
         dbc.Row([dbc.Col(dcc.Link('New dashboard', href = '/add/dashboard'), width = 1),
                  dbc.Col(dcc.Link('Update dashboard', href = '/update/dashboard'), width = 1)]),
         dbc.Row([dbc.Col(dcc.Link('New sensor', href = '/add/sensor'), width = 1),
-                 dbc.Col(dcc.Link('Update sensor', href = '/update/sensor'), width = 1)]),
+                 dbc.Col(dcc.Link('Update sensor', href = '/update/sensor'), width = 1),
+                 dbc.Col(dcc.Link('List sensors', href = '/list/sensor'), width = 1)]),
         html.H3("Available dashboards"), ]
 
     db_list = mongoClient.get_dashboards_dropdown()
@@ -59,6 +60,8 @@ def display_page(pathname):
         return add_sensor.get_layout(update = False)
     elif pathname == "/update/sensor":
         return add_sensor.get_layout(update = True)
+    elif pathname == "/list/sensor":
+        return add_sensor.get_layout(dolist = True)
     elif pathname == "/add/dashboard":
         return add_dashboard.get_layout(update = False)
     elif pathname == "/update/dashboard":
