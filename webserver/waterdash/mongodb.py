@@ -71,7 +71,7 @@ class myMongoClient(object):
         return [{"label": db["name"], "value": str(db["_id"])} for db in self.dashboard_db.find({}, {"name":1, "_id": 1})]
 
     def get_sensor_values(self, sensor_name, day):
-        return self.client["sensors"][sensor_name].find_one({"day": {"$lte": day}}, {"samples": 1, "_id": 0})
+        return self.client["sensors"][sensor_name].find_one({"day": {"$lte": day}}, {"samples": 1, "setpoint": 1, "_id": 0})
 
     def get_sensors_list(self):
         return list(self.sensors_db.find({}))
