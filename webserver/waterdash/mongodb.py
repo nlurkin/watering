@@ -76,6 +76,9 @@ class myMongoClient(object):
     def get_sensors_list(self):
         return list(self.sensors_db.find({}))
 
+    def get_controllers_list(self):
+        return list(self.sensors_db.find({"controller": True}))
+
     def update_sensor_values(self, sensor_doc, sensor_name, val, day, ts):
         sensor_coll = self.client["sensors"][sensor_name]
 
@@ -99,4 +102,7 @@ class myMongoClient(object):
                                "$setOnInsert": { "nsamples": 0}
                                },
                               upsert = True)
+
+    def get_controller_values(self, sensor_name, day):
+        return self.client["sensors"][sensor_name].find_one({"day": {"$lte": day}}, {"setpoint": 1, "_id": 0})["setpoint"]
 
