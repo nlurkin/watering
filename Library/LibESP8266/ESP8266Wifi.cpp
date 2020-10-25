@@ -295,6 +295,10 @@ void ESP8266Wifi::read_payload(const char *initdata) {
 		return;
 
 	size_t init_len = _payload[conn_number]->push(data_start+1);
+	if(init_len==datas) {//No more to read
+		_payload[conn_number]->print();
+		return;
+	}
 	_payload[conn_number]->push('\n');
 	char buff[PAYLOAD_SIZE];
 	_client.readRaw(buff, datas-init_len-1);
