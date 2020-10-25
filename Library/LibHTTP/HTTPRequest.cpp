@@ -121,7 +121,7 @@ void HTTPRequest::extractParts(const char *payload) {
 
 	strncpy(_raw_header, payload, header_len); //Does not include a null-terminating char
 	_raw_header[header_len] = '\0';
-	strncpy(_body, start_data, data_len); //Does include the null-terminating char
+	strncpy(_body, start_data, data_len+1); //Does include the null-terminating char
 
 	char *ptr = strtok_P(_raw_header, g_SEP_NEWLINE);
 	while(ptr!=nullptr){
