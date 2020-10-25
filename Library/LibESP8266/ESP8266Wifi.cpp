@@ -264,6 +264,20 @@ int8_t ESP8266Wifi::payloadAvailable() const {
 	return -1;
 }
 
+int ESP8266Wifi::payloadContainsAt(uint8_t conn_number, const char *str) const {
+	// Do not try to check payload for undefined payloads
+	if(conn_number>4 || !_payload[conn_number])
+		return false;
+	return _payload[conn_number]->containsAt(str);
+}
+
+size_t ESP8266Wifi::payloadLen(uint8_t conn_number) const {
+	// Do not try to check payload for undefined payloads
+	if(conn_number>4 || !_payload[conn_number])
+		return 0;
+	return _payload[conn_number]->len();
+}
+
 size_t ESP8266Wifi::getPayload(char *buff, uint8_t conn_number, size_t max) {
 	// Do not try to get payload for undefined payloads
 	if(conn_number>4 || !_payload[conn_number])

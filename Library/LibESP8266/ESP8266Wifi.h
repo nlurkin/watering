@@ -44,6 +44,8 @@ public:
 	bool restartBoard() const;
 
 	int8_t payloadAvailable() const;
+	int payloadContainsAt(uint8_t conn_number, const char* str) const;
+	size_t payloadLen(uint8_t conn_number) const;
 	size_t getPayload(char *buff, uint8_t conn_number, size_t max);
 private:
 	static bool startsWith(const char *str, const char *search);

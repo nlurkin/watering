@@ -84,6 +84,18 @@ bool Buffer::startsWith(const __FlashStringHelper* str) const {
 	return c=='\0'; // The loop went through the whole string, finding each character equal
 }
 
+int Buffer::containsAt(const char *str) const {
+	char *p = _p_begin;
+	const char *needle = str;
+	while( (p!=_p_end)){
+		if(*(p++)!=*(needle++))
+			needle = str; // When the chars are not the same, reset the needle to beginning
+		if(*needle=='\0') //We actually went through the whole needle. This is it
+			return p-_p_begin-strlen(str);
+	}
+	return -1; // We went through the whole buffer without finding the needle. Fail
+}
+
 void Buffer::print() const {
 	char * p = _p_begin;
 	Serial.print(F("Buffer state ("));

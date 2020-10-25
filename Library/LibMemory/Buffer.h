@@ -24,6 +24,7 @@ public:
 	char peek() const;
 	bool startsWith(const char *str) const;
 	bool startsWith(const __FlashStringHelper *str) const;
+	int  containsAt(const char *str) const;
 	void print() const;
 
 	char   read();
