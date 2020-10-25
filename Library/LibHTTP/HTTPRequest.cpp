@@ -111,7 +111,8 @@ size_t HTTPRequest::generate() {
 
 void HTTPRequest::extractParts(const char *payload) {
 	char *start_data = strstr_P(payload, PSTR("\r\n\r\n"))+4; //Separation between header and data are 2 blank lines
-	size_t header_len = start_data-payload-4;
+	if(start_data==nullptr) //Request incomplete. Data not present.
+		return;
 	size_t data_len = strlen(start_data);
 	if(header_len>=MAX_HEADER_LENGTH) //Maximum header length, do no process
 		return;
