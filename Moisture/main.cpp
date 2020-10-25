@@ -45,8 +45,11 @@ void setup(){
 	}
 	Serial.println(F("Connected to wifi"));
 	mySerial.setDestination("192.168.1.20", 8000);
-	mySerial.begin(80);
+	//mySerial.begin(80);
 	pubServer.setDestination("192.168.1.20", 8000);
+	pubServer.begin(80);
+
+	mySerial.println("Arduino running");
 
 	// Set tick at 1s - used for pump and sensor, not for display and buttons
 	waterSystem.setTickInterval(1000);
