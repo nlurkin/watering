@@ -12,8 +12,11 @@ from werkzeug.serving import WSGIRequestHandler
 
 from mongodb import myMongoClient
 from datetime import datetime
+import urllib.request
 
 server = Flask(__name__)
+
+clientAddress = "http://192.168.0.27:80/"
 
 
 def get_db():
@@ -29,6 +32,26 @@ def close_db(e = None):
 
     if db is not None:
         db.close()
+
+
+@server.route("/control", methods = ["GET"])
+def check_control():
+    db = get_db()
+    ctrl_list = db.get_controllers_list()
+    day = datetime.now().strftime("%Y-%m-%d")
+    for controller in ctrl_list:
+        ctrl_values = db.get_sensor_values(controller["sensor"], day)
+        if not "setpoint" in ctrl_values:
+            continue
+        last_sp = ctrl_values["setpoint"][-1]
+
+        if not "samples" in ctrl_values or ctrl_values["samples"][-1] != last_sp:
+            req = urllib.request.Request(url = clientAddress, data = "yyy".encode("ASCII"), method = 'PUT')
+            with urllib.request.urlopen(req):
+                pass
+
+            return "<h1>Control updated</h1>"
+    return "<h1>Control checked</h1>"
 
 
 @server.route("/", methods = ["GET"])
