@@ -89,4 +89,4 @@ def not_found(error):
 
 if __name__ == '__main__':
     WSGIRequestHandler.protocol_version = "HTTP/1.1"
-    server.run(host="192.168.1.20", port = 8000, debug = True)
+    server.run(host = "192.168.0.18", port = 8000, debug = True)

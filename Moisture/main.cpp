@@ -44,9 +44,9 @@ void setup(){
 		delay(5000);
 	}
 	Serial.println(F("Connected to wifi"));
-	mySerial.setDestination("192.168.1.20", 8000);
+	mySerial.setDestination("192.168.0.18", 8000);
 	//mySerial.begin(80);
-	pubServer.setDestination("192.168.1.20", 8000);
+	pubServer.setDestination("192.168.0.18", 8000);
 	pubServer.begin(80);
 
 	mySerial.println("Arduino running");
@@ -78,6 +78,7 @@ void loop(){
 	}
 
 	wifi.readAndPrint();
+	pubServer.listen();
 
 	// But run at 0.1s
 	// This ensures enough reactivity when buttons are pressed
