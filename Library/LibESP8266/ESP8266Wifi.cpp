@@ -301,7 +301,7 @@ void ESP8266Wifi::read_payload(const char *initdata) {
 	}
 	_payload[conn_number]->push('\n');
 	char buff[PAYLOAD_SIZE];
-	_client.readRaw(buff, datas-init_len-1);
+	_client.readRaw(buff, datas-init_len);
 	_payload[conn_number]->push(buff);
 }
 
