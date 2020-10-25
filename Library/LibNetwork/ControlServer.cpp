@@ -9,6 +9,8 @@
 #include "ControlServer.h"
 #include "PublicationBase.h"
 
+#define FPSTR(pstr_pointer) (reinterpret_cast<const __FlashStringHelper *>(pstr_pointer))
+
 ControlServer::ControlServer(ESP8266Wifi &wifi) :
 	_num_publications(0),
 	_publications{nullptr},
@@ -38,7 +40,12 @@ void ControlServer::setDestination(const char *address, uint16_t port) {
 	_dest_port = port;
 }
 
-
+void ControlServer::begin(uint16_t port){
+	if(_wifi.startServer(port)){
+		static const char message[] PROGMEM = {"Server started on port 80"};
+		Serial.println(FPSTR(message));
+	}
+}
 
 bool ControlServer::serve() {
 	char buff1[MAX_MESSAGE_LENGTH] = ""; //Must be able to contain data + header
@@ -78,5 +85,30 @@ bool ControlServer::serve() {
 			updatedPublications[iPub]->updated(false);
 	}
 
+	return true;
+}
+
+bool ControlServer::listen() {
+	int8_t conn = _wifi.payloadAvailable();
+	if(conn==-1)
+		return false;
+
+	String data;
+	char buff[ESP8266Wifi::PAYLOAD_SIZE];
+	if (conn != -1) {
+		int pos_data = _wifi.payloadContainsAt(conn, "\r\n\r\n");
+		if(pos_data==-1 or (pos_data==_wifi.payloadLen(conn)-4) )
+			//Incomplete data
+			return false;
+		_wifi.getPayload(buff, conn, ESP8266Wifi::PAYLOAD_SIZE);
+		HTTPRequest http(buff);
+		if(http.needs_answer()){
+			HTTPRequest answer = HTTPRequest::http_200();
+			answer.generate();
+			answer.getRawRequest(buff);
+			_wifi.sendPacket(buff, conn);
+		}
+		data = http.getData();
+	}
 	return true;
 }

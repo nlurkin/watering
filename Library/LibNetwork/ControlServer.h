@@ -26,7 +26,9 @@ public:
 	bool addPublication(PublicationBase* pub);
 
 	bool serve();
+	bool listen();
 	void setDestination(const char *address, uint16_t port);
+	void begin(uint16_t port=80);
 
 private:
 	uint8_t _num_publications;
