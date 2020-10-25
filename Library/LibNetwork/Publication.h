@@ -16,7 +16,7 @@
 template <class T>
 class Publication : public PublicationBase {
 public:
-	Publication(char* name) : PublicationBase(name), _value() {};
+	Publication(const char* name) : PublicationBase(name), _value() {};
 	virtual ~Publication(){};
 
 	void updateValue(T newVal){

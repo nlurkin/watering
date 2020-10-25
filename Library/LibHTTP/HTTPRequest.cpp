@@ -10,8 +10,8 @@
 static const char g_SEP_NEWLINE[] PROGMEM = {"\n"};
 
 HTTPRequest::HTTPRequest() :
-	_body({'\0'}),
-	_raw_header({'\0'})
+	_raw_header{'\0'},
+	_body{'\0'}
 {
 }
 

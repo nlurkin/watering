@@ -91,7 +91,7 @@ void LCDWaterDisplay::lcd_clear_line(uint8_t l){
  * From Mark Bramwell, July 2010
  * @return Enum type corresponding to the read button
  */
-int LCDWaterDisplay::read_LCD_buttons(){
+LCDWaterDisplay::button LCDWaterDisplay::read_LCD_buttons(){
     int adc_key_in = analogRead(0);       // read the value from the digital pin
 
     // my buttons when read are centered at these values: 0, 144, 329, 504, 741

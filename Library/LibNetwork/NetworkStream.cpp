@@ -110,7 +110,7 @@ size_t NetworkStream::addChar(char *buffer, uint16_t &pos, uint16_t &size, uint1
 		return 0;
 	} else {
 		int p = pos + size;
-		if (p >= max_size) {
+		if (p >= (int)max_size) {
 			p -= max_size;
 		}
 		buffer[p] = v;

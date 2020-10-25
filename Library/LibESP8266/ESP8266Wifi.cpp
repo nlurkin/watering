@@ -14,10 +14,10 @@ static const char g_SEP_COLUMN[]  PROGMEM = {":"};
 Buffer ESP8266Wifi::_persistent_buffer(ESP8266Wifi::PAYLOAD_SIZE);
 
 ESP8266Wifi::ESP8266Wifi(Stream* serial) :
-	_conn_opened({false,false,false,false,false}),
-	_ip_address({0,0,0,0}),
-	_mac_address({0,0,0,0,0,0}),
-	_payload({&_persistent_buffer, nullptr, nullptr, nullptr, nullptr}),
+	_conn_opened{false,false,false,false,false},
+	_ip_address{0,0,0,0},
+	_mac_address{0,0,0,0,0,0},
+	_payload{&_persistent_buffer, nullptr, nullptr, nullptr, nullptr},
 	_client(serial),
 	_logSerial(&Serial)
 {
@@ -180,8 +180,6 @@ bool ESP8266Wifi::disConnectWifi() {
 	char *ptr;
 	_client.getLastData(data, ATClient::DATA_BUFFER_SIZE);
 
-	bool got_disconnect = false;
-
 	ptr = strtok_P(data, g_SEP_NEWLINE);
 	while(ptr!=nullptr){
 		if(strstr_P(ptr, PSTR("WIFI DISCONNECT"))==ptr){ // Found it
@@ -203,7 +201,6 @@ bool ESP8266Wifi::restartBoard() const {
 		return false;
 
 	char data[ATClient::DATA_BUFFER_SIZE];
-	char *ptr;
 	while(_client.dataAvailable()>0){
 		_client.getLastData(data, ATClient::DATA_BUFFER_SIZE);
 		_logSerial->print(data);
@@ -333,8 +330,8 @@ bool ESP8266Wifi::startsWith(const char *str, const __FlashStringHelper* search)
 }
 
 bool ESP8266Wifi::endsWith(const char *str, const char *search) {
-	char *str_end = str + strlen(str)-1;
-	char *search_end = search + strlen(search)-1;
+	const char *str_end = str + strlen(str)-1;
+	const char *search_end = search + strlen(search)-1;
 	while( (str_end!=str) && (search_end+1!=search) ){
 		if(*(str_end--)!=*(search_end--)) // Not the same char -> we are done
 			return false;
@@ -343,7 +340,7 @@ bool ESP8266Wifi::endsWith(const char *str, const char *search) {
 }
 
 bool ESP8266Wifi::endsWith(const char *str, const __FlashStringHelper* search) {
-	char *str_end = str + strlen(str)-1;
+	const char *str_end = str + strlen(str)-1;
 	PGM_P p_search = reinterpret_cast<PGM_P>(search);
 	PGM_P p_search_end = p_search + strlen_P(p_search)-1;
 	unsigned char c;

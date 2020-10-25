@@ -44,7 +44,7 @@ size_t Buffer::push(char c) {
 }
 
 size_t Buffer::push(const char *str) {
-	char *p = str;
+	const char *p = str;
 	while(*p!='\0'){
 		if(push(*p)==0) return p-str; //Buffer full, return the number of char inserted so far
 		++p;

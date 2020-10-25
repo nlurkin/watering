@@ -20,7 +20,7 @@ public:
 	size_t push(char c);
 	size_t push(const char *str);
 
-	inline size_t len() const;
+	size_t len() const;
 	char peek() const;
 	bool startsWith(const char *str) const;
 	bool startsWith(const __FlashStringHelper *str) const;
