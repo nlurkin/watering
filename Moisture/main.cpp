@@ -41,7 +41,7 @@ void setup(){
 	while (!wifi.checkWifiConnection() && trials < 10) {
 		++trials;
 		wifi.connectWifi(ssid, pwd);
-		delay(1000);
+		delay(5000);
 	}
 	Serial.println(F("Connected to wifi"));
 	mySerial.setDestination("192.168.1.20", 8000);
