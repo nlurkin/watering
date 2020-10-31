@@ -87,6 +87,7 @@ void NetworkStream::flush() {
 	char buff[NETWORK_TX_BUFFER_SIZE+HTTPRequest::MAX_HEADER_LENGTH]; //Must be able to contain data + header
 	_tx_buffer.get(buff, NETWORK_TX_BUFFER_SIZE);
 	clear();
+	r.setConnectionType(HTTPRequest::CONN_CLOSE);
 	r.addContent(buff);
 	int conn = _wifi.openConnection(_dest_address, _dest_port);
 	r.generate();
