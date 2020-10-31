@@ -28,7 +28,7 @@ public:
 	void from_string(char*) {};
 
 private:
-	double _value;
+	T _value;
 };
 
 template <>

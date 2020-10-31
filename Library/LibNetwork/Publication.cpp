@@ -28,4 +28,5 @@ void Publication<bool>::to_string(char* buff){
 		*buff = '1';
 	else
 		*buff = '0';
+	buff[1]='\0';
 }
