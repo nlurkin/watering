@@ -13,6 +13,7 @@
 #include "LCDWaterDisplay.h"
 #include "ValveController.h"
 #include "Publication.h"
+#include "Command.h"
 
 class RemoteControl;
 
@@ -60,6 +61,7 @@ private:
 	void setSensorsMeasureInterval(unsigned long int interval);
 	bool monitorCircuits();
 	bool isWatering();
+	void checkCommands();
 	void updatePublications();
 
 	enum MainMode {MAIN_MODE_MONITOR, MAIN_MODE_CALIB, MAIN_MODE_SHOW};     /** enum to identify the main modes */
@@ -85,10 +87,11 @@ private:
 	PumpControl      pump1;      /** Pump controller */
 	LCDWaterDisplay  lcdDisplay; /** LCD Display and buttons controller */
 
-	RemoteControl     *_publicationServer;
+	RemoteControl     *_controlServer;
 	Publication<bool> *_pub_pump;
 	Publication<bool> *_pub_pump_valves[MAX_SENSORS];
 	Publication<int>  *_pub_sensors[MAX_SENSORS];
+	Command<bool>     *_cmd_pump;
 };
 
 #endif /* AUTOMATICWATER_H_ */

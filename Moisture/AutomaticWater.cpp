@@ -22,10 +22,11 @@ AutomaticWater::AutomaticWater(uint8_t pump_pin) :
 	_nCircuits(0),
 	_currentSensor(0),
 	pump1(pump_pin),
-	_publicationServer(nullptr),
+	_controlServer(nullptr),
 	_pub_pump(nullptr),
 	_pub_pump_valves{nullptr},
-	_pub_sensors{nullptr}
+	_pub_sensors{nullptr},
+	_cmd_pump{nullptr}
 {
 	for(unsigned short i=0; i<MAX_SENSORS; ++i) {
 		sensors[i] = nullptr;
@@ -69,23 +70,25 @@ void AutomaticWater::initSystem(){
  * @param server: PubServer instance
  */
 void AutomaticWater::setPublicationServer(RemoteControl *server){
-	_publicationServer = server;
+	_controlServer = server;
 	if(server==nullptr)
 		return;
 	// Create publications and add them
 	_pub_pump = new Publication<bool>("pump1_state");
 	_pub_pump->updateValue(false);
-	_publicationServer->addPublication(_pub_pump);
+	_controlServer->addPublication(_pub_pump);
+	_cmd_pump = new Command<bool>("pump1_inhibit");
+	_controlServer->addCommand(_cmd_pump);
 	for (unsigned short i = 0; i < _nCircuits; ++i) {
 		char name[15];
 		sprintf(name, "valve%d_state", i);
 		_pub_pump_valves[i] = new Publication<bool>(name);
 		_pub_pump_valves[i]->updateValue(false);
-		_publicationServer->addPublication(_pub_pump_valves[i]);
+		_controlServer->addPublication(_pub_pump_valves[i]);
 		sprintf(name, "sensor%d", i);
 		_pub_sensors[i] = new Publication<int>(name);
 		_pub_sensors[i]->updateValue(-1);
-		_publicationServer->addPublication(_pub_sensors[i]);
+		_controlServer->addPublication(_pub_sensors[i]);
 	}
 
 }
@@ -245,6 +248,7 @@ void AutomaticWater::runMonitorMode(LCDWaterDisplay::button button){
 		loopActiveSensor(-1);
 	}
 
+	checkCommands();
 	updatePublications();
 	switch(_gSubMode){
 	case MODE_MONITOR_IDLE: // Mode IDLE
@@ -484,7 +488,7 @@ bool AutomaticWater::isWatering() {
 }
 
 void AutomaticWater::updatePublications() {
-	if(!_publicationServer)
+	if(!_controlServer)
 		return;
 
 	_pub_pump->updateValue(pump1.getStatus()==PumpControl::RUNNING);
@@ -492,4 +496,17 @@ void AutomaticWater::updatePublications() {
 		_pub_pump_valves[i]->updateValue(valves[i]->isOpen());
 		_pub_sensors[i]->updateValue(sensors[i]->getPercentageMoisture());
 	}
+}
+
+
+void AutomaticWater::checkCommands() {
+	if(!_controlServer)
+		return;
+
+	if(_cmd_pump->isUpdated()){
+		bool pump_enabled = _cmd_pump->getValue();
+		if(pump1.isEnabled()==pump_enabled) return; // Nothing to do
+		if(pump_enabled) pump1.Enable();
+		else pump1.Disable();
+}
 }
