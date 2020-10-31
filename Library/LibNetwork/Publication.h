@@ -25,6 +25,7 @@ public:
 	}
 
 	void to_string(char* buff);
+	void from_string(char*) {};
 
 private:
 	double _value;
