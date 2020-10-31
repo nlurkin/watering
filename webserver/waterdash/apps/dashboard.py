@@ -93,6 +93,8 @@ def update_bool_metrics(_, sensor_name):
             dsp = dsp.rename(columns = {"val": "sp"})
             df = pd.merge(df, dsp, how = 'outer', left_index = True, right_index = True)
             with_setpoint = True
+        new_index = datetime.now()
+        df = df.append(pd.DataFrame(index = [new_index], data = df.tail(1).values, columns = df.columns))
 
     figure = go.Figure(
         layout_title_text = sensor_doc["display"],
@@ -113,7 +115,8 @@ def update_bool_metrics(_, sensor_name):
                     x = df.index,
                     y = df["sp"],
                     mode = "lines+markers",
-                    name = "Set"
+                    name = "Set",
+                    connectgaps = True
                     )
         )
     return figure
