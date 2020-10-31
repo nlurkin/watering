@@ -72,7 +72,9 @@ bool ControlServer::serve() {
 
 	if(nPubReady==0)
 		return false;
-
+	int conn = -1;
+	if(nPubReady>0)
+		conn = _wifi.openConnection(_dest_address, _dest_port);
 	for(uint8_t iPub=0; iPub<nPubReady; ++iPub){
 			Serial.print("Updating publication ");
 			Serial.println(updatedPublications[iPub]->getName());
@@ -87,13 +89,14 @@ bool ControlServer::serve() {
 				r.setConnectionType(HTTPRequest::CONN_CLOSE);
 			r.generate();
 			r.getRawRequest(buff);
-			int conn = _wifi.openConnection(_dest_address, _dest_port);
+
 			if(_wifi.sendPacket(buff, conn)){
 				Serial.println("Send successful");
 			}
-			_wifi.closeConnection(conn);
 			updatedPublications[iPub]->updated(false);
 	}
+	if(conn!=-1)
+		_wifi.closeConnection(conn);
 
 	return true;
 }
