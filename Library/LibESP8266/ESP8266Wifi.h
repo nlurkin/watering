@@ -40,6 +40,7 @@ public:
 	bool closeConnection(uint8_t conn) const;
 	int  openConnection(const char *address, uint16_t port) const;
 	int  openConnection(uint8_t ip[4], uint16_t port) const;
+	bool isConnectionOpened(uint8_t conn_number) const;
 
 	bool restartBoard() const;
 
@@ -47,6 +48,9 @@ public:
 	int payloadContainsAt(uint8_t conn_number, const char* str) const;
 	size_t payloadLen(uint8_t conn_number) const;
 	size_t getPayload(char *buff, uint8_t conn_number, size_t max);
+
+	void printMacAddress() const;
+	void printIPAddress() const;
 private:
 	static bool startsWith(const char *str, const char *search);
 	static bool startsWith(const char *str, const __FlashStringHelper *search);

@@ -221,6 +221,13 @@ int ESP8266Wifi::openConnection(uint8_t ip[4], uint16_t port) const {
 	return -1;
 }
 
+bool ESP8266Wifi::isConnectionOpened(uint8_t conn_number) const {
+	if(conn_number>4)
+		return false;
+
+	return _conn_opened[conn_number];
+}
+
 uint8_t ESP8266Wifi::new_connection(const char *data) {
 	uint8_t conn_number = strtoul(data, nullptr, 10);
 	if(conn_number>4)
@@ -280,6 +287,24 @@ size_t ESP8266Wifi::getPayload(char *buff, uint8_t conn_number, size_t max) {
 	if(conn_number>4 || !_payload[conn_number])
 		return 0;
 	return _payload[conn_number]->get(buff, max);
+}
+
+void ESP8266Wifi::printMacAddress() const {
+	Serial.print("MAC Address: ");
+	for(uint8_t i=0; i<6;++ i){
+		Serial.print("::");
+		Serial.print(_mac_address[i]);
+	}
+	Serial.println();
+}
+
+void ESP8266Wifi::printIPAddress() const {
+	Serial.print("IP Address: ");
+	for(uint8_t i=0; i<4;++ i){
+		Serial.print(".");
+		Serial.print(_ip_address[i]);
+	}
+	Serial.println();
 }
 
 void ESP8266Wifi::read_payload(const char *initdata) {
