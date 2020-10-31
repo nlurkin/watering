@@ -24,6 +24,7 @@ AutomaticWater::AutomaticWater(uint8_t pump_pin) :
 	pump1(pump_pin),
 	_controlServer(nullptr),
 	_pub_pump(nullptr),
+	_pub_pump_enabled(nullptr),
 	_pub_pump_valves{nullptr},
 	_pub_sensors{nullptr},
 	_cmd_pump{nullptr}
@@ -79,6 +80,9 @@ void AutomaticWater::setPublicationServer(RemoteControl *server){
 	_controlServer->addPublication(_pub_pump);
 	_cmd_pump = new Command<bool>("pump1_inhibit");
 	_controlServer->addCommand(_cmd_pump);
+	_pub_pump_enabled = new Publication<bool>("pump1_inhibit");
+	_pub_pump_enabled->updateValue(pump1.isEnabled());
+	_controlServer->addPublication(_pub_pump_enabled);
 	for (unsigned short i = 0; i < _nCircuits; ++i) {
 		char name[15];
 		sprintf(name, "valve%d_state", i);
@@ -492,6 +496,7 @@ void AutomaticWater::updatePublications() {
 		return;
 
 	_pub_pump->updateValue(pump1.getStatus()==PumpControl::RUNNING);
+	_pub_pump_enabled->updateValue(pump1.isEnabled());
 	for(unsigned short i=0; i<_nCircuits; ++i) {
 		_pub_pump_valves[i]->updateValue(valves[i]->isOpen());
 		_pub_sensors[i]->updateValue(sensors[i]->getPercentageMoisture());

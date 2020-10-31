@@ -89,6 +89,7 @@ private:
 
 	RemoteControl     *_controlServer;
 	Publication<bool> *_pub_pump;
+	Publication<bool> *_pub_pump_enabled;
 	Publication<bool> *_pub_pump_valves[MAX_SENSORS];
 	Publication<int>  *_pub_sensors[MAX_SENSORS];
 	Command<bool>     *_cmd_pump;
