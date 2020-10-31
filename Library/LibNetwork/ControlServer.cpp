@@ -13,7 +13,9 @@
 
 ControlServer::ControlServer(ESP8266Wifi &wifi) :
 	_num_publications(0),
+	_num_commands(0),
 	_publications{nullptr},
+	_commands{nullptr},
 	_dest_address(nullptr),
 	_dest_port(0),
 	_wifi(wifi)
@@ -31,6 +33,14 @@ bool ControlServer::addPublication(PublicationBase *pub) {
 		return false;
 
 	_publications[_num_publications++] = pub;
+	return true;
+}
+
+bool ControlServer::addCommand(PublicationBase *cmd) {
+	if(_num_commands>=MAX_COMMANDS)
+		return false;
+
+	_commands[_num_commands++] = cmd;
 	return true;
 }
 
@@ -93,11 +103,11 @@ bool ControlServer::listen() {
 	if(conn==-1)
 		return false;
 
-	String data;
+	const char* data;
 	char buff[ESP8266Wifi::PAYLOAD_SIZE];
 	if (conn != -1) {
 		int pos_data = _wifi.payloadContainsAt(conn, "\r\n\r\n");
-		if(pos_data==-1 or (pos_data==_wifi.payloadLen(conn)-4) )
+		if(pos_data==-1 or (pos_data==int(_wifi.payloadLen(conn))-4) )
 			//Incomplete data
 			return false;
 		_wifi.getPayload(buff, conn, ESP8266Wifi::PAYLOAD_SIZE);
@@ -109,6 +119,23 @@ bool ControlServer::listen() {
 			_wifi.sendPacket(buff, conn);
 		}
 		data = http.getData();
+		if(strstr_P(data, PSTR("/api/v1/"))==data){
+			char sname[PublicationBase::MAX_NAME_LENGTH+1];
+			char value[30];
+			uint16_t offset = 8;
+			uint16_t urllen = strchr(data+offset, ':')-data-offset;
+			uint16_t copylen = min(urllen, PublicationBase::MAX_NAME_LENGTH);
+			strncpy(sname, data + offset, copylen);
+			sname[copylen] = '\0';
+			offset += copylen+1;
+			strncpy(value, data + offset, 30);
+			value[29] = '\0';
+			for(uint8_t iCmd=0; iCmd<_num_commands; ++iCmd){
+				if(strcmp(_commands[iCmd]->getName(), sname)==0){
+					_commands[iCmd]->from_string(value);
+				}
+			}
+		}
 	}
 	return true;
 }

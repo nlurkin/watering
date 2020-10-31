@@ -17,6 +17,7 @@ class PublicationBase;
  */
 class ControlServer {
 public:
+	static constexpr size_t MAX_COMMANDS = 5;
 	static constexpr size_t MAX_PUBLICATIONS = 20;
 	static constexpr size_t MAX_MESSAGE_LENGTH = 70;
 
@@ -24,6 +25,7 @@ public:
 	virtual ~ControlServer();
 
 	bool addPublication(PublicationBase* pub);
+	bool addCommand(PublicationBase* cmd);
 
 	bool serve();
 	bool listen();
@@ -32,7 +34,9 @@ public:
 
 private:
 	uint8_t _num_publications;
+	uint8_t _num_commands;
 	PublicationBase * _publications[MAX_PUBLICATIONS];
+	PublicationBase * _commands[MAX_COMMANDS];
 	char *_dest_address;
 	uint16_t _dest_port;
 	ESP8266Wifi &_wifi;
