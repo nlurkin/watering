@@ -44,6 +44,8 @@ void setup(){
 		delay(5000);
 	}
 	Serial.println(F("Connected to wifi"));
+	wifi.printMacAddress();
+	wifi.printIPAddress();
 	mySerial.setDestination("192.168.0.18", 8000);
 	//mySerial.begin(80);
 	pubServer.setDestination("192.168.0.18", 8000);
@@ -77,7 +79,6 @@ void loop(){
 		wifi.sendSomething(command.c_str());
 	}
 
-	wifi.readAndPrint();
 	pubServer.listen();
 
 	// But run at 0.1s
@@ -88,6 +89,5 @@ void loop(){
 		//delay(100);
 	}
 	pubServer.serve();
-
 }
 
