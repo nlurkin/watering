@@ -45,8 +45,8 @@ def check_control():
             continue
         last_sp = ctrl_values["setpoint"][-1]
 
-        if not "samples" in ctrl_values or ctrl_values["samples"][-1] != last_sp:
-            req = urllib.request.Request(url = clientAddress, data = "yyy".encode("ASCII"), method = 'PUT')
+        if not "samples" in ctrl_values or ctrl_values["samples"][-1]["val"] != last_sp["val"]:
+            req = urllib.request.Request(url = clientAddress, data = f"/api/v1/{controller['sensor']}:{last_sp['val']}".encode("ASCII"), method = 'PUT')
             with urllib.request.urlopen(req):
                 pass
 
