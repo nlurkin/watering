@@ -18,7 +18,7 @@ class PublicationBase;
 class ControlServer {
 public:
 	static constexpr size_t MAX_PUBLICATIONS = 20;
-	static constexpr size_t MAX_MESSAGE_LENGTH = MAX_PUBLICATIONS + 50;
+	static constexpr size_t MAX_MESSAGE_LENGTH = 70;
 
 	ControlServer(ESP8266Wifi &wifi);
 	virtual ~ControlServer();
