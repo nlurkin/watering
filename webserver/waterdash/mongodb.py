@@ -71,7 +71,9 @@ class myMongoClient(object):
         return [{"label": db["name"], "value": str(db["_id"])} for db in self.dashboard_db.find({}, {"name":1, "_id": 1})]
 
     def get_sensor_values(self, sensor_name, day):
-        return self.client["sensors"][sensor_name].find_one({"day": {"$lte": day}}, {"samples": 1, "setpoint": 1, "_id": 0}, sort = [("day", pymongo.DESCENDING)])
+        return self.client["sensors"][sensor_name].find_one({"day": {"$lte": day}},
+                                                            {"samples": 1, "setpoint": 1, "_id": 0},
+                                                            sort = [("day", pymongo.DESCENDING), ("last", pymongo.DESCENDING)])
 
     def get_sensors_list(self):
         return list(self.sensors_db.find({}))
@@ -104,5 +106,7 @@ class myMongoClient(object):
                               upsert = True)
 
     def get_controller_values(self, sensor_name, day):
-        return self.client["sensors"][sensor_name].find_one({"day": {"$lte": day}}, {"setpoint": 1, "_id": 0})["setpoint"]
+        return self.client["sensors"][sensor_name].find_one({"day": {"$lte": day}, "setpoint": {"$exists": True}},
+                                                            {"setpoint": 1, "_id": 0},
+                                                            sort = [("day", pymongo.DESCENDING), ("last", pymongo.DESCENDING)])["setpoint"]
 
