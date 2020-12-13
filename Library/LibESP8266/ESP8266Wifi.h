@@ -38,8 +38,8 @@ public:
 
 	bool sendPacket(const char *data, uint8_t conn) const;
 	bool closeConnection(uint8_t conn) const;
-	int  openConnection(const char *address, uint16_t port) const;
-	int  openConnection(uint8_t ip[4], uint16_t port) const;
+	int  openConnection(const char *address, uint16_t port);
+	int  openConnection(uint8_t ip[4], uint16_t port);
 	bool isConnectionOpened(uint8_t conn_number) const;
 
 	bool restartBoard() const;
@@ -62,6 +62,7 @@ private:
 	uint8_t end_connection(const char *data);
 	void disconnect();
 	void read_payload(const char *initdata);
+	void init_connection(uint8_t conn_number);
 
 	static Buffer _persistent_buffer;
 	bool _conn_opened[5];

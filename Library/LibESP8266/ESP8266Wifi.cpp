@@ -224,15 +224,19 @@ bool ESP8266Wifi::fw_version() const {
 	return !error;
 }
 
-int ESP8266Wifi::openConnection(const char *address, uint16_t port) const {
-	if(_client.CIPSTART(ATClient::TCP, address, port, 4))
+int ESP8266Wifi::openConnection(const char *address, uint16_t port) {
+	if(_client.CIPSTART(ATClient::TCP, address, port, 4)){
+	    init_connection(4);
 		return 4;
+	}
 	return -1;
 }
 
-int ESP8266Wifi::openConnection(uint8_t ip[4], uint16_t port) const {
-	if(_client.CIPSTART(ATClient::TCP, ip, port, 4))
+int ESP8266Wifi::openConnection(uint8_t ip[4], uint16_t port) {
+	if(_client.CIPSTART(ATClient::TCP, ip, port, 4)){
+	    init_connection(4);
 		return 4;
+	}
 	return -1;
 }
 
@@ -247,13 +251,17 @@ uint8_t ESP8266Wifi::new_connection(const char *data) {
 	uint8_t conn_number = strtoul(data, nullptr, 10);
 	if(conn_number>4)
 		return 99;
-	_conn_opened[conn_number] = true;
-	if(_payload[conn_number]) //If the payload already exists, clear it
-		_payload[conn_number]->clear();
-	else // Else create it
-		_payload[conn_number] = new Buffer(PAYLOAD_SIZE);
 
+	init_connection(conn_number);
 	return conn_number;
+}
+
+void ESP8266Wifi::init_connection(uint8_t conn_number) {
+    _conn_opened[conn_number] = true;
+    if(_payload[conn_number]) //If the payload already exists, clear it
+        _payload[conn_number]->clear();
+    else // Else create it
+        _payload[conn_number] = new Buffer(PAYLOAD_SIZE);
 }
 
 uint8_t ESP8266Wifi::end_connection(const char *data) {
