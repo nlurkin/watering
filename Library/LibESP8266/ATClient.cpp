@@ -421,9 +421,12 @@ bool ATClient::CIPSEND(const char *data, int link_id, uint8_t ip[4], int port) {
 	if(!success)
 		return false;
 
+	unsigned long old_to = _timeout;
 	sendData(data);
-
-	return waitMessage(F("SEND OK"));
+	_timeout = 5000;
+	bool ans = waitMessage(F("SEND OK"));
+	_timeout = old_to;
+	return ans;
 }
 
 bool ATClient::CIPSENDEX(uint16_t length, int link_id, uint8_t ip[4], int port) {
@@ -778,6 +781,7 @@ bool ATClient::waitMessage(const __FlashStringHelper* message) {
 		available = waitData(str_len);
 #else
 		c = read();
+		Serial.print(c);
 		if(!got_first_char && (c=='\r' || c=='\n')){
 		    available = waitData(str_len);
 		    continue;
