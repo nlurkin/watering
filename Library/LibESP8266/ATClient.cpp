@@ -623,7 +623,7 @@ size_t ATClient::transferBuffer() {
 
 size_t ATClient::waitData(size_t length) {
 	unsigned long start_time = millis();
-	size_t available;
+	size_t available = 0;
 	do {
 #ifdef BUFFERED
 		available = transferBuffer();
@@ -660,6 +660,7 @@ bool ATClient::checkAnswer(const __FlashStringHelper* command) {
 }
 
 bool ATClient::waitMessage(const char *message) {
+    bool got_first_char = false;
 	bool got_message = false;
 	size_t str_len = strlen(message);
 	unsigned long start_time = millis();
@@ -689,6 +690,11 @@ bool ATClient::waitMessage(const char *message) {
 		available = waitData(str_len);
 #else
 		c = read();
+		Serial.print(c);
+        if(!got_first_char && (c=='\r' || c=='\n')){
+            available = waitData(str_len); // One of the char was empty space, need to wait for the full message
+            continue;
+        }
 		if(c==message[pos]) { // Current char is okay
 			if(pos<20) //Do not overflow
 				buff[pos] = c;
@@ -715,7 +721,8 @@ bool ATClient::waitMessage(const char *message) {
 
 bool ATClient::waitMessage(const __FlashStringHelper* message) {
 	bool got_message = false;
-	int str_len = strlen_P(reinterpret_cast<PGM_P>(message));
+	bool got_first_char = false;
+	size_t str_len = strlen_P(reinterpret_cast<PGM_P>(message));
 	unsigned long start_time = millis();
 	size_t available = waitData(str_len);
 
@@ -745,6 +752,11 @@ bool ATClient::waitMessage(const __FlashStringHelper* message) {
 		available = waitData(str_len);
 #else
 		c = read();
+		if(!got_first_char && (c=='\r' || c=='\n')){
+		    available = waitData(str_len);
+		    continue;
+		}
+		got_first_char = true;
 		if(c==c_msg) { // Current char is okay
 			if(pos<20) //Do not overflow
 				buff[pos] = c;
