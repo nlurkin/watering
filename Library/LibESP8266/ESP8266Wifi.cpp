@@ -389,7 +389,9 @@ bool ESP8266Wifi::sendPacket(const char *data, uint8_t conn) const {
 }
 
 bool ESP8266Wifi::closeConnection(uint8_t conn) const {
-	return _client.CIPCLOSE(conn);
+    if(_conn_opened[conn])
+        return _client.CIPCLOSE(conn);
+    return true;
 }
 
 bool ESP8266Wifi::startsWith(const char *str, const char *search) {
