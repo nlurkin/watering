@@ -268,6 +268,12 @@ int8_t ESP8266Wifi::payloadAvailable() const {
 	return -1;
 }
 
+bool ESP8266Wifi::payloadAvailable(uint8_t conn) const {
+    // Not available if payload not defined or empty
+    if(_payload[conn] && _payload[conn]->len()>0) return true;
+	return false;
+}
+
 int ESP8266Wifi::payloadContainsAt(uint8_t conn_number, const char *str) const {
 	// Do not try to check payload for undefined payloads
 	if(conn_number>4 || !_payload[conn_number])
