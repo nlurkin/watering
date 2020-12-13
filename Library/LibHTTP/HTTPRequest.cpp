@@ -153,7 +153,7 @@ void HTTPRequest::decodeHeader(const char *line) {
 			_header._request_type = ANSWER;
 			char *space = strchr(line, ' ');
 			_header._answer_code = strtol(space+1, &space, 10);
-			strncpy(_header._answer_reason, space, 30);
+			strncpy(_header._answer_reason, space+1, max(strlen(space), 30));
 		}
 	}
 	else{
