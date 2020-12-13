@@ -92,8 +92,10 @@ void NetworkStream::flush() {
 	int conn = _wifi.openConnection(_dest_address, _dest_port);
 	r.generate();
 	r.getRawRequest(buff);
-	_wifi.sendPacket(buff, conn);
-	_wifi.closeConnection(conn);
+    if(_wifi.sendPacket(buff, conn)){
+        if(!HTTPRequest::wait200OK(_wifi, conn))
+            _wifi.closeConnection(conn); // Probably not closed since server did not understand
+    }
 }
 
 void NetworkStream::clear() {
