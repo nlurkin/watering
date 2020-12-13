@@ -27,6 +27,7 @@ void ATClient::setLogSerial(Stream *serial){
 }
 
 bool ATClient::sendCommand(const char *cmd) {
+    _dataCapture.clear();
 	_logSerial->print(F("Sending: "));
 	_logSerial->println(cmd);
 	_logSerial->println();
@@ -35,6 +36,7 @@ bool ATClient::sendCommand(const char *cmd) {
 }
 
 bool ATClient::sendCommand(const __FlashStringHelper* cmd) {
+    _dataCapture.clear();
 	_logSerial->print(F("Sending: "));
 	_logSerial->println(cmd);
 	_logSerial->println();
@@ -158,7 +160,7 @@ bool ATClient::CWJAP(const char *ssid, const char *passwd) {
 
 	sendCommand(cmd);
 	unsigned long old_to = _timeout;
-	_timeout = 5000;
+	_timeout = 20000;
 	bool ans = checkAnswer(cmd);
 	_timeout = old_to;
 	return ans;
