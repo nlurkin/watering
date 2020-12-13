@@ -42,6 +42,7 @@ public:
 	size_t getTotalLength() const;
 
 	const char* getData() const;
+	const header_t& getHeader() const;
 	void getRawRequest(char *to) const;
 
 	void addContent(const char *data);

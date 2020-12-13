@@ -61,6 +61,10 @@ const char* HTTPRequest::getData() const {
 	return _body;
 }
 
+const HTTPRequest::header_t& HTTPRequest::getHeader() const {
+    return _header;
+}
+
 void HTTPRequest::getRawRequest(char *to) const {
 	strcpy(to, _raw_header);
 	strcat(to, _body);
@@ -111,6 +115,7 @@ size_t HTTPRequest::generate() {
 
 void HTTPRequest::extractParts(const char *payload) {
 	char *start_data = strstr_P(payload, PSTR("\r\n\r\n"))+4; //Separation between header and data are 2 blank lines
+	size_t header_len = start_data-payload;
 	if(start_data==nullptr) //Request incomplete. Data not present.
 		return;
 	size_t data_len = strlen(start_data);
