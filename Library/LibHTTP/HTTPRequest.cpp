@@ -98,11 +98,8 @@ size_t HTTPRequest::generate() {
 	sprintf_P(buf, PSTR("Content-Type: %s\r\n"), _header._content_type);
 	strcat(_raw_header, buf);
 
-	size_t body_len = strlen(_body);
-	if (body_len > 0) {
-		sprintf_P(buf, PSTR("Content-Length: %u\r\n"), body_len);
-		strcat(_raw_header, buf);
-	}
+    sprintf_P(buf, PSTR("Content-Length: %u\r\n"), strlen(_body));
+    strcat(_raw_header, buf);
 
 	strcat_P(_raw_header, PSTR("\r\n"));
 	Serial.println(F("---- Header ---"));
