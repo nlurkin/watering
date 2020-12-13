@@ -56,7 +56,6 @@ bool ESP8266Wifi::sendData(const char *data) const {
 bool ESP8266Wifi::readAndPrint() {
 	static constexpr size_t read_size = 100;
 	char response[read_size];
-	delay(10); // Give time to actually fill the buffer. Else we will most likely have only 1 char
 	size_t len = _client.readUntil(response, read_size, '\n');
 	bool has_response = len > 0;
 
@@ -71,7 +70,7 @@ bool ESP8266Wifi::readAndPrint() {
 			else if(endsWith(response, F("CONNECT\r")))
 				new_connection(response);
 			else if(endsWith(response, F("CLOSED\r")))
-				new_connection(response);
+				end_connection(response);
 			else if(endsWith(response, F("WIFI DISCONNECT\r")))
 				disconnect();
 			len = _client.readUntil(response, read_size, '\n');
@@ -268,12 +267,6 @@ uint8_t ESP8266Wifi::end_connection(const char *data) {
 	if(conn_number>4)
 		return 99;
 	_conn_opened[conn_number] = false;
-	if(conn_number==0) // _payload for connection 0 cannot be deleted
-		_payload[conn_number]->clear();
-	else{ // Delete of not needed
-		delete _payload[conn_number];
-		_payload[conn_number] = nullptr;
-	}
 
 	return conn_number;
 }
