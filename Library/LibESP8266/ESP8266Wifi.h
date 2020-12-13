@@ -50,6 +50,8 @@ public:
 	int payloadContainsAt(uint8_t conn_number, const char* str) const;
 	size_t payloadLen(uint8_t conn_number) const;
 	size_t getPayload(char *buff, uint8_t conn_number, size_t max);
+	bool isHTTPPayloadComplete(int8_t conn);
+	int8_t waitPayload(int8_t connlisten, char *buff, unsigned long timeout);
 
 	void printMacAddress() const;
 	void printIPAddress() const;

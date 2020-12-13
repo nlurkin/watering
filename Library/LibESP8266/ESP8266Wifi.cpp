@@ -317,6 +317,39 @@ size_t ESP8266Wifi::getPayload(char *buff, uint8_t conn_number, size_t max) {
 	return _payload[conn_number]->get(buff, max);
 }
 
+bool ESP8266Wifi::isHTTPPayloadComplete(int8_t conn) {
+    int pos_data = payloadContainsAt(conn, "\r\n\r\n");
+    if(pos_data==-1 or (pos_data==int(payloadLen(conn))-4) )
+        //Incomplete data
+        return false;
+    return true;
+}
+
+int8_t ESP8266Wifi::waitPayload(int8_t connlisten, char *buff, unsigned long timeout) {
+    unsigned long expire_at = millis()+timeout;
+    bool expired = false;
+    int8_t conn = -1;
+    while(conn==-1){
+        readAndPrint();
+        expired = millis()<expire_at;
+
+        if(connlisten==-1) // Listen to any available connection
+            conn = payloadAvailable();
+        else if(payloadAvailable(connlisten)) // Listen to specific connection
+            conn = connlisten;
+        if(conn==-1 && expired)
+            return -1;
+    }
+
+    uint8_t max_try = 0;
+    while(!isPayloadComplete(conn) && isConnectionOpened(conn) && (max_try++<10)){
+        readAndPrint();
+    }
+
+    getPayload(buff, conn, ESP8266Wifi::PAYLOAD_SIZE);
+    return conn;
+}
+
 void ESP8266Wifi::printMacAddress() const {
 	Serial.print("MAC Address: ");
 	for(uint8_t i=0; i<6;++ i){
