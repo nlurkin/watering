@@ -35,14 +35,16 @@ void setup(){
 		delay(100);
 	Serial.println(F("Connection established"));
 
+	delay(100);
 	wifi.restartBoard();
-	delay(1000);
+	delay(2000);
+	wifi.fw_version();
 
 	uint8_t trials = 0;
 	while (!wifi.checkWifiConnection() && trials < 10) {
 		++trials;
 		wifi.connectWifi(ssid, pwd);
-		delay(5000);
+		delay(1000);
 	}
 	Serial.println(F("Connected to wifi"));
 	wifi.printMacAddress();
