@@ -93,6 +93,7 @@ bool ControlServer::serve() {
 			if(_wifi.sendPacket(buff, conn))
 			    HTTPRequest::wait200OK(_wifi, conn);
 			updatedPublications[iPub]->updated(false);
+			delay(10);
 	}
 	if(conn!=-1)
 		_wifi.closeConnection(conn);
