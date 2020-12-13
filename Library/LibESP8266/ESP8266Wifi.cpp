@@ -67,7 +67,6 @@ bool ESP8266Wifi::readAndPrint() {
 			_logSerial->println(response);
 			if(startsWith(response, F("+IPD"))){ //+IPD
 				read_payload(response);
-				break;
 			}
 			else if(endsWith(response, F("CONNECT\r")))
 				new_connection(response);
@@ -349,7 +348,7 @@ void ESP8266Wifi::read_payload(const char *initdata) {
 		return;
 
 	size_t init_len = _payload[conn_number]->push(data_start+1);
-	if(init_len==datas) {//No more to read
+	if(init_len==datas-1) {//No more to read
 		_payload[conn_number]->print();
 		return;
 	}
