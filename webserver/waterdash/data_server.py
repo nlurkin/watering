@@ -5,6 +5,9 @@ Created on 19-Jun-2020
 @author: Nicolas Lurkin
 '''
 
+# TODO fix timezones
+# TODO merge mongoDB documents when reading: maybe use first>now-24h or now-requested_range instead of using day
+
 from flask import Flask, request, g
 from flask import make_response, jsonify
 from werkzeug.exceptions import abort
@@ -12,7 +15,8 @@ from werkzeug.serving import WSGIRequestHandler
 
 from mongodb import myMongoClient
 from datetime import datetime
-import urllib.request
+import requests
+import pytz
 
 server = Flask(__name__)
 
@@ -21,7 +25,7 @@ clientAddress = "http://192.168.0.27:80/"
 
 def get_db():
     if "db" not in g:
-        g.db = myMongoClient("localhost", 27017)
+        g.db = myMongoClient("192.168.0.18", 27017)
         g.db.connect()
 
     return g.db
@@ -46,9 +50,10 @@ def check_control():
         last_sp = ctrl_values["setpoint"][-1]
 
         if not "samples" in ctrl_values or ctrl_values["samples"][-1]["val"] != last_sp["val"]:
-            req = urllib.request.Request(url = clientAddress, data = f"/api/v1/{controller['sensor']}:{last_sp['val']}".encode("ASCII"), method = 'PUT')
-            with urllib.request.urlopen(req):
-                pass
+            req = requests.put(url = clientAddress,
+                                         data = f"/api/v1/{controller['sensor']}:{last_sp['val']}\r\n".encode("ASCII"),
+                                         headers = {"Content-Type": "text/html",
+                                                    "User-Agent": None})
 
             return "<h1>Control updated</h1>"
     return "<h1>Control checked</h1>"
@@ -70,7 +75,7 @@ def api_sensor(sensor_name):
 
     print(sensor_name, request.data)
     if request.method == "POST":
-        ts = datetime.now().timestamp()
+        ts = pytz.utc.localize(datetime.now()).timestamp()
         day = datetime.now().strftime("%Y-%m-%d")
         val = request.data.decode("utf8")
         if sensor_doc["data-type"] == "float":
@@ -89,4 +94,4 @@ def not_found(error):
 
 if __name__ == '__main__':
     WSGIRequestHandler.protocol_version = "HTTP/1.1"
-    server.run(host = "192.168.0.18", port = 8000, debug = True)
+    server.run(host = "192.168.0.15", port = 8000, debug = True)
