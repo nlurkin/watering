@@ -342,7 +342,7 @@ int8_t ESP8266Wifi::waitPayload(int8_t connlisten, char *buff, unsigned long tim
     }
 
     uint8_t max_try = 0;
-    while(!isPayloadComplete(conn) && isConnectionOpened(conn) && (max_try++<10)){
+    while(!isHTTPPayloadComplete(conn) && isConnectionOpened(conn) && (max_try++<10)){
         readAndPrint();
     }
 
