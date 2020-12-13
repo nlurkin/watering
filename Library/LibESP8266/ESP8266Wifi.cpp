@@ -320,8 +320,8 @@ size_t ESP8266Wifi::getPayload(char *buff, uint8_t conn_number, size_t max) {
 void ESP8266Wifi::printMacAddress() const {
 	Serial.print("MAC Address: ");
 	for(uint8_t i=0; i<6;++ i){
-		Serial.print("::");
-		Serial.print(_mac_address[i]);
+	    if(i>0) Serial.print("::");
+		Serial.print(_mac_address[i], HEX);
 	}
 	Serial.println();
 }
@@ -329,7 +329,7 @@ void ESP8266Wifi::printMacAddress() const {
 void ESP8266Wifi::printIPAddress() const {
 	Serial.print("IP Address: ");
 	for(uint8_t i=0; i<4;++ i){
-		Serial.print(".");
+		if(i>0) Serial.print(".");
 		Serial.print(_ip_address[i]);
 	}
 	Serial.println();
