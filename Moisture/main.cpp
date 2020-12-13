@@ -21,6 +21,7 @@ RemoteControl pubServer(wifi);
 
 const char ssid[] = {""};
 const char pwd[]  = {""};
+const char serverIP[] = {""};
 
 unsigned long last_millis;
 
@@ -46,9 +47,9 @@ void setup(){
 	Serial.println(F("Connected to wifi"));
 	wifi.printMacAddress();
 	wifi.printIPAddress();
-	mySerial.setDestination("192.168.0.18", 8000);
-	//mySerial.begin(80);
-	pubServer.setDestination("192.168.0.18", 8000);
+	mySerial.setDestination(serverIP, 8000);
+	mySerial.begin(80);
+	pubServer.setDestination(serverIP, 8000);
 	pubServer.begin(80);
 
 	mySerial.println("Arduino running");
