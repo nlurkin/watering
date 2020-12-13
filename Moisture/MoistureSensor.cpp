@@ -19,8 +19,8 @@ MoistureSensor::MoistureSensor(uint8_t pin, uint8_t powerPin) :
 	_measureInterval(-1),
 	_tickInterval(-1),
 	_currentCounter(10000),
-	_lastValue(0),
 	_currentValueIndex(0),
+	_lastValue(0),
 	_WATER_VALUE(353),     // Calibration value obtained after tests of this particular sensor
 	_DRY_VALUE(1022)       // Calibration value obtained after tests of this particular sensor
 {
@@ -80,7 +80,7 @@ int MoistureSensor::getPercentageMoisture() const{
 float MoistureSensor::computeAverage(){
 	float total = 0;
 	// Sum all the values acquired since the index
-	for(int i=0; i<_currentValueIndex; ++i) total += +_valArray[i];
+	for(unsigned short i=0; i<_currentValueIndex; ++i) total += +_valArray[i];
 
 	return total/(float)(_currentValueIndex); // Average
 }
