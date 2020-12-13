@@ -342,7 +342,13 @@ bool ATClient::CIPSTART(TCP_TYPE type, uint8_t ip[4], int port, int8_t link_id, 
 		len += sprintf_P(cmd+len, PSTR(",%d"), keepalive);
 
 	sendCommand(cmd);
-	return checkAnswer(cmd);
+	bool ans = checkAnswer(cmd);
+	if(!ans){
+	    int at = _dataCapture.containsAt("ALREADY CONNECTED");
+	    Serial.println(at);
+	    return at!=-1;
+	}
+	return ans;
 }
 
 bool ATClient::CIPSTART(TCP_TYPE type, const char *address, int port, int8_t link_id, int udp_port, uint8_t udp_mode, int keepalive) {
@@ -378,8 +384,14 @@ bool ATClient::CIPSTART(TCP_TYPE type, const char *address, int port, int8_t lin
 	if(keepalive!=-1)
 		len += sprintf_P(cmd+len, PSTR(",%d"), keepalive);
 
-	sendCommand(cmd);
-	return checkAnswer(cmd);
+    sendCommand(cmd);
+    bool ans = checkAnswer(cmd);
+    if(!ans){
+        int at = _dataCapture.containsAt("ALREADY CONNECTED");
+        Serial.println(at);
+        return at!=-1;
+    }
+    return ans;
 }
 
 bool ATClient::CIPSEND(const char *data, int link_id, uint8_t ip[4], int port) {
