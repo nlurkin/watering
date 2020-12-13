@@ -88,10 +88,23 @@ size_t ATClient::readRaw(char * to, size_t max) {
 
 	return _buffer.get(to, max);
 #else
-	size_t len = _atSerial->readBytes(to, max-1);
-	if(len>0)
-		to[len++] = '\0';
-	return len;
+	size_t avail=_atSerial->available();
+	char *ptr = to;
+	uint8_t iter=0;
+	while(avail>0 && max>0){
+	    size_t len = _atSerial->readBytes(ptr, avail);
+	    ptr += len;
+	    avail=_atSerial->available();
+	    max -= len;
+	    iter=0;
+	    while(avail==0 && max>0 && iter++<10){
+	        delay(1);
+	        avail=_atSerial->available();
+	    }
+	}
+
+	ptr[1] = '\0';
+	return ptr-to;
 #endif
 }
 
