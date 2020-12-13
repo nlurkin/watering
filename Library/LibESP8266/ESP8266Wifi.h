@@ -43,6 +43,7 @@ public:
 	bool isConnectionOpened(uint8_t conn_number) const;
 
 	bool restartBoard() const;
+	bool fw_version() const;
 
 	int8_t payloadAvailable() const;
 	bool   payloadAvailable(uint8_t conn_number) const;

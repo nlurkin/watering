@@ -205,8 +205,23 @@ bool ESP8266Wifi::restartBoard() const {
 		_client.getLastData(data, ATClient::DATA_BUFFER_SIZE);
 		_logSerial->print(data);
 	}
-
 	return true;
+}
+
+bool ESP8266Wifi::fw_version() const {
+    bool error = false;
+	if(!_client.GMR()){
+	    _logSerial->println("GMR Error");
+	    error = true;
+	}
+
+	char data[ATClient::DATA_BUFFER_SIZE];
+    while(_client.dataAvailable()>0){
+        _client.getLastData(data, ATClient::DATA_BUFFER_SIZE);
+        _logSerial->print(data);
+    }
+
+	return !error;
 }
 
 int ESP8266Wifi::openConnection(const char *address, uint16_t port) const {
