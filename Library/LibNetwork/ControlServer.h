@@ -33,7 +33,6 @@ public:
 	void begin(uint16_t port=80);
 
 private:
-	bool isPayloadComplete(int8_t conn);
 
 	uint8_t _num_publications;
 	uint8_t _num_commands;

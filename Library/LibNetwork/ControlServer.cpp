@@ -90,9 +90,8 @@ bool ControlServer::serve() {
 			r.generate();
 			r.getRawRequest(buff);
 
-			if(_wifi.sendPacket(buff, conn)){
-				Serial.println("Send successful");
-			}
+			if(_wifi.sendPacket(buff, conn))
+			    HTTPRequest::wait200OK(_wifi, conn);
 			updatedPublications[iPub]->updated(false);
 	}
 	if(conn!=-1)
@@ -102,21 +101,12 @@ bool ControlServer::serve() {
 }
 
 bool ControlServer::listen() {
-	_wifi.readAndPrint();
-	int8_t conn = _wifi.payloadAvailable();
-	if(conn==-1)
-		return false;
-
-	const char* data;
 	char buff[ESP8266Wifi::PAYLOAD_SIZE];
+	const char* data;
+	int8_t conn = _wifi.waitPayload(-1, buff, 1000);
+	if(conn==-1)
+	    return false;
 
-	uint8_t max_try = 0;
-	while(!isPayloadComplete(conn) && _wifi.isConnectionOpened(conn) && (max_try++<10)){
-		delay(10);
-		_wifi.readAndPrint();
-	}
-
-	_wifi.getPayload(buff, conn, ESP8266Wifi::PAYLOAD_SIZE);
 	HTTPRequest http(buff);
 	if(http.needs_answer()){
 		HTTPRequest answer = HTTPRequest::http_200();
@@ -142,16 +132,5 @@ bool ControlServer::listen() {
 			}
 		}
 	}
-	return true;
-}
-
-bool ControlServer::isPayloadComplete(int8_t conn) {
-	int pos_data = _wifi.payloadContainsAt(conn, "\r\n\r\n");
-	Serial.print(pos_data);
-	Serial.print(":");
-	Serial.println(int(_wifi.payloadLen(conn)));
-	if(pos_data==-1 or (pos_data==int(_wifi.payloadLen(conn))-4) )
-		//Incomplete data
-		return false;
 	return true;
 }
