@@ -45,6 +45,7 @@ bool ATClient::sendCommand(const __FlashStringHelper* cmd) {
 }
 
 bool ATClient::sendData(const char *data) {
+    _dataCapture.clear();
 	_logSerial->print(F("Sending data: "));
 	_logSerial->print(data);
 	_logSerial->println(F("--- end data ---"));
