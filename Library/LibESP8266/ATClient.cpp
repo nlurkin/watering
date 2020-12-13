@@ -104,7 +104,7 @@ size_t ATClient::readRaw(char * to, size_t max) {
 	    }
 	}
 
-	ptr[1] = '\0';
+	*ptr = '\0';
 	return ptr-to;
 #endif
 }
