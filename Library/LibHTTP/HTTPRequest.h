@@ -9,6 +9,7 @@
 #define HTTPREQUEST_H_
 
 #include <Arduino.h>
+#include "../LibESP8266/ESP8266Wifi.h"
 
 class HTTPRequest {
 public:
@@ -51,6 +52,8 @@ public:
 
 	static HTTPRequest http_200();
 	static HTTPRequest http_post(const char* path);
+
+	static bool wait200OK(ESP8266Wifi &wifi, uint8_t conn);
 private:
 	void extractParts(const char *payload);
 	void decodeHeader(const char *line);

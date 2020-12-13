@@ -188,3 +188,23 @@ HTTPRequest HTTPRequest::http_post(const char* path) {
 	strcpy(h._header._path, path);
 	return h;
 }
+
+bool HTTPRequest::wait200OK(ESP8266Wifi &wifi, uint8_t conn) {
+    char buffr[ESP8266Wifi::PAYLOAD_SIZE];
+    int8_t connr = wifi.waitPayload(conn, buffr, 1000);
+    if(connr!=-1){
+        //answer received
+        HTTPRequest http(buffr);
+        http.print();
+        if(http.getHeader()._answer_code==200)
+            return true;
+        else{
+            Serial.print("Received HTTP error: ");
+            Serial.print(http.getHeader()._answer_code);
+            Serial.print(" ");
+            Serial.println(http.getHeader()._answer_reason);
+            return false;
+        }
+    }
+    return false;
+}
