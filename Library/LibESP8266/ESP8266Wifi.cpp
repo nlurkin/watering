@@ -324,8 +324,7 @@ int8_t ESP8266Wifi::waitPayload(int8_t connlisten, char *buff, unsigned long tim
     int8_t conn = -1;
     while(conn==-1){
         readAndPrint();
-        expired = millis()<expire_at;
-
+        expired = millis()>expire_at;
         if(connlisten==-1) // Listen to any available connection
             conn = payloadAvailable();
         else if(payloadAvailable(connlisten)) // Listen to specific connection
