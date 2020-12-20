@@ -63,7 +63,7 @@ def generate_layout(dashboard_name):
     left_col = generate_dashboard_column(db_doc["left"])
     right_col = generate_dashboard_column(db_doc["right"])
 
-    return [dcc.Interval(id = 'interval-component', interval = 1 * 1000, n_intervals = 0),
+    return [dcc.Interval(id = 'interval-component', interval = 1 * 10000, n_intervals = 0),
             dbc.Row([dbc.Col(left_col, style = {"padding": "0px"}), dbc.Col(right_col, style = {"padding": "0px"})])
             ]
 
