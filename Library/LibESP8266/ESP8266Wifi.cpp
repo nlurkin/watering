@@ -32,6 +32,42 @@ ESP8266Wifi::~ESP8266Wifi() {
   }
 }
 
+bool ESP8266Wifi::init(const char* ssid, const char* password, bool doReset, bool debug) {
+  if(debug)
+    Serial.println(F("Checking ESP8266 connection..."));
+  while (!checkBoardConnection())
+    delay(100);
+  if(debug)
+    Serial.println(F("Connection established"));
+
+  delay(100);
+  if(doReset){
+    restartBoard();
+    delay(2000);
+  }
+  if(debug)
+    fw_version();
+
+  uint8_t trials = 0;
+  static const uint8_t max_trials = 10;
+  while (!checkWifiConnection() && trials < max_trials) {
+    ++trials;
+    connectWifi(ssid, password);
+    delay(1000);
+    if(trials==max_trials){
+      if(debug)
+        Serial.println(F("Unable to connect to wifi"));
+      return false;
+    }
+  }
+  if(debug){
+    Serial.println(F("Connected to wifi"));
+    printMacAddress();
+    printIPAddress();
+  }
+  return true;
+}
+
 void ESP8266Wifi::setLogSerial(Stream *serial){
   _logSerial = serial;
   //_client.setLogSerial(_logSerial);

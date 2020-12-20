@@ -25,6 +25,7 @@ public:
   virtual ~ATClient();
 
   void setLogSerial(Stream* serial);
+  Stream* getATSerial() { return _atSerial; }
 
   bool sendCommand(const char *cmd);
   bool sendCommand(const __FlashStringHelper *cmd);

@@ -31,25 +31,7 @@ void setup(){
   Serial1.begin(115200);
 
   Serial.println(F("----- Arduino WIFI -----"));
-  Serial.println(F("Checking ESP8266 connection..."));
-  while (!wifi.checkBoardConnection())
-    delay(100);
-  Serial.println(F("Connection established"));
-
-  delay(100);
-  wifi.restartBoard();
-  delay(2000);
-  wifi.fw_version();
-
-  uint8_t trials = 0;
-  while (!wifi.checkWifiConnection() && trials < 10) {
-    ++trials;
-    wifi.connectWifi(ssid, pwd);
-    delay(1000);
-  }
-  Serial.println(F("Connected to wifi"));
-  wifi.printMacAddress();
-  wifi.printIPAddress();
+  wifi.init(ssid, pwd, true, true);
   mySerial.setDestination(serverIP, 8000);
   mySerial.begin(80);
   pubServer.setDestination(serverIP, 8000);

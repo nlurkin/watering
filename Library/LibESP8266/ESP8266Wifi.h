@@ -20,6 +20,8 @@ public:
   ESP8266Wifi(Stream* serial=&Serial1);
   virtual ~ESP8266Wifi();
 
+  bool init(const char* ssid, const char* password, bool doReset=false, bool debug=false);
+
   void setLogSerial(Stream* serial);
 
   bool sendSomething(const char *cmd) const;
