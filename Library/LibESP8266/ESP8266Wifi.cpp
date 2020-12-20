@@ -6,6 +6,7 @@
  */
 
 #include "ESP8266Wifi.h"
+#include "DebugDef.h"
 
 static const char g_SEP_NEWLINE[] PROGMEM = {"\n"};
 static const char g_SEP_DOT[]     PROGMEM = {"."};
@@ -61,10 +62,10 @@ bool ESP8266Wifi::readAndPrint() {
 	bool has_response = len > 0;
 
 	if (has_response) {
-		DEBUG_PLN(_logSerial, F("Response Received:"));
+		DEBUGS_PLN(_logSerial, F("Response Received:"));
 		while (len > 0) {
-			DEBUG_P(_logSerial, F("> "));
-			DEBUG_PLN(_logSerial, response);
+			DEBUGS_P(_logSerial, F("> "));
+			DEBUGS_PLN(_logSerial, response);
 			if(startsWith(response, F("+IPD"))){ //+IPD
 				read_payload(response);
 			}
@@ -77,9 +78,9 @@ bool ESP8266Wifi::readAndPrint() {
 			len = _client.readUntil(response, read_size, '\n');
 		}
 
-		DEBUG_PRAWLN(_logSerial, "");
-		DEBUG_PRAWLN(_logSerial, F("============"));
-		DEBUG_PRAWLN(_logSerial, "");
+		DEBUGS_PRAWLN(_logSerial, "");
+		DEBUGS_PRAWLN(_logSerial, F("============"));
+		DEBUGS_PRAWLN(_logSerial, "");
 	}
 	return has_response;
 }

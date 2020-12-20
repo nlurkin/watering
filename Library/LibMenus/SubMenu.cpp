@@ -12,7 +12,7 @@
  * @param ref: Reference to the LiquidCrystal object on which to display the menu
  */
 SubMenu::SubMenu(LiquidCrystal& ref) :
-	_has_changed(true), _menu(ref)
+  _menu(ref), _has_changed(true)
 {
 }
 

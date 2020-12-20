@@ -308,7 +308,7 @@ bool ATClient::CIPSTATUS() {
 	return checkAnswer(F("AT+CIPSTATUS"));
 }
 
-bool ATClient::CIPSTART(TCP_TYPE type, uint8_t ip[4], int port, int8_t link_id, int udp_port, uint8_t udp_mode, int keepalive) {
+bool ATClient::CIPSTART(TCP_TYPE type, uint8_t ip[4], uint16_t port, int8_t link_id, int32_t udp_port, uint8_t udp_mode, int keepalive) {
 	if(udp_port!=-1 && type!=UDP) //udp_port and udp_mode valid only in UDP type
 		return false;
 	if(link_id!=-1 && link_id>4) //Maximum 4 links in CIPMUX=1, if CIPMUX=0, must be -1 (we do not check ourselves here)
@@ -316,8 +316,6 @@ bool ATClient::CIPSTART(TCP_TYPE type, uint8_t ip[4], int port, int8_t link_id, 
 	if(udp_mode>2)
 		return false;
 	if(keepalive!=-1 && keepalive>7200)
-		return false;
-	if(port>65535) //Maximum port number
 		return false;
 	if(udp_port>65535) //Maximum port number
 		return false;
@@ -351,7 +349,7 @@ bool ATClient::CIPSTART(TCP_TYPE type, uint8_t ip[4], int port, int8_t link_id, 
 	return ans;
 }
 
-bool ATClient::CIPSTART(TCP_TYPE type, const char *address, int port, int8_t link_id, int udp_port, uint8_t udp_mode, int keepalive) {
+bool ATClient::CIPSTART(TCP_TYPE type, const char *address, uint16_t port, int8_t link_id, int32_t udp_port, uint8_t udp_mode, int keepalive) {
 	if(udp_port!=-1 && type!=UDP) //udp_port and udp_mode valid only in UDP type
 		return false;
 	if(link_id!=-1 && link_id>4) //Maximum 4 links in CIPMUX=1, if CIPMUX=0, must be -1 (we do not check ourselves here)
@@ -359,8 +357,6 @@ bool ATClient::CIPSTART(TCP_TYPE type, const char *address, int port, int8_t lin
 	if(udp_mode>2)
 		return false;
 	if(keepalive!=-1 && keepalive>7200)
-		return false;
-	if(port>65535) //Maximum port number
 		return false;
 	if(udp_port>65535) //Maximum port number
 		return false;
@@ -394,7 +390,7 @@ bool ATClient::CIPSTART(TCP_TYPE type, const char *address, int port, int8_t lin
     return ans;
 }
 
-bool ATClient::CIPSEND(const char *data, int link_id, uint8_t ip[4], int port) {
+bool ATClient::CIPSEND(const char *data, int link_id, uint8_t ip[4], int32_t port) {
 	if(ip!=nullptr && port==-1) //If ip is set, port must be set
 		return false;
 	if(ip==nullptr && port!=-1) //Port cannot be set if ip is not
@@ -429,7 +425,7 @@ bool ATClient::CIPSEND(const char *data, int link_id, uint8_t ip[4], int port) {
 	return ans;
 }
 
-bool ATClient::CIPSENDEX(uint16_t length, int link_id, uint8_t ip[4], int port) {
+bool ATClient::CIPSENDEX(uint16_t length, int link_id, uint8_t ip[4], int32_t port) {
 	if(ip!=nullptr && port==-1) //If ip is set, port must be set
 		return false;
 	if(ip==nullptr && port!=-1) //Port cannot be set if ip is not
@@ -492,7 +488,7 @@ bool ATClient::CIPSENDBUF(const char *data, uint8_t &bufferNr, int link_id) {
 	return true;
 }
 
-bool ATClient::CIPBUFSTATUS(uint8_t link_id) {
+bool ATClient::CIPBUFSTATUS(int8_t link_id) {
 	if(link_id!=-1 && link_id>4) //Maximum 4 links in CIPMUX=1, if CIPMUX=0, must be -1 (we do not check ourselves here)
 		return false;
 
@@ -505,7 +501,7 @@ bool ATClient::CIPBUFSTATUS(uint8_t link_id) {
 	return checkAnswer(cmd);
 }
 
-bool ATClient::CIPCHECKSEQ(uint8_t segment, uint8_t link_id) {
+bool ATClient::CIPCHECKSEQ(uint8_t segment, int8_t link_id) {
 	if(link_id!=-1 && link_id>4) //Maximum 4 links in CIPMUX=1, if CIPMUX=0, must be -1 (we do not check ourselves here)
 		return false;
 	if(segment>=1000)
@@ -522,7 +518,7 @@ bool ATClient::CIPCHECKSEQ(uint8_t segment, uint8_t link_id) {
 	return checkAnswer(cmd);
 }
 
-bool ATClient::CIPBUFRESET(uint8_t link_id) {
+bool ATClient::CIPBUFRESET(int8_t link_id) {
 	if(link_id!=-1 && link_id>4) //Maximum 4 links in CIPMUX=1, if CIPMUX=0, must be -1 (we do not check ourselves here)
 		return false;
 
@@ -535,7 +531,7 @@ bool ATClient::CIPBUFRESET(uint8_t link_id) {
 	return checkAnswer(cmd);
 }
 
-bool ATClient::CIPCLOSE(uint8_t link_id) {
+bool ATClient::CIPCLOSE(int8_t link_id) {
 	if(link_id!=-1 && link_id>5) //Maximum 4 links in CIPMUX=1, if CIPMUX=0, must be -1 (we do not check ourselves here). 5 is special, close all connections
 		return false;
 
@@ -560,7 +556,7 @@ bool ATClient::CIPMUX(bool mode) {
 	return checkAnswer(cmd);
 }
 
-bool ATClient::CIPSERVER(bool on, int port) {
+bool ATClient::CIPSERVER(bool on, int32_t port) {
 	if(port>65535) //Maximum port number
 		return false;
 
@@ -574,7 +570,7 @@ bool ATClient::CIPSERVER(bool on, int port) {
 }
 
 
-bool ATClient::CIPSAVETRANSLINK(bool on, uint8_t ip[4], int port, TCP_TYPE type, int keepalive, int udp_port) {
+bool ATClient::CIPSAVETRANSLINK(bool on, uint8_t ip[4], int32_t port, TCP_TYPE type, int keepalive, int32_t udp_port) {
 	if(udp_port!=-1 && type!=UDP) //udp_port and udp_mode valid only in UDP type
 		return false;
 	if(keepalive!=-1 && keepalive>7200)

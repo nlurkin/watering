@@ -66,20 +66,20 @@ public:
 
 	//TCP/IP commands
 	bool CIPSTATUS();
-	bool CIPSTART(TCP_TYPE type, uint8_t ip[4], int port, int8_t link_id=-1, int udp_port=-1, uint8_t udp_mode=0, int keepalive=-1);
-	bool CIPSTART(TCP_TYPE type, const char *address, int port, int8_t link_id=-1, int udp_port=-1, uint8_t udp_mode=0, int keepalive=-1);
-	bool CIPSEND(const char *data, int link_id=-1, uint8_t ip[4]=nullptr, int port=-1);
-	bool CIPSENDEX(uint16_t length, int link_id=-1, uint8_t ip[4]=nullptr, int port=-1);
+	bool CIPSTART(TCP_TYPE type, uint8_t ip[4], uint16_t port, int8_t link_id=-1, int32_t udp_port=-1, uint8_t udp_mode=0, int keepalive=-1);
+	bool CIPSTART(TCP_TYPE type, const char *address, uint16_t port, int8_t link_id=-1, int32_t udp_port=-1, uint8_t udp_mode=0, int keepalive=-1);
+	bool CIPSEND(const char *data, int link_id=-1, uint8_t ip[4]=nullptr, int32_t port=-1);
+	bool CIPSENDEX(uint16_t length, int link_id=-1, uint8_t ip[4]=nullptr, int32_t port=-1);
 	bool CIPSENDBUF(const char *data, uint8_t &bufferNr, int link_id=-1);
-	bool CIPBUFSTATUS(uint8_t link_id=-1);
-	bool CIPCHECKSEQ(uint8_t segment, uint8_t link_id=-1);
-	bool CIPBUFRESET(uint8_t link_id=-1);
-	bool CIPCLOSE(uint8_t link_id=-1);
+	bool CIPBUFSTATUS(int8_t link_id=-1);
+	bool CIPCHECKSEQ(uint8_t segment, int8_t link_id=-1);
+	bool CIPBUFRESET(int8_t link_id=-1);
+	bool CIPCLOSE(int8_t link_id=-1);
 	bool CIFSR();
 	bool CIPMUX(bool mode);
-	bool CIPSERVER(bool on, int port=-1);
+	bool CIPSERVER(bool on, int32_t port=-1);
 	bool CIPMODE() {return false;}
-	bool CIPSAVETRANSLINK(bool on, uint8_t ip[4]=nullptr, int port=-1, TCP_TYPE type=TCP, int keepalive=-1, int udp_port=-1);
+	bool CIPSAVETRANSLINK(bool on, uint8_t ip[4]=nullptr, int32_t port=-1, TCP_TYPE type=TCP, int keepalive=-1, int32_t udp_port=-1);
 	bool CIPSTO(int keepalive);
 	bool CIUPDATE() {return false;}
 	bool PINGA(const char *address);

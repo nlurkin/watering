@@ -13,7 +13,7 @@
 
 #ifdef DEBUG
 #include <Arduino.h>
-#define DEBUG_PLN(ser, str)                \
+#define DEBUGS_PLN(ser, str)                \
    ser.print(millis());            \
    ser.print(": ");                \
    ser.print(__PRETTY_FUNCTION__); \
@@ -23,11 +23,11 @@
    ser.print(__LINE__);            \
    ser.print(' ');                 \
    ser.println(str);
-#define DEBUG_PRAW(ser, str)\
+#define DEBUGS_PRAW(ser, str)\
    ser.print(str);
-#define DEBUG_PRAWLN(ser, str)\
+#define DEBUGS_PRAWLN(ser, str)\
    ser.println(str);
-#define DEBUG_P(ser, str)                  \
+#define DEBUGS_P(ser, str)                  \
    ser.print(millis());            \
    ser.print(": ");                \
    ser.print(__PRETTY_FUNCTION__); \
@@ -46,10 +46,10 @@
 #define DEBUG_PRAW(str)
 #define DEBUG_PRAWLN(str)
 #define DEBUG_P(str)
-#define DEBUG_PRINT(ser, str)
-#define DEBUG_PRAW(ser, str)
-#define DEBUG_PRAWLN(ser, str)
-#define DEBUG_P(ser, str)
+#define DEBUGS_PLN(ser, str)
+#define DEBUGS_PRAW(ser, str)
+#define DEBUGS_PRAWLN(ser, str)
+#define DEBUGS_P(ser, str)
 #endif
 
 #endif

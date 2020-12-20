@@ -8,6 +8,7 @@
 #include "../LibHTTP/HTTPRequest.h"
 #include "ControlServer.h"
 #include "PublicationBase.h"
+#include "DebugDef.h"
 
 #define FPSTR(pstr_pointer) (reinterpret_cast<const __FlashStringHelper *>(pstr_pointer))
 
