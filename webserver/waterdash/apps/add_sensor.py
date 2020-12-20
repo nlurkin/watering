@@ -133,7 +133,7 @@ def create_update_sensor(submit, close, name, name_pattern, update_name, display
         if display is None:
             display = name
 
-        data_dict = {"sensor": name, "display": display, "data-type": stype, "controller": 1 in is_controller}
+        data_dict = {"sensor": name, "display": display, "data-type": stype, "controller": 1 if is_controller is not None and 1 in is_controller else 0}
         sensor_doc = mongoClient.get_sensor_by_name(name)
         if sensor_doc is not None:
             return True, "message-error", f"A sensor with same name already exists. Choose another name."
