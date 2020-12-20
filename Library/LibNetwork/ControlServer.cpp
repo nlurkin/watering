@@ -109,6 +109,10 @@ bool ControlServer::listen() {
 	    return false;
 
 	HTTPRequest http(buff);
+	#ifdef DEBUG
+	http.print();
+	#endif
+
 	if(http.needs_answer()){
 		HTTPRequest answer = HTTPRequest::http_200();
 		answer.generate();
@@ -116,6 +120,10 @@ bool ControlServer::listen() {
 		_wifi.sendPacket(buff, conn);
 	}
 	data = http.getData();
+	DEBUG_P("Data received by CS:'");
+	DEBUG_PRAW(data);
+	DEBUG_PRAWLN("'");
+	DEBUG_PLN(strstr_P(data, PSTR("/api/v1/")));
 	if(strstr_P(data, PSTR("/api/v1/"))==data){
 		char sname[PublicationBase::MAX_NAME_LENGTH+1];
 		char value[30];
@@ -129,6 +137,8 @@ bool ControlServer::listen() {
 		value[29] = '\0';
 		for(uint8_t iCmd=0; iCmd<_num_commands; ++iCmd){
 			if(strcmp(_commands[iCmd]->getName(), sname)==0){
+				DEBUG_P("Command ready: ");
+				DEBUG_PRAWLN(sname);
 				_commands[iCmd]->from_string(value);
 			}
 		}
