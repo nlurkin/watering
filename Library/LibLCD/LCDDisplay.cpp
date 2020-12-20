@@ -101,7 +101,7 @@ LCDButton::button LCDDisplay::tick() {
 
 	// Increment the internal tick counter
 	++_currentCounter;
-	int updateTimeInTick = _updateInterval/_tickInterval;
+	unsigned int updateTimeInTick = _updateInterval/_tickInterval;
 	// Possibly needs refresh
 	if(_currentCounter > updateTimeInTick){
 		_currentCounter = 0;

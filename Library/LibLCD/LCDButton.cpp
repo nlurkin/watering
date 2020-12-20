@@ -14,7 +14,7 @@
  * @param debounceDelay: Minimum delay to press button for the action to register
  */
 LCDButton::LCDButton(uint8_t pin, uint16_t debounceDelay) :
-	_pin(pin), _state(LOW), _lastState(LOW),
+	_pin(pin), _state(btnNONE), _lastState(btnNONE),
 	_debounceDelay(debounceDelay), _lastDebounceTime(0)
 {
 }
