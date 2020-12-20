@@ -13,28 +13,28 @@
 
 #ifdef DEBUG
 #include <Arduino.h>
-#define DEBUG_PLN(str)                \
-   Serial.print(millis());            \
-   Serial.print(": ");                \
-   Serial.print(__PRETTY_FUNCTION__); \
-   Serial.print(' ');                 \
-   Serial.print(__FILE__);            \
-   Serial.print(':');                 \
-   Serial.print(__LINE__);            \
-   Serial.print(' ');                 \
-   Serial.println(str);
-#define DEBUG_PRAW(str)\
-   Serial.print(str);
-#define DEBUG_P(str)                  \
-   Serial.print(millis());            \
-   Serial.print(": ");                \
-   Serial.print(__PRETTY_FUNCTION__); \
-   Serial.print(' ');                 \
-   Serial.print(__FILE__);            \
-   Serial.print(':');                 \
-   Serial.print(__LINE__);            \
-   Serial.print(' ');                 \
-   Serial.print(str);
+#define DEBUG_PLN(ser, str)                \
+   ser.print(millis());            \
+   ser.print(": ");                \
+   ser.print(__PRETTY_FUNCTION__); \
+   ser.print(' ');                 \
+   ser.print(__FILE__);            \
+   ser.print(':');                 \
+   ser.print(__LINE__);            \
+   ser.print(' ');                 \
+   ser.println(str);
+#define DEBUG_PRAW(ser, str)\
+   ser.print(str);
+#define DEBUG_P(ser, str)                  \
+   ser.print(millis());            \
+   ser.print(": ");                \
+   ser.print(__PRETTY_FUNCTION__); \
+   ser.print(' ');                 \
+   ser.print(__FILE__);            \
+   ser.print(':');                 \
+   ser.print(__LINE__);            \
+   ser.print(' ');                 \
+   ser.print(str);
 #else
 #define DEBUG_PRINT(str)
 #define DEBUG_PRAW(str)
