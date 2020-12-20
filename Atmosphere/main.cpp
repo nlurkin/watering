@@ -68,5 +68,5 @@ void loop() {
 		interval = 0;
 	}
 	++interval;
-    delay(100);
+  delay(100);
 }

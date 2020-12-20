@@ -18,7 +18,7 @@ LCDDisplay::LCDDisplay(unsigned int tickInterval, unsigned int updateInterval) :
   _lcd(8, 9, 4, 5, 6, 7), _btn(0)
 {
   _lcd.begin(12, 2);
-  _menu.update();
+  //_menu.update(); // Too early, no menu defined yet
 }
 
 /**

@@ -11,7 +11,7 @@
 #include <LiquidCrystal.h>
 
 #include "LCDButton.h"
-#include "../LibMenus/SubMenu.h"
+#include "SubMenu.h"
 
 /**
  * \brief This class is used to handle the LCD display and buttons (1602 LCD Keypad shield).
