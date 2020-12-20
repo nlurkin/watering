@@ -11,20 +11,31 @@
 #include "LCDDisplay.h"
 #include "MenuWelcome.h"
 #include "MenuBME.h"
+#include "ESP8266Wifi.h"
+#include "ControlServer.h"
 
 Adafruit_BME280 bme;
 LCDDisplay lcd(100);
+ESP8266Wifi wifi;
+ControlServer pubServer(wifi);
 
 double temperature = 0;
 double pressure = 0;
 double humidity= 0;
 double altitude= 0;
 
+const char ssid[] = {""};
+const char pwd[]  = {""};
+const char serverIP[] = {""};
+
 MenuWelcome _m_welcome(lcd.get_lcd_handle());
 MenuBME     _m_bme(lcd.get_lcd_handle());
 
 void setup() {
   Serial.begin(115200);
+  Serial1.begin(115200);
+
+  wifi.init(ssid, pwd, false, true);
 
   Serial.println(F("BME280 test"));
   if (!bme.begin(0x76)) {
@@ -35,6 +46,13 @@ void setup() {
 
   lcd.add_menu(&_m_welcome);
   lcd.add_menu(&_m_bme);
+
+  Serial.println("Stating publication server");
+  pubServer.setDestination(serverIP, 8000);
+  pubServer.begin(80);
+
+  Serial.println("Advertising services");
+  pubServer.advertise();
 }
 
 int interval = 0;
