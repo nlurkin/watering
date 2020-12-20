@@ -42,6 +42,8 @@ void setup() {
   pubServer.setDestination(serverIP, 8000);
   pubServer.begin(80);
 
+  bme1.setPublicationServer(&pubServer);
+
   Serial.println("Advertising services");
   pubServer.advertise();
 }

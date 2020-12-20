@@ -7,9 +7,14 @@
 
 #include "BME280Reader.h"
 #include "MenuBME.h"
+#include "ControlServer.h"
 
 BME280Reader::BME280Reader() :
-  _m_bme(nullptr)
+  _m_bme(nullptr),
+  _controlServer(nullptr),
+  _pub_temperature(nullptr),
+  _pub_pressure(nullptr),
+  _pub_humidity(nullptr)
 {
 }
 
@@ -28,6 +33,22 @@ bool BME280Reader::init(MenuBME *menu) {
   Serial.println(F("Valid BME280 sensor found!"));
 
   return true;
+}
+
+void BME280Reader::setPublicationServer(ControlServer *server){
+  _controlServer = server;
+  if(server==nullptr)
+    return;
+  // Create publications and add them
+  _pub_temperature = new Publication<double>("bme1_temperature");
+  _pub_temperature->updateValue(_bme.readTemperature());
+  _controlServer->addPublication(_pub_temperature);
+  _pub_pressure    = new Publication<double>("bme1_pressure");
+  _pub_pressure->updateValue(_bme.readPressure());
+  _controlServer->addPublication(_pub_pressure);
+  _pub_humidity    = new Publication<double>("bme1_humidity");
+  _pub_humidity->updateValue(_bme.readHumidity());
+  _controlServer->addPublication(_pub_humidity);
 }
 
 bool BME280Reader::updateAll() {
@@ -55,6 +76,10 @@ bool BME280Reader::updateAll() {
   Serial.println();
   if(_m_bme)
     _m_bme->set_values(temperature, pressure, humidity, altitude);
+
+  _pub_temperature->updateValue(temperature);
+  _pub_pressure->updateValue(pressure);
+  _pub_humidity->updateValue(humidity);
 
   return true;
 }
