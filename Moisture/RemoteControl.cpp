@@ -8,7 +8,7 @@
 #include "RemoteControl.h"
 
 RemoteControl::RemoteControl(ESP8266Wifi &wifi) :
-	ControlServer(wifi)
+  ControlServer(wifi)
 {
 }
 

@@ -14,18 +14,18 @@
  * @param pin: Digital pin on which the pump is connected
  */
 PumpControl::PumpControl(uint8_t pin) :
-	_enable(true),
-	_pin(pin),
-	_deadTime(-1),
-	_runningTime(-1),
-	_tickInterval(-1),
-	_currentCounter(0),
-	_on(IDLE)
+  _enable(true),
+  _pin(pin),
+  _deadTime(-1),
+  _runningTime(-1),
+  _tickInterval(-1),
+  _currentCounter(0),
+  _on(IDLE)
 {
-	// Initialise the pin. Must be in output
-	pinMode(pin, OUTPUT);
-	// And must be HIGH (=OFF)
-	digitalWrite(_pin, HIGH);
+  // Initialise the pin. Must be in output
+  pinMode(pin, OUTPUT);
+  // And must be HIGH (=OFF)
+  digitalWrite(_pin, HIGH);
 }
 
 /**
@@ -42,35 +42,35 @@ PumpControl::~PumpControl() {
  * the time length it is supposed to stay in that state.
  */
 void PumpControl::tick() {
-	// Increment the internal tick counter
-	++_currentCounter;
+  // Increment the internal tick counter
+  ++_currentCounter;
 
-	if(_on==RUNNING){
-		// If the pump is currently running, compute the amount of time it is
-		// supposed to be running, in unit of tick.
-		unsigned int runningTimeInTick = _runningTime/_tickInterval;
-		if(_currentCounter > runningTimeInTick){
-			// We have been running long enough, stop the pump
-			// Move to DEAD state and reset the tick counter.
-			digitalWrite(_pin, HIGH);
-			_on = DEAD;
-			_currentCounter = 0;
-		}
-	}
-	else if(_on==DEAD){
-		// If the pump is currently in DEAD state, compute the amount of time
-		// it is supposed to stay in that state, in unit of tick.
-	    unsigned int deadTimeInTick = _deadTime/_tickInterval;
-		if(_currentCounter > deadTimeInTick){
-			// We have been dead for long enough, move back to IDLE state
-			// and reset the tick counter
-			_on = IDLE;
-			_currentCounter = 0;
-		}
-	}
-	else
-		// Else, we are IDLE, nothing to do. Just keep the counter to 0
-		_currentCounter = 0;
+  if(_on==RUNNING){
+    // If the pump is currently running, compute the amount of time it is
+    // supposed to be running, in unit of tick.
+    unsigned int runningTimeInTick = _runningTime/_tickInterval;
+    if(_currentCounter > runningTimeInTick){
+      // We have been running long enough, stop the pump
+      // Move to DEAD state and reset the tick counter.
+      digitalWrite(_pin, HIGH);
+      _on = DEAD;
+      _currentCounter = 0;
+    }
+  }
+  else if(_on==DEAD){
+    // If the pump is currently in DEAD state, compute the amount of time
+    // it is supposed to stay in that state, in unit of tick.
+      unsigned int deadTimeInTick = _deadTime/_tickInterval;
+    if(_currentCounter > deadTimeInTick){
+      // We have been dead for long enough, move back to IDLE state
+      // and reset the tick counter
+      _on = IDLE;
+      _currentCounter = 0;
+    }
+  }
+  else
+    // Else, we are IDLE, nothing to do. Just keep the counter to 0
+    _currentCounter = 0;
 }
 
 /**
@@ -78,28 +78,28 @@ void PumpControl::tick() {
  * @param state: True will start the pump running, false will make it stop
  */
 void PumpControl::run(bool state) {
-	if(!_enable) // If disabled, prevent any running
-		state = false;
+  if(!_enable) // If disabled, prevent any running
+    state = false;
 
-	if(state && _on==IDLE){
-		// We ask it to run, and it is currently IDLE
-		// Enable to pump, move to RUNNING state and reset the
-		// tick counter.
-		digitalWrite(_pin, LOW);
-		_on = RUNNING;
-		_currentCounter = 0;
-	}
-	else if(!state && _on==RUNNING) {
-		// We ask it to stop, and it is currently RUNNING
-		// Disable the pump, move to DEAD state and reset the
-		// tick counter
-		digitalWrite(_pin, HIGH);
-		_on = DEAD;
-		_currentCounter = 0;
-	}
-	// In all other cases, there is nothing to do as we
-	// are already in the requested state (or in DEAD time in which
-	// case we do not obey any order).
+  if(state && _on==IDLE){
+    // We ask it to run, and it is currently IDLE
+    // Enable to pump, move to RUNNING state and reset the
+    // tick counter.
+    digitalWrite(_pin, LOW);
+    _on = RUNNING;
+    _currentCounter = 0;
+  }
+  else if(!state && _on==RUNNING) {
+    // We ask it to stop, and it is currently RUNNING
+    // Disable the pump, move to DEAD state and reset the
+    // tick counter
+    digitalWrite(_pin, HIGH);
+    _on = DEAD;
+    _currentCounter = 0;
+  }
+  // In all other cases, there is nothing to do as we
+  // are already in the requested state (or in DEAD time in which
+  // case we do not obey any order).
 }
 
 /**
@@ -107,12 +107,12 @@ void PumpControl::run(bool state) {
  * @param pin: Digital pin on which the pump is connected
  */
 void PumpControl::setPin(uint8_t pin) {
-	//Unset previous pin
-	pinMode(_pin, INPUT);
-	digitalWrite(_pin, LOW);
+  //Unset previous pin
+  pinMode(_pin, INPUT);
+  digitalWrite(_pin, LOW);
 
-	//Set new pin
-	pinMode(pin, OUTPUT);
-	digitalWrite(pin, HIGH);
-	_pin = pin;
+  //Set new pin
+  pinMode(pin, OUTPUT);
+  digitalWrite(pin, HIGH);
+  _pin = pin;
 }

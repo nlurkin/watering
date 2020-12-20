@@ -14,8 +14,8 @@
  */
 class RemoteControl : public ControlServer {
 public:
-	RemoteControl(ESP8266Wifi &wifi);
-	virtual ~RemoteControl();
+  RemoteControl(ESP8266Wifi &wifi);
+  virtual ~RemoteControl();
 };
 
 #endif /* REMOTECONTROL_H_ */

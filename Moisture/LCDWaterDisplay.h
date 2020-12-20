@@ -19,29 +19,29 @@
  */
 class LCDWaterDisplay {
 public:
-	enum button {btnRIGHT, btnUP, btnDOWN, btnLEFT, btnSELECT, btnNONE}; /** enum for the pressed buttons */
-	enum calibType {WATER, DRY};                                         /** enum for the predefined calibration messages */
+  enum button {btnRIGHT, btnUP, btnDOWN, btnLEFT, btnSELECT, btnNONE}; /** enum for the pressed buttons */
+  enum calibType {WATER, DRY};                                         /** enum for the predefined calibration messages */
 
-	LCDWaterDisplay();
-	virtual ~LCDWaterDisplay();
+  LCDWaterDisplay();
+  virtual ~LCDWaterDisplay();
 
-	void initCalibrationMode(calibType type);
-	void initMonitorMode();
-	void initShowMode();
-	void initWatering(bool watering);
-	void initRunning(bool running);
+  void initCalibrationMode(calibType type);
+  void initMonitorMode();
+  void initShowMode();
+  void initWatering(bool watering);
+  void initRunning(bool running);
 
-	void lcd_clear_line(uint8_t l);
-	LCDWaterDisplay::button read_LCD_buttons();
+  void lcd_clear_line(uint8_t l);
+  LCDWaterDisplay::button read_LCD_buttons();
 
-	void displayCalibMode(calibType type);
-	void displayCalibValues(int raw, float average);
-	void displayShowConstants(int water, int dry);
-	void displayRunValues(int raw, float perc);
+  void displayCalibMode(calibType type);
+  void displayCalibValues(int raw, float average);
+  void displayShowConstants(int water, int dry);
+  void displayRunValues(int raw, float perc);
 
 
 private:
-	LiquidCrystal _lcd; /** Reference to the LCD driver */
+  LiquidCrystal _lcd; /** Reference to the LCD driver */
 };
 
 #endif /* LCDWATERDISPLAY_H_ */

@@ -12,7 +12,7 @@
  * Constructor. Initialises the LCD display driver.
  */
 LCDWaterDisplay::LCDWaterDisplay() :
-	_lcd(8, 9, 4, 5, 6, 7) //List of used pins
+  _lcd(8, 9, 4, 5, 6, 7) //List of used pins
 {
    _lcd.begin(16, 2);               // start the library
    _lcd.setCursor(0,0);             // set the LCD cursor position
@@ -36,16 +36,16 @@ LCDWaterDisplay::~LCDWaterDisplay() {
  * @param type: Specify the phase of the calibration mode (wet or dry).
  */
 void LCDWaterDisplay::initCalibrationMode(calibType type){
-	// First line
-	lcd_clear_line(0);
-	_lcd.print("CALIB mode");
+  // First line
+  lcd_clear_line(0);
+  _lcd.print("CALIB mode");
 
-	//Second line
-	lcd_clear_line(1);
-	if(type==WATER)
-		_lcd.print("Put water -> SEL");
-	else if(type==DRY)
-		_lcd.print("Put dry -> SEL");
+  //Second line
+  lcd_clear_line(1);
+  if(type==WATER)
+    _lcd.print("Put water -> SEL");
+  else if(type==DRY)
+    _lcd.print("Put dry -> SEL");
 }
 
 /**
@@ -57,9 +57,9 @@ void LCDWaterDisplay::initCalibrationMode(calibType type){
  * ##################
  */
 void LCDWaterDisplay::initMonitorMode(){
-	// First line
-	lcd_clear_line(0);
-	_lcd.print("Moisture,SEL=Cal");
+  // First line
+  lcd_clear_line(0);
+  _lcd.print("Moisture,SEL=Cal");
 }
 
 /**
@@ -71,9 +71,9 @@ void LCDWaterDisplay::initMonitorMode(){
  * ##################
  */
 void LCDWaterDisplay::initShowMode(){
-	// First line
-	lcd_clear_line(0);
-	_lcd.print("Calib const");
+  // First line
+  lcd_clear_line(0);
+  _lcd.print("Calib const");
 }
 
 /**
@@ -81,9 +81,9 @@ void LCDWaterDisplay::initShowMode(){
  * @param l: Display line to clear
  */
 void LCDWaterDisplay::lcd_clear_line(uint8_t l){
-	_lcd.setCursor(0, l);
-	_lcd.print("                ");
-	_lcd.setCursor(0,l);
+  _lcd.setCursor(0, l);
+  _lcd.print("                ");
+  _lcd.setCursor(0,l);
 }
 
 /**
@@ -122,12 +122,12 @@ LCDWaterDisplay::button LCDWaterDisplay::read_LCD_buttons(){
  * @param average: Average sensor value
  */
 void LCDWaterDisplay::displayCalibValues(int raw, float average) {
-	lcd_clear_line(1);
-	_lcd.print("R:");
-	_lcd.print(raw);
-	_lcd.setCursor(8,1);
-	_lcd.print("A:");
-	_lcd.print(average);
+  lcd_clear_line(1);
+  _lcd.print("R:");
+  _lcd.print(raw);
+  _lcd.setCursor(8,1);
+  _lcd.print("A:");
+  _lcd.print(average);
 }
 
 /**
@@ -141,11 +141,11 @@ void LCDWaterDisplay::displayCalibValues(int raw, float average) {
  * @param type: Enum corresponding to the type to display
  */
 void LCDWaterDisplay::displayCalibMode(calibType type) {
-	_lcd.setCursor(11,0);
-	if(type==WATER)
-		_lcd.print("water");
-	else if(type==DRY)
-		_lcd.print("dry");
+  _lcd.setCursor(11,0);
+  if(type==WATER)
+    _lcd.print("water");
+  else if(type==DRY)
+    _lcd.print("dry");
 }
 
 /**
@@ -160,13 +160,13 @@ void LCDWaterDisplay::displayCalibMode(calibType type) {
  * @param perc: Percentage value according to the calibration wet and dry
  */
 void LCDWaterDisplay::displayRunValues(int raw, float perc) {
-	lcd_clear_line(1);
-	_lcd.print("R:");
-	_lcd.print(raw);
-	_lcd.setCursor(8,1);
-	_lcd.print((int)perc);
-	_lcd.setCursor(11,1);
-	_lcd.print("%");
+  lcd_clear_line(1);
+  _lcd.print("R:");
+  _lcd.print(raw);
+  _lcd.setCursor(8,1);
+  _lcd.print((int)perc);
+  _lcd.setCursor(11,1);
+  _lcd.print("%");
 }
 
 /**
@@ -181,12 +181,12 @@ void LCDWaterDisplay::displayRunValues(int raw, float perc) {
  * @param dry: Dry constant
  */
 void LCDWaterDisplay::displayShowConstants(int water, int dry) {
-	lcd_clear_line(1);
-	_lcd.print("W:");
-	_lcd.print(water);
-	_lcd.setCursor(8,1);
-	_lcd.print("D:");
-	_lcd.print(dry);
+  lcd_clear_line(1);
+  _lcd.print("W:");
+  _lcd.print(water);
+  _lcd.setCursor(8,1);
+  _lcd.print("D:");
+  _lcd.print(dry);
 }
 
 /**
@@ -200,11 +200,11 @@ void LCDWaterDisplay::displayShowConstants(int water, int dry) {
  * @param watering: True to display, false to hide
  */
 void LCDWaterDisplay::initWatering(bool watering) {
-	_lcd.setCursor(15,2);
-	if(watering)
-		_lcd.print("~");
-	else
-		_lcd.print(" ");
+  _lcd.setCursor(15,2);
+  if(watering)
+    _lcd.print("~");
+  else
+    _lcd.print(" ");
 }
 
 /**
@@ -218,9 +218,9 @@ void LCDWaterDisplay::initWatering(bool watering) {
  * @param running: True to display, false to hide
  */
 void LCDWaterDisplay::initRunning(bool running) {
-	_lcd.setCursor(14,1);
-	if(running)
-		_lcd.print("@");
-	else
-		_lcd.print(" ");
+  _lcd.setCursor(14,1);
+  if(running)
+    _lcd.print("@");
+  else
+    _lcd.print(" ");
 }

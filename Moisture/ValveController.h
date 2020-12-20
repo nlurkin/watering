@@ -16,21 +16,21 @@
  */
 class ValveController {
 public:
-	ValveController(uint8_t pin);
-	virtual ~ValveController();
+  ValveController(uint8_t pin);
+  virtual ~ValveController();
 
-	void Enable()  { _enable = true;  }
-	void Disable() { _enable = false; open(false); }
-	void open(bool state);
-	void toggle();
+  void Enable()  { _enable = true;  }
+  void Disable() { _enable = false; open(false); }
+  void open(bool state);
+  void toggle();
 
-	bool isOpen()    const { return _open;   }
-	bool isEnabled() const { return _enable; }
+  bool isOpen()    const { return _open;   }
+  bool isEnabled() const { return _enable; }
 
 private:
-	uint8_t  _pin; /** Digital pin on which the pump is connected */
-	bool _open;    /** Current state of the pump */
-	bool _enable;  /** Enable/disable valve */
+  uint8_t  _pin; /** Digital pin on which the pump is connected */
+  bool _open;    /** Current state of the pump */
+  bool _enable;  /** Enable/disable valve */
 };
 
 #endif /* VALVECONTROLLER_H_ */
