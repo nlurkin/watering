@@ -18,6 +18,7 @@ public:
 
   void to_string(char* buff) { buff[0]='\0'; };
   void from_string(char* buff);
+  char* def_string(char* buff);
 
   T getValue() { return _value; };
 
@@ -31,5 +32,12 @@ template <>
 void Command<int>::from_string(char* buff);
 template <>
 void Command<bool>::from_string(char* buff);
+
+template <>
+char* Command<double>::def_string(char* buff);
+template <>
+char* Command<int>::def_string(char* buff);
+template <>
+char* Command<bool>::def_string(char* buff);
 
 #endif /* LIBRARIES_LIBNETWORK_COMMAND_H_ */

@@ -148,17 +148,14 @@ bool ControlServer::listen() {
 }
 
 bool ControlServer::advertise() {
-  char buff[MAX_MESSAGE_LENGTH+HTTPRequest::MAX_HEADER_LENGTH] = "P="; //Must be able to contain data + header
-  char* p = buff+2;
+  char buff[MAX_MESSAGE_LENGTH+HTTPRequest::MAX_HEADER_LENGTH] = ""; //Must be able to contain data + header
+  char* p = buff;
   for(uint8_t iPub=0; iPub<_num_publications; ++iPub){
-    _publications[iPub]->to_string_base(&p);
+    p = _publications[iPub]->def_string(p);
   }
-  strcpy(p-1, ";C=");
-  p = p+2;
   for(uint8_t iPub=0; iPub<_num_commands; ++iPub){
-    _commands[iPub]->to_string_base(&p);
+    p = _commands[iPub]->def_string(p);
   }
-  *(p-1) = '\0';
 
   int conn = _wifi.openConnection(_dest_address, _dest_port);
   if(conn==-1)

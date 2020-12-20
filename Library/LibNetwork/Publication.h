@@ -28,6 +28,7 @@ public:
 
   void to_string(char* buff);
   void from_string(char*) {};
+  char* def_string(char* buff);
 
 private:
   T _value;
@@ -39,6 +40,13 @@ template <>
 void Publication<int>::to_string(char* buff);
 template <>
 void Publication<bool>::to_string(char* buff);
+
+template <>
+char* Publication<double>::def_string(char* buff);
+template <>
+char* Publication<int>::def_string(char* buff);
+template <>
+char* Publication<bool>::def_string(char* buff);
 
 
 #endif /* PUBLICATION_H_ */

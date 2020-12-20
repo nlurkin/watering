@@ -29,3 +29,27 @@ void Command<bool>::from_string(char* buff){
     _value = false;
   updated();
 }
+
+template <>
+char* Command<double>::def_string(char* buff){
+  to_string_base(&buff);
+  strcpy(buff, "(D,1);");
+  buff += 6;
+  return buff;
+}
+
+template <>
+char* Command<int>::def_string(char* buff){
+  to_string_base(&buff);
+  strcpy(buff, "(I,1);");
+  buff += 6;
+  return buff;
+}
+
+template <>
+char* Command<bool>::def_string(char* buff){
+  to_string_base(&buff);
+  strcpy(buff, "(B,1);");
+  buff += 6;
+  return buff;
+}

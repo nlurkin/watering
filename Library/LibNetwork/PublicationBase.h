@@ -33,6 +33,7 @@ public:
 
   virtual void to_string(char* buff) = 0;
   virtual void from_string(char* buff) = 0;
+  virtual char* def_string(char* buff) = 0;
   void to_string_base(char** buff);
 
 private:

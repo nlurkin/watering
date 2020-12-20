@@ -30,3 +30,28 @@ void Publication<bool>::to_string(char* buff){
     *buff = '0';
   buff[1]='\0';
 }
+
+
+template <>
+char* Publication<double>::def_string(char* buff){
+  to_string_base(&buff);
+  strcpy(buff, "(D,0);");
+  buff += 6;
+  return buff;
+}
+
+template <>
+char* Publication<int>::def_string(char* buff){
+  to_string_base(&buff);
+  strcpy(buff, "(I,0);");
+  buff += 6;
+  return buff;
+}
+
+template <>
+char* Publication<bool>::def_string(char* buff){
+  to_string_base(&buff);
+  strcpy(buff, "(B,0);");
+  buff += 6;
+  return buff;
+}
