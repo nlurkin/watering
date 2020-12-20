@@ -13,7 +13,8 @@
 
 class PublicationBase;
 /*
- *
+ * TODO: Write an advertise method that published the list of available publications, including type/units
+ * TODO: implement command with persistent state (inhibit command + is it inhibited), or maybe that is in the interface where we link a command with a publication...
  */
 class ControlServer {
 public:
