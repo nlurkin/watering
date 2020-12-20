@@ -27,21 +27,21 @@ SubMenu::~SubMenu() {
  * @return True if it has been modified, else false
  */
 bool SubMenu::has_changed() {
-	bool changed = _has_changed;
-	_has_changed = false;
-	return changed;
+  bool changed = _has_changed;
+  _has_changed = false;
+  return changed;
 }
 
 /**
  * Notifies that the content of the menu has been modified
  */
 void SubMenu::changed() {
-	_has_changed = true;
+  _has_changed = true;
 }
 
 /**
  * @return Reference to the internal LiquidMenu
  */
 LiquidMenu& SubMenu::get_menu_handle() {
-	return _menu;
+  return _menu;
 }

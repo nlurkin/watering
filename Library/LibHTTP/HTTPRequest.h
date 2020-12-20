@@ -13,54 +13,54 @@
 
 class HTTPRequest {
 public:
-	enum REQ_TYPE {UNDEF, GET, POST, PUT, DEL, HEAD, ANSWER};
-	enum HDR_CONN {CONN_UNDEF, CONN_CLOSE, CONN_KEEPALIVE};
+  enum REQ_TYPE {UNDEF, GET, POST, PUT, DEL, HEAD, ANSWER};
+  enum HDR_CONN {CONN_UNDEF, CONN_CLOSE, CONN_KEEPALIVE};
 private:
-	struct HTTPHeader {
-		REQ_TYPE _request_type;
-		HDR_CONN _connection;
-		uint8_t _version_major;
-		uint8_t _version_minor;
-		uint16_t _answer_code;
-		uint16_t _length;
-		char _answer_reason[30];
-		char _content_type[30];
-		char _path[30];
-	};
-	typedef struct HTTPHeader header_t;
+  struct HTTPHeader {
+    REQ_TYPE _request_type;
+    HDR_CONN _connection;
+    uint8_t _version_major;
+    uint8_t _version_minor;
+    uint16_t _answer_code;
+    uint16_t _length;
+    char _answer_reason[30];
+    char _content_type[30];
+    char _path[30];
+  };
+  typedef struct HTTPHeader header_t;
 
 public:
-	static constexpr size_t MAX_HEADER_LENGTH=200;
-	static constexpr size_t MAX_DATA_LENGTH  =200;
-	static constexpr size_t MAX_PACKET_LENGTH=MAX_HEADER_LENGTH + MAX_DATA_LENGTH;
+  static constexpr size_t MAX_HEADER_LENGTH=200;
+  static constexpr size_t MAX_DATA_LENGTH  =200;
+  static constexpr size_t MAX_PACKET_LENGTH=MAX_HEADER_LENGTH + MAX_DATA_LENGTH;
 
-	HTTPRequest();
-	HTTPRequest(const char *payload);
-	virtual ~HTTPRequest();
+  HTTPRequest();
+  HTTPRequest(const char *payload);
+  virtual ~HTTPRequest();
 
-	void   print() const;
-	bool   needs_answer() const;
-	size_t getTotalLength() const;
+  void   print() const;
+  bool   needs_answer() const;
+  size_t getTotalLength() const;
 
-	const char* getData() const;
-	const header_t& getHeader() const;
-	void getRawRequest(char *to) const;
+  const char* getData() const;
+  const header_t& getHeader() const;
+  void getRawRequest(char *to) const;
 
-	void addContent(const char *data);
-	void setConnectionType(HDR_CONN type);
-	size_t generate();
+  void addContent(const char *data);
+  void setConnectionType(HDR_CONN type);
+  size_t generate();
 
-	static HTTPRequest http_200();
-	static HTTPRequest http_post(const char* path);
+  static HTTPRequest http_200();
+  static HTTPRequest http_post(const char* path);
 
-	static bool wait200OK(ESP8266Wifi &wifi, uint8_t conn);
+  static bool wait200OK(ESP8266Wifi &wifi, uint8_t conn);
 private:
-	void extractParts(const char *payload);
-	void decodeHeader(const char *line);
+  void extractParts(const char *payload);
+  void decodeHeader(const char *line);
 
-	header_t _header;
-	char _raw_header[MAX_HEADER_LENGTH];
-	char _body[MAX_DATA_LENGTH];
+  header_t _header;
+  char _raw_header[MAX_HEADER_LENGTH];
+  char _body[MAX_DATA_LENGTH];
 };
 
 #endif /* HTTPREQUEST_H_ */

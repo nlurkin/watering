@@ -13,16 +13,16 @@
 template <class T>
 class Command : public PublicationBase{
 public:
-	Command(const char* name) : PublicationBase(name), _value() {};
-	virtual ~Command() {};
+  Command(const char* name) : PublicationBase(name), _value() {};
+  virtual ~Command() {};
 
-	void to_string(char* buff) { buff[0]='\0'; };
-	void from_string(char* buff);
+  void to_string(char* buff) { buff[0]='\0'; };
+  void from_string(char* buff);
 
-	T getValue() { return _value; };
+  T getValue() { return _value; };
 
 private:
-	T _value;
+  T _value;
 };
 
 template <>

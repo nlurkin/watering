@@ -14,8 +14,8 @@
  * @param debounceDelay: Minimum delay to press button for the action to register
  */
 LCDButton::LCDButton(uint8_t pin, uint16_t debounceDelay) :
-	_pin(pin), _state(btnNONE), _lastState(btnNONE),
-	_debounceDelay(debounceDelay), _lastDebounceTime(0)
+  _pin(pin), _state(btnNONE), _lastState(btnNONE),
+  _debounceDelay(debounceDelay), _lastDebounceTime(0)
 {
 }
 
@@ -52,23 +52,23 @@ LCDButton::button LCDButton::read_LCD_buttons(){
  * @return Enum type corresponding to the new button pressed
  */
 LCDButton::button LCDButton::check_LCD_push() {
-	// Get the currently pressed button
-	button reading = read_LCD_buttons();
+  // Get the currently pressed button
+  button reading = read_LCD_buttons();
 
-	// Checks if the buttons has changed the (recorded) last state
-	if (reading != _lastState) {
-		_lastDebounceTime = millis();
-	}
-	// Checks if the buttons hasn't changed state for '_debounceDelay' milliseconds.
-	if ((millis() - _lastDebounceTime) > _debounceDelay) {
-		// Checks if the buttons has changed the (returned) last state
-		if (reading != _state) {
-			_state = reading;
-			return _state;
-		}
-	}
-	_lastState = reading;
+  // Checks if the buttons has changed the (recorded) last state
+  if (reading != _lastState) {
+    _lastDebounceTime = millis();
+  }
+  // Checks if the buttons hasn't changed state for '_debounceDelay' milliseconds.
+  if ((millis() - _lastDebounceTime) > _debounceDelay) {
+    // Checks if the buttons has changed the (returned) last state
+    if (reading != _state) {
+      _state = reading;
+      return _state;
+    }
+  }
+  _lastState = reading;
 
-	// No change to report
-	return btnNONE;
+  // No change to report
+  return btnNONE;
 }

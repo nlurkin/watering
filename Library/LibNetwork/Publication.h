@@ -16,21 +16,21 @@
 template <class T>
 class Publication : public PublicationBase {
 public:
-	Publication(const char* name) : PublicationBase(name), _value() {};
-	virtual ~Publication(){};
+  Publication(const char* name) : PublicationBase(name), _value() {};
+  virtual ~Publication(){};
 
-	void updateValue(T newVal){
-	  if(_value == newVal)
-	    return;
-		_value = newVal;
-		updated();
-	}
+  void updateValue(T newVal){
+    if(_value == newVal)
+      return;
+    _value = newVal;
+    updated();
+  }
 
-	void to_string(char* buff);
-	void from_string(char*) {};
+  void to_string(char* buff);
+  void from_string(char*) {};
 
 private:
-	T _value;
+  T _value;
 };
 
 template <>
