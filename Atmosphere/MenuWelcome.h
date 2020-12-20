@@ -8,7 +8,7 @@
 #ifndef MENUWELCOME_H_
 #define MENUWELCOME_H_
 
-#include "LibMenus/SubMenu.h"
+#include "SubMenu.h"
 
 class MenuWelcome: public SubMenu {
 public:

@@ -8,7 +8,7 @@
 #include <Arduino.h>
 #include <Adafruit_BME280.h>
 
-#include "LibLCD/LCDDisplay.h"
+#include "LCDDisplay.h"
 #include "MenuWelcome.h"
 #include "MenuBME.h"
 
