@@ -6,6 +6,7 @@
  */
 
 #include "HTTPRequest.h"
+#include "DebugDef.h"
 
 static const char g_SEP_NEWLINE[] PROGMEM = {"\n"};
 
@@ -102,11 +103,6 @@ size_t HTTPRequest::generate() {
     strcat(_raw_header, buf);
 
   strcat_P(_raw_header, PSTR("\r\n"));
-  Serial.println(F("---- Header ---"));
-  Serial.println(_raw_header);
-  Serial.println(F("---- Body ---"));
-  Serial.print(_body);
-  Serial.println(F("---- End ---"));
   return getTotalLength();
 }
 
@@ -192,14 +188,16 @@ bool HTTPRequest::wait200OK(ESP8266Wifi &wifi, uint8_t conn) {
     if(connr!=-1){
         //answer received
         HTTPRequest http(buffr);
+        #ifdef DEBUG
         http.print();
+        #endif DEBUG
         if(http.getHeader()._answer_code==200)
             return true;
         else{
-            Serial.print("Received HTTP error: ");
-            Serial.print(http.getHeader()._answer_code);
-            Serial.print(" ");
-            Serial.println(http.getHeader()._answer_reason);
+            DEBUG_P("Received HTTP error: ");
+            DEBUG_PRAW(http.getHeader()._answer_code);
+            DEBUG_PRAW(" ");
+            DEBUG_PRAWLN(http.getHeader()._answer_reason);
             return false;
         }
     }

@@ -6,6 +6,7 @@
  */
 
 #include "ATClient.h"
+#include "DebugDef.h"
 
 ATClient::ATClient(Stream* serial) :
   _set_default(false),
@@ -27,36 +28,34 @@ void ATClient::setLogSerial(Stream *serial){
 }
 
 bool ATClient::sendCommand(const char *cmd) {
-    _dataCapture.clear();
-  _logSerial->print(F("Sending: "));
-  _logSerial->println(cmd);
-  _logSerial->println();
+  _dataCapture.clear();
+  DEBUGS_P(_logSerial, F("Sending: "));
+  DEBUGS_PRAWLN(_logSerial, cmd);
   _atSerial->println(cmd);
   return true;
 }
 
 bool ATClient::sendCommand(const __FlashStringHelper* cmd) {
-    _dataCapture.clear();
-  _logSerial->print(F("Sending: "));
-  _logSerial->println(cmd);
-  _logSerial->println();
+  _dataCapture.clear();
+  DEBUGS_P(_logSerial, F("Sending: "));
+  DEBUGS_PRAWLN(_logSerial, cmd);
   _atSerial->println(cmd);
   return true;
 }
 
 bool ATClient::sendData(const char *data) {
-    _dataCapture.clear();
-  _logSerial->print(F("Sending data: "));
-  _logSerial->print(data);
-  _logSerial->println(F("--- end data ---"));
+  _dataCapture.clear();
+  DEBUGS_P(_logSerial, F("Sending data: "));
+  DEBUGS_PRAWLN(_logSerial, data);
+  DEBUGS_PLN(_logSerial, F("--- end data ---"));
   _atSerial->print(data);
   return true;
 }
 
 bool ATClient::sendDataConfirm(const char *data) {
-  _logSerial->print(F("Sending data: "));
-  _logSerial->print(data);
-  _logSerial->println(F("--- end data ---"));
+  DEBUGS_P(_logSerial, F("Sending data: "));
+  DEBUGS_PRAWLN(_logSerial, data);
+  DEBUGS_PLN(_logSerial, F("--- end data ---"));
   _atSerial->println(data);
   return waitMessage(F("SEND OK"));
 }
@@ -380,14 +379,14 @@ bool ATClient::CIPSTART(TCP_TYPE type, const char *address, uint16_t port, int8_
   if(keepalive!=-1)
     len += sprintf_P(cmd+len, PSTR(",%d"), keepalive);
 
-    sendCommand(cmd);
-    bool ans = checkAnswer(cmd);
-    if(!ans){
-        int at = _dataCapture.containsAt("ALREADY CONNECTED");
-        Serial.println(at);
-        return at!=-1;
-    }
-    return ans;
+  sendCommand(cmd);
+  bool ans = checkAnswer(cmd);
+  if(!ans){
+    int at = _dataCapture.containsAt("ALREADY CONNECTED");
+    Serial.println(at);
+    return at!=-1;
+  }
+  return ans;
 }
 
 bool ATClient::CIPSEND(const char *data, int link_id, uint8_t ip[4], int32_t port) {
@@ -685,7 +684,7 @@ bool ATClient::checkAnswer(const __FlashStringHelper* command) {
 }
 
 bool ATClient::waitMessage(const char *message) {
-    bool got_first_char = false;
+  bool got_first_char = false;
   bool got_message = false;
   size_t str_len = strlen(message);
   unsigned long start_time = millis();
@@ -715,11 +714,11 @@ bool ATClient::waitMessage(const char *message) {
     available = waitData(str_len);
 #else
     c = read();
-    Serial.print(c);
-        if(!got_first_char && (c=='\r' || c=='\n')){
-            available = waitData(str_len); // One of the char was empty space, need to wait for the full message
-            continue;
-        }
+    DEBUGS_PRAW(_logSerial, c);
+    if(!got_first_char && (c=='\r' || c=='\n')){
+      available = waitData(str_len); // One of the char was empty space, need to wait for the full message
+      continue;
+    }
     if(c==message[pos]) { // Current char is okay
       if(pos<20) //Do not overflow
         buff[pos] = c;
@@ -780,10 +779,10 @@ bool ATClient::waitMessage(const __FlashStringHelper* message) {
     available = waitData(str_len);
 #else
     c = read();
-    Serial.print(c);
+    DEBUGS_PRAW(_logSerial, c);
     if(!got_first_char && (c=='\r' || c=='\n')){
-        available = waitData(str_len);
-        continue;
+      available = waitData(str_len);
+      continue;
     }
     got_first_char = true;
     if(c==c_msg) { // Current char is okay
