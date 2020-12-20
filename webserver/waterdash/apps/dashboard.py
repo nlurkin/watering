@@ -40,6 +40,12 @@ def build_sensor_card(sensor):
             sensor_element.append(dbc.Checklist(options = [{"label": "", "value": 1}],
             value = [] if (len(controller_last_value) == 0 or controller_last_value[-1]["val"] == 0) else [1], id = {"type": "bool_controller", "sensor": sensor["sensor"]}, switch = True,))
             sensor_element.append(html.P(id = {"type": "dummy", "sensor": sensor["sensor"]}))
+    elif sensor["data-type"] == "float":
+        sensor_element = [dcc.Graph(
+            id = {"type": "float_sensor", "sensor": sensor["sensor"]},
+            # config = {'displayModeBar': False},
+            animate = True,
+            )]
 
     return dbc.Card(sensor_element)
 
@@ -140,3 +146,38 @@ def update_bool_controller_setpoint(controller_value, sensor_name):
     mongoClient.update_controller_values(sensor_doc, sensor_name, val, day, ts)
 
     return ""
+
+
+@app.callback(Output({"type": "float_sensor", "sensor": MATCH}, 'figure'),
+              [Input('interval-component', 'n_intervals')],
+              [State({"type": "float_sensor", "sensor": MATCH}, 'id')])
+def update_float_metrics(_, sensor_name):
+    day = datetime.now().strftime("%Y-%m-%d")
+    value_doc = mongoClient.get_sensor_values(sensor_name["sensor"], day)
+    sensor_doc = mongoClient.get_sensor_by_name(sensor_name["sensor"])
+    if value_doc is None:
+        df = pd.DataFrame({"val": []})
+    else:
+        if "samples" not in value_doc:
+            df = pd.DataFrame({"val": []})
+        else:
+            df = pd.DataFrame(value_doc["samples"])
+            df.index = pd.to_datetime(df['ts'], unit = "s")
+        new_index = datetime.now()
+        df = df.append(pd.DataFrame(index = [new_index], data = df.tail(1).values, columns = df.columns))
+
+    figure = go.Figure(
+        layout_title_text = sensor_doc["display"],
+        layout_title_x = 0.5,
+        layout_margin_t = 50,
+        layout_margin_b = 10,
+        layout_height = 200,
+        layout_template = "plotly_dark",
+        ).add_trace(go.Scatter(
+                    x = df.index,
+                    y = df["val"],
+                    mode = "lines+markers",
+                    name = "Read"
+                    )
+                )
+    return figure
