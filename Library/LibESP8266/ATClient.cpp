@@ -744,6 +744,9 @@ bool ATClient::waitMessage(const char *message) {
 		//No need to wait here, we had enough data and we didn't finish going through
 #endif
 	}
+	#ifdef DEBUG
+	_dataCapture.print();
+	#endif
 
 	return got_message;
 }
@@ -809,6 +812,9 @@ bool ATClient::waitMessage(const __FlashStringHelper* message) {
 		//No need to wait here, we had enough data and we didn't finish going through
 #endif
 	}
+	#ifdef DEBUG
+  _dataCapture.print();
+  #endif
 
 	return got_message;
 }
