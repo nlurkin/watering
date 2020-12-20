@@ -51,7 +51,7 @@ void BME280Reader::setPublicationServer(ControlServer *server){
   _controlServer->addPublication(_pub_humidity);
 }
 
-bool BME280Reader::updateAll() {
+void BME280Reader::updateAll() {
   double temperature = _bme.readTemperature();
   double pressure = _bme.readPressure()/100;
   double humidity = _bme.readHumidity();
@@ -80,6 +80,4 @@ bool BME280Reader::updateAll() {
   _pub_temperature->updateValue(temperature);
   _pub_pressure->updateValue(pressure);
   _pub_humidity->updateValue(humidity);
-
-  return true;
 }

@@ -22,7 +22,7 @@ public:
   bool init(MenuBME *menu=nullptr);
   void setPublicationServer(ControlServer *server);
 
-  bool updateAll();
+  void updateAll();
 
 private:
   Adafruit_BME280      _bme;

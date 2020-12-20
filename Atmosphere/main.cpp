@@ -27,6 +27,9 @@ MenuBME     _m_bme(lcd.get_lcd_handle());
 
 BME280Reader bme1;
 
+unsigned long last_millis;
+unsigned long heartbeat_millis;
+
 void setup() {
   Serial.begin(115200);
   Serial1.begin(115200);
@@ -46,17 +49,28 @@ void setup() {
 
   Serial.println("Advertising services");
   pubServer.advertise();
-}
 
-int interval = 0;
+  last_millis = millis();
+  heartbeat_millis = millis();
+
+  bme1.updateAll();
+  pubServer.serve(true);
+}
 
 void loop() {
 
   lcd.tick();
-  if(interval % 20 == 0){
+  if(millis()-last_millis>60000){
+    // Update every minute
     bme1.updateAll();
-    interval = 0;
+    last_millis = millis();
   }
-  ++interval;
-  delay(100);
+
+  bool forceUpdate = false;
+  if(millis()-heartbeat_millis > 600000) {
+    // Force an update every 10 minute as a heartbeat
+    forceUpdate = true;
+    heartbeat_millis = millis();
+  }
+  pubServer.serve(forceUpdate);
 }
