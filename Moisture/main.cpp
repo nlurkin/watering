@@ -24,6 +24,7 @@ const char pwd[]  = {""};
 const char serverIP[] = {""};
 
 unsigned long last_millis;
+unsigned long heartbeat_millis;
 
 void setup(){
   Serial.begin(115200);
@@ -64,6 +65,7 @@ void setup(){
   waterSystem.setPublicationServer(&pubServer);
 
   last_millis = millis();
+  heartbeat_millis = millis();
 }
 
 void loop(){
@@ -91,6 +93,12 @@ void loop(){
     last_millis = millis();
     //delay(100);
   }
-  pubServer.serve();
+  bool forceUpdate = false;
+  if(millis()-heartbeat_millis > 60000) {
+    // Force an update every minute as a heartbeat
+    forceUpdate = true;
+    heartbeat_millis = millis();
+  }
+  pubServer.serve(forceUpdate);
 }
 

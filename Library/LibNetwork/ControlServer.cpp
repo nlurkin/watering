@@ -58,13 +58,13 @@ void ControlServer::begin(uint16_t port){
   }
 }
 
-bool ControlServer::serve() {
+bool ControlServer::serve(bool force) {
   char buff1[MAX_MESSAGE_LENGTH] = ""; //Must be able to contain data + header
   char buff[MAX_MESSAGE_LENGTH+HTTPRequest::MAX_HEADER_LENGTH]; //Must be able to contain data + header
   uint8_t nPubReady=0;
   PublicationBase *updatedPublications[MAX_PUBLICATIONS];
   for(uint8_t iPub=0; iPub<_num_publications; ++iPub){
-    if(_publications[iPub]->isUpdated()){
+    if(_publications[iPub]->isUpdated() || force){
       Serial.print("Publication ready: ");
       Serial.println(iPub);
       updatedPublications[nPubReady++] = _publications[iPub];
