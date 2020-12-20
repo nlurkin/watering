@@ -25,6 +25,8 @@
    ser.println(str);
 #define DEBUG_PRAW(ser, str)\
    ser.print(str);
+#define DEBUG_PRAWLN(ser, str)\
+   ser.println(str);
 #define DEBUG_P(ser, str)                  \
    ser.print(millis());            \
    ser.print(": ");                \
