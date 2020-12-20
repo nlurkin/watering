@@ -73,7 +73,7 @@ void HTTPRequest::getRawRequest(char *to) const {
 
 void HTTPRequest::addContent(const char *data) {
   size_t length = strlen(data);
-  strncat(_body, data, MAX_DATA_LENGTH-_header._length);
+  strncat(_body, data, MAX_DATA_LENGTH-_header._length-1);
   _header._length += length;
 }
 
@@ -190,7 +190,7 @@ bool HTTPRequest::wait200OK(ESP8266Wifi &wifi, uint8_t conn) {
         HTTPRequest http(buffr);
         #ifdef DEBUG
         http.print();
-        #endif DEBUG
+        #endif
         if(http.getHeader()._answer_code==200)
             return true;
         else{
