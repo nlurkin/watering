@@ -26,71 +26,71 @@ const char serverIP[] = {""};
 unsigned long last_millis;
 
 void setup(){
-	Serial.begin(115200);
-	Serial1.begin(115200);
+  Serial.begin(115200);
+  Serial1.begin(115200);
 
-	Serial.println(F("----- Arduino WIFI -----"));
-	Serial.println(F("Checking ESP8266 connection..."));
-	while (!wifi.checkBoardConnection())
-		delay(100);
-	Serial.println(F("Connection established"));
+  Serial.println(F("----- Arduino WIFI -----"));
+  Serial.println(F("Checking ESP8266 connection..."));
+  while (!wifi.checkBoardConnection())
+    delay(100);
+  Serial.println(F("Connection established"));
 
-	delay(100);
-	wifi.restartBoard();
-	delay(2000);
-	wifi.fw_version();
+  delay(100);
+  wifi.restartBoard();
+  delay(2000);
+  wifi.fw_version();
 
-	uint8_t trials = 0;
-	while (!wifi.checkWifiConnection() && trials < 10) {
-		++trials;
-		wifi.connectWifi(ssid, pwd);
-		delay(1000);
-	}
-	Serial.println(F("Connected to wifi"));
-	wifi.printMacAddress();
-	wifi.printIPAddress();
-	mySerial.setDestination(serverIP, 8000);
-	mySerial.begin(80);
-	pubServer.setDestination(serverIP, 8000);
-	pubServer.begin(80);
+  uint8_t trials = 0;
+  while (!wifi.checkWifiConnection() && trials < 10) {
+    ++trials;
+    wifi.connectWifi(ssid, pwd);
+    delay(1000);
+  }
+  Serial.println(F("Connected to wifi"));
+  wifi.printMacAddress();
+  wifi.printIPAddress();
+  mySerial.setDestination(serverIP, 8000);
+  mySerial.begin(80);
+  pubServer.setDestination(serverIP, 8000);
+  pubServer.begin(80);
 
-	mySerial.println("Arduino running");
+  mySerial.println("Arduino running");
 
-	// Set tick at 1s - used for pump and sensor, not for display and buttons
-	waterSystem.setTickInterval(1000);
-	waterSystem.addCircuit(10, 50, 40);
-	waterSystem.addCircuit(11, 51, 41);
-	waterSystem.initSystem();
-	waterSystem.setPublicationServer(&pubServer);
+  // Set tick at 1s - used for pump and sensor, not for display and buttons
+  waterSystem.setTickInterval(1000);
+  waterSystem.addCircuit(10, 50, 40);
+  waterSystem.addCircuit(11, 51, 41);
+  waterSystem.initSystem();
+  waterSystem.setPublicationServer(&pubServer);
 
-	last_millis = millis();
+  last_millis = millis();
 }
 
 void loop(){
-	if(!wifi.isConnected()){
-		//Seems we lost the wifi... try to reconnect
-		wifi.connectWifi(ssid, pwd);
-		wifi.checkWifiConnection();
-	}
+  if(!wifi.isConnected()){
+    //Seems we lost the wifi... try to reconnect
+    wifi.connectWifi(ssid, pwd);
+    wifi.checkWifiConnection();
+  }
 
-	if (Serial.available() > 0) {
-		String command = Serial.readStringUntil('\n');
-		wifi.sendSomething(command.c_str());
-	}
-	else if (mySerial.available() > 0) {
-		String command = mySerial.readStringUntil('\n');
-		wifi.sendSomething(command.c_str());
-	}
+  if (Serial.available() > 0) {
+    String command = Serial.readStringUntil('\n');
+    wifi.sendSomething(command.c_str());
+  }
+  else if (mySerial.available() > 0) {
+    String command = mySerial.readStringUntil('\n');
+    wifi.sendSomething(command.c_str());
+  }
 
-	pubServer.listen();
+  pubServer.listen();
 
-	// But run at 0.1s
-	// This ensures enough reactivity when buttons are pressed
-	if(millis()-last_millis>100){
-		waterSystem.tick();
-		last_millis = millis();
-		//delay(100);
-	}
-	pubServer.serve();
+  // But run at 0.1s
+  // This ensures enough reactivity when buttons are pressed
+  if(millis()-last_millis>100){
+    waterSystem.tick();
+    last_millis = millis();
+    //delay(100);
+  }
+  pubServer.serve();
 }
 
