@@ -20,6 +20,8 @@ public:
 	virtual ~Publication(){};
 
 	void updateValue(T newVal){
+	  if(_value == newVal)
+	    return;
 		_value = newVal;
 		updated();
 	}
