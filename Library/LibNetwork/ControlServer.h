@@ -32,6 +32,7 @@ public:
   bool listen();
   void setDestination(const char *address, uint16_t port);
   void begin(uint16_t port=80);
+  bool advertise();
 
 private:
 

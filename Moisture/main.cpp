@@ -64,6 +64,7 @@ void setup(){
   waterSystem.initSystem();
   waterSystem.setPublicationServer(&pubServer);
 
+  pubServer.advertise();
   last_millis = millis();
   heartbeat_millis = millis();
 }

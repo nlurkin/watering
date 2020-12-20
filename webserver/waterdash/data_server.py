@@ -79,6 +79,12 @@ def check_control():
     return "<h1>Control checked</h1>"
 
 
+@server.route("/advertise", methods = ["GET"])
+def advertise():
+    print(request.data)
+    return jsonify({"status": 'Success'}), 200
+
+
 @server.route("/", methods = ["GET"])
 def home():
     print("Home route")

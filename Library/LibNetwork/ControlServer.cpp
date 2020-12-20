@@ -146,3 +146,32 @@ bool ControlServer::listen() {
   }
   return true;
 }
+
+bool ControlServer::advertise() {
+  char buff[MAX_MESSAGE_LENGTH+HTTPRequest::MAX_HEADER_LENGTH] = "P="; //Must be able to contain data + header
+  char* p = buff+2;
+  for(uint8_t iPub=0; iPub<_num_publications; ++iPub){
+    _publications[iPub]->to_string_base(&p);
+  }
+  strcpy(p-1, ";C=");
+  p = p+2;
+  for(uint8_t iPub=0; iPub<_num_commands; ++iPub){
+    _commands[iPub]->to_string_base(&p);
+  }
+  *(p-1) = '\0';
+
+  int conn = _wifi.openConnection(_dest_address, _dest_port);
+  if(conn==-1)
+    return false;
+  HTTPRequest r = HTTPRequest::http_post("/api/v1/advertise");
+  r.addContent(buff);
+  r.setConnectionType(HTTPRequest::CONN_CLOSE);
+  r.generate();
+  r.getRawRequest(buff);
+
+  if(_wifi.sendPacket(buff, conn))
+      HTTPRequest::wait200OK(_wifi, conn);
+  delay(10);
+  _wifi.closeConnection(conn);
+  return true;
+}
