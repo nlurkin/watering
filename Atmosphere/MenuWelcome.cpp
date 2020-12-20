@@ -7,10 +7,10 @@
 
 #include "MenuWelcome.h"
 
-MenuWelcome::MenuWelcome(LiquidCrystal& ref, const char name[16]) :
-  SubMenu(ref)
+MenuWelcome::MenuWelcome(LiquidCrystal& ref) :
+  SubMenu(ref),
+  _project_name{"Atmosphere"}
 {
-  strncpy(_project_name, name, 16);
   init();
 }
 

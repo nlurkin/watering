@@ -12,7 +12,7 @@
 
 class MenuWelcome: public SubMenu {
 public:
-  MenuWelcome(LiquidCrystal& ref, const char name[16]);
+  MenuWelcome(LiquidCrystal& ref);
   virtual ~MenuWelcome();
   virtual void init();
 

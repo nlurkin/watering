@@ -20,7 +20,7 @@ double pressure = 0;
 double humidity= 0;
 double altitude= 0;
 
-MenuWelcome _m_welcome(lcd.get_lcd_handle(), "My Project");
+MenuWelcome _m_welcome(lcd.get_lcd_handle());
 MenuBME     _m_bme(lcd.get_lcd_handle());
 
 void setup() {
