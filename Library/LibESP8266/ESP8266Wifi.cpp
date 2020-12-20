@@ -56,14 +56,15 @@ bool ESP8266Wifi::sendData(const char *data) const {
 bool ESP8266Wifi::readAndPrint() {
 	static constexpr size_t read_size = 100;
 	char response[read_size];
+	//delay(10); // Give time to actually fill the buffer. Else we will most likely have only 1 char
 	size_t len = _client.readUntil(response, read_size, '\n');
 	bool has_response = len > 0;
 
 	if (has_response) {
-		_logSerial->println(F("Response Received:"));
+		DEBUG_PLN(_logSerial, F("Response Received:"));
 		while (len > 0) {
-			_logSerial->print(F("> "));
-			_logSerial->println(response);
+			DEBUG_P(_logSerial, F("> "));
+			DEBUG_PLN(_logSerial, response);
 			if(startsWith(response, F("+IPD"))){ //+IPD
 				read_payload(response);
 			}
@@ -76,9 +77,9 @@ bool ESP8266Wifi::readAndPrint() {
 			len = _client.readUntil(response, read_size, '\n');
 		}
 
-		_logSerial->println();
-		_logSerial->println(F("============"));
-		_logSerial->println();
+		DEBUG_PRAWLN(_logSerial, "");
+		DEBUG_PRAWLN(_logSerial, F("============"));
+		DEBUG_PRAWLN(_logSerial, "");
 	}
 	return has_response;
 }
@@ -375,7 +376,6 @@ void ESP8266Wifi::read_payload(const char *initdata) {
 	size_t init_len = _payload[conn_number]->push(data_start+1);
 	_payload[conn_number]->push('\n');
 	if(init_len==datas-1) {//No more to read
-		_payload[conn_number]->print();
 		return;
 	}
 	char buff[PAYLOAD_SIZE];
