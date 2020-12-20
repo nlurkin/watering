@@ -15,6 +15,8 @@ class myMongoClient(object):
         self.port = port
         self.client = None
         self.sensors_db = None
+        self.advertised_cur_db = None
+        self.advertised_all_db = None
         self.dashboard_db = None
 
     def connect(self):
@@ -22,6 +24,8 @@ class myMongoClient(object):
 
         self.sensors_db = self.client["sensors"]["definition"]
         self.dashboard_db = self.client["dashboard"]["dashboard_config"]
+        self.advertised_cur_db = self.client["advertised"]["current"]
+        self.advertised_all_db = self.client["advertised"]["all"]
 
     def close(self):
         self.client.close()
@@ -109,4 +113,31 @@ class myMongoClient(object):
         return self.client["sensors"][sensor_name].find_one({"day": {"$lte": day}, "setpoint": {"$exists": True}},
                                                             {"setpoint": 1, "_id": 0},
                                                             sort = [("day", pymongo.DESCENDING), ("last", pymongo.DESCENDING)])["setpoint"]
+
+    def clear_advertised_current(self):
+        self.advertised_cur_db.drop()
+        self.advertised_cur_db = self.client["advertised"]["current"]
+
+    def add_advertised_current(self, sensor_data, sensor_name):
+        if self.advertised_cur_db.find_one({"sensor": sensor_name}) is not None:
+            # Already seen recently
+            print("Already seen")
+            return
+
+        sensor_doc = self.advertised_cur_db.insert_one(sensor_data)
+        if sensor_doc:
+            if self.advertised_all_db.find_one({"sensor": sensor_name}) is not None:
+                # Already seen someday
+                return
+            else:
+                self.advertised_all_db.insert_one(sensor_data)
+            return sensor_doc.inserted_id
+        else:
+            return None
+
+    def get_advertised_current_list(self):
+        return list(self.client["advertised"]["current"].find({}, {"_id": 0}))
+
+    def get_advertised_all_list(self):
+        return list(self.advertised_all_db.find({}, {"_id": 0}))
 

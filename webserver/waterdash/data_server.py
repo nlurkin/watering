@@ -18,6 +18,7 @@ from datetime import datetime
 import requests
 import pytz
 import pprint
+import re
 
 import logging
 
@@ -51,14 +52,15 @@ def get_db():
     return g.db
 
 
-def close_db(e = None):
+@server.teardown_appcontext
+def teardown_db(exception):
     db = g.pop('db', None)
 
     if db is not None:
         db.close()
 
 
-@server.route("/control", methods = ["GET"])
+@server.route("/api/v1/controlcheck", methods = ["GET"])
 def check_control():
     db = get_db()
     ctrl_list = db.get_controllers_list()
@@ -78,11 +80,43 @@ def check_control():
             return "<h1>Control updated</h1>"
     return "<h1>Control checked</h1>"
 
-
-@server.route("/advertise", methods = ["GET"])
+def get_dtype(charID):
+    if charID == 'B':
+        return "bool"
+    elif charID == "D":
+        return "float"
+    elif charID == "I":
+        return "int"
+    else:
+        return "???"
+    
+@server.route("/api/v1/advertise", methods = ["POST"])
 def advertise():
-    print(request.data)
+    db = get_db()
+    sensors = request.data.decode("utf8").strip(";").split(";")
+
+    for sensor in sensors:
+        m = re.findall("(.*):\(([DIB]),([01])\)", sensor)
+        if len(m)>0:
+            m = m[0]
+            data_dict = {"sensor": m[0], "data-type": get_dtype(m[1]), "controller": True if m[2] == "1" else False}
+            print(data_dict)
+            db.add_advertised_current(data_dict, m[0])
     return jsonify({"status": 'Success'}), 200
+
+
+@server.route("/api/v1/advertised/<which>", methods = ["GET"])
+def list_advertised(which):
+    db = get_db()
+
+    if which == "current":
+        slist = db.get_advertised_current_list()
+    elif which == "all":
+        slist = db.get_advertised_all_list()
+    else:
+        return make_response(jsonify({'error': str(error)}), 404)
+
+    return jsonify(slist), 200
 
 
 @server.route("/", methods = ["GET"])
@@ -120,4 +154,8 @@ def not_found(error):
 
 if __name__ == '__main__':
     WSGIRequestHandler.protocol_version = "HTTP/1.1"
+    db = myMongoClient("192.168.0.18", 27017)
+    db.connect()
+    db.clear_advertised_current()
+    db.close()
     server.run(host = "192.168.0.15", port = 8000, debug = True)
