@@ -19,6 +19,7 @@ public:
   virtual ~SubMenu();
 
   virtual void init() = 0; /** Pure virtual init method to be used and called by the constructor */
+  virtual bool screen_changed() { return false; }
   bool has_changed();
   LiquidMenu& get_menu_handle();
 

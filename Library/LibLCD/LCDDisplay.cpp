@@ -36,10 +36,16 @@ LCDDisplay::~LCDDisplay() {
  * @return True if a button requiring menu change was pressed, else false
  */
 bool LCDDisplay::check_btn_changes(LCDButton::button btn) {
-  if (btn == LCDButton::btnRIGHT) // Cycle to the next screen
+  if (btn == LCDButton::btnRIGHT) { // Cycle to the next screen
     _menu.next_screen();
-  else if (btn == LCDButton::btnLEFT) // Cycle to the previous screen
+    if(_subMenus[_currentMenu]->screen_changed())
+      _menu.update();
+  }
+  else if (btn == LCDButton::btnLEFT) { // Cycle to the previous screen
     _menu.previous_screen();
+    if(_subMenus[_currentMenu]->screen_changed())
+      _menu.update();
+  }
   else if (btn == LCDButton::btnUP && _currentMenu > 0) { // Need to possibly switch one menu top
     uint8_t newMenu = _currentMenu - 1;
     _menu.change_menu(_subMenus[newMenu]->get_menu_handle());
