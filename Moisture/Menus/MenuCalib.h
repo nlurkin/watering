@@ -21,13 +21,21 @@ public:
   virtual ~MenuCalib();
 
   virtual void init();
-  void set_values(calibType type);
+  void reset();
+  void set_values(calibType type, bool sel);
+  void set_values(int val, float avg);
+  void set_sensor(uint8_t sensor);
 
 private:
-  char _dval[16];
-  LiquidScreen *_s_monitor_dry;
+  int _val, _val_avg;
+  int _sensor;
+  char _dval[17];
+  char _mode_letter;
+  LiquidScreen *_s_monitor_wait;
+  LiquidScreen *_s_monitor_run;
   LiquidLine   *_l_bme_header;
   LiquidLine   *_l_bme_dry;
+  LiquidLine   *_l_bme_run;
 };
 
 #endif /* MENUCALIB_H_ */
