@@ -28,6 +28,7 @@ public:
   static const uint8_t MAX_MENUS=5;
 
   LCDDisplay(unsigned int tickInterval, unsigned int updateInterval=1000);
+  LCDDisplay(LiquidCrystal &lcd, unsigned int tickInterval, unsigned int updateInterval=1000);
   virtual ~LCDDisplay();
 
   LCDButton::button tick();

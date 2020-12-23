@@ -22,6 +22,19 @@ LCDDisplay::LCDDisplay(unsigned int tickInterval, unsigned int updateInterval) :
 }
 
 /**
+ * Constructor. LiquidMenu and uses the provided LCD display driver.
+ *
+ * @param lcd: LCD Driver to user
+ * @param tickInterval: Interval between consecutive calls to the tick method
+ * @param updateInterval: Interval between consecutive refresh of the screen (default 1000 [ms])
+ */
+LCDDisplay::LCDDisplay(LiquidCrystal &lcd, unsigned int tickInterval, unsigned int updateInterval) :
+  _nMenus(0), _currentMenu(0), _tickInterval(tickInterval), _updateInterval(updateInterval), _currentCounter(0),
+  _lcd(lcd), _btn(0)
+{
+}
+
+/**
  * Destructor
  */
 LCDDisplay::~LCDDisplay() {
