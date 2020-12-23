@@ -14,7 +14,7 @@
  * @param updateInterval: Interval between consecutive refresh of the screen (default 1000 [ms])
  */
 LCDDisplay::LCDDisplay(unsigned int tickInterval, unsigned int updateInterval) :
-  _nMenus(0), _currentMenu(0), _tickInterval(tickInterval), _updateInterval(updateInterval), _currentCounter(0),
+  _disableBnts(false), _nMenus(0), _currentMenu(0), _tickInterval(tickInterval), _updateInterval(updateInterval), _currentCounter(0),
   _lcd(8, 9, 4, 5, 6, 7), _btn(0)
 {
   _lcd.begin(12, 2);
@@ -29,7 +29,7 @@ LCDDisplay::LCDDisplay(unsigned int tickInterval, unsigned int updateInterval) :
  * @param updateInterval: Interval between consecutive refresh of the screen (default 1000 [ms])
  */
 LCDDisplay::LCDDisplay(LiquidCrystal &lcd, unsigned int tickInterval, unsigned int updateInterval) :
-  _nMenus(0), _currentMenu(0), _tickInterval(tickInterval), _updateInterval(updateInterval), _currentCounter(0),
+  _disableBnts(false), _nMenus(0), _currentMenu(0), _tickInterval(tickInterval), _updateInterval(updateInterval), _currentCounter(0),
   _lcd(lcd), _btn(0)
 {
 }
@@ -49,6 +49,8 @@ LCDDisplay::~LCDDisplay() {
  * @return True if a button requiring menu change was pressed, else false
  */
 bool LCDDisplay::check_btn_changes(LCDButton::button btn) {
+  if(_disableBnts)
+    return false;
   if (btn == LCDButton::btnRIGHT) { // Cycle to the next screen
     _menu.next_screen();
     if(_subMenus[_currentMenu]->screen_changed())
