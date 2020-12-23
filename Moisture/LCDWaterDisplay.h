@@ -9,6 +9,7 @@
 #define LCDWATERDISPLAY_H_
 
 #include <LiquidCrystal.h>
+#include "AutomaticWaterConfig.h"
 
 /**
  * \brief This class handles the LCD display and buttons (1602 LCD Keypad shield).
@@ -19,7 +20,6 @@
  */
 class LCDWaterDisplay {
 public:
-  enum button {btnRIGHT, btnUP, btnDOWN, btnLEFT, btnSELECT, btnNONE}; /** enum for the pressed buttons */
   enum calibType {WATER, DRY};                                         /** enum for the predefined calibration messages */
 
   LCDWaterDisplay();

@@ -14,6 +14,7 @@
 #include "ValveController.h"
 #include "Publication.h"
 #include "Command.h"
+#include "AutomaticWaterConfig.h"
 
 class RemoteControl;
 
@@ -28,16 +29,15 @@ class RemoteControl;
  */
 class AutomaticWater {
 public:
-  static constexpr uint8_t MAX_SENSORS = 5;
   AutomaticWater(uint8_t pump_pin);
   virtual ~AutomaticWater();
 
   void initSystem();
   void setPublicationServer(RemoteControl *server);
 
-  void runCalibrationMode(LCDWaterDisplay::button button);
-  void runShowMode(LCDWaterDisplay::button button);
-  void runMonitorMode(LCDWaterDisplay::button button);
+  void runCalibrationMode(LCDButton::button button);
+  void runShowMode(LCDButton::button button);
+  void runMonitorMode(LCDButton::button button);
 
   bool addSensor(uint8_t pin, uint8_t powerPin);
   bool addValve(uint8_t pin, uint8_t circuit_index);
@@ -80,18 +80,18 @@ private:
   unsigned int   _currentCounter;                         /** Internal tick counter */
   uint8_t        _nCircuits;                              /** Number of circuits (sensors + valve couples)*/
   uint8_t        _currentSensor;                          /** Index of the currently active sensor. Active is defined as the one that is being displayed/calibrated */
-  bool           _isWatering[MAX_SENSORS];                /** True if associated sensor is currently watering else false */
+  bool           _isWatering[AW::MAX_SENSORS];                /** True if associated sensor is currently watering else false */
 
-  MoistureSensor  *sensors[MAX_SENSORS]; /** Moisture sensor controller */
-  ValveController *valves[MAX_SENSORS];  /** Valves controllers */
+  MoistureSensor  *sensors[AW::MAX_SENSORS]; /** Moisture sensor controller */
+  ValveController *valves[AW::MAX_SENSORS];  /** Valves controllers */
   PumpControl      pump1;      /** Pump controller */
   LCDWaterDisplay  lcdDisplay; /** LCD Display and buttons controller */
 
   RemoteControl     *_controlServer;
   Publication<bool> *_pub_pump;
   Publication<bool> *_pub_pump_enabled;
-  Publication<bool> *_pub_pump_valves[MAX_SENSORS];
-  Publication<int>  *_pub_sensors[MAX_SENSORS];
+  Publication<bool> *_pub_pump_valves[AW::MAX_SENSORS];
+  Publication<int>  *_pub_sensors[AW::MAX_SENSORS];
   Command<bool>     *_cmd_pump;
 };
 
