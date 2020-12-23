@@ -10,6 +10,7 @@
 
 MenuMonitor::MenuMonitor(LiquidCrystal &ref) :
   SubMenu(ref),
+  _run_symbols{"   "},
   _n_screens(0),
   _screen_id(0),
   _l_monitor_header(0, 0, "Moisture      #", _screen_id)
@@ -36,7 +37,8 @@ bool MenuMonitor::add_screen() {
   if(_n_screens>=AW::MAX_SENSORS)
     return false;
 
-  _l_monitor_vals[_n_screens] = new LiquidLine(0, 1, "R: ", _v_monit_raw[_n_screens], " %", _v_monit_perc[_n_screens]);
+  _l_monitor_vals[_n_screens] = new LiquidLine(0, 1, _run_symbols, "R:", _v_monit_raw[_n_screens], " %");
+  _l_monitor_vals[_n_screens]->add_variable(_v_monit_perc[_n_screens]);
   _s_monitor[_n_screens] = new LiquidScreen(_l_monitor_header, *_l_monitor_vals[_n_screens]);
 
   _menu.add_screen(*_s_monitor[_n_screens]);
@@ -67,4 +69,22 @@ void MenuMonitor::set_mon_values(int screen, int raw, float perc) {
 
   if(screen==_screen_id)
     changed();
+}
+
+void MenuMonitor::set_running(bool run) {
+  if(run)
+    _run_symbols[0] = '@';
+  else
+    _run_symbols[0] = ' ';
+
+  changed();
+}
+
+void MenuMonitor::set_watering(bool water) {
+  if(water)
+    _run_symbols[1] = '~';
+  else
+    _run_symbols[1] = ' ';
+
+  changed();
 }

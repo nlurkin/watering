@@ -20,8 +20,11 @@ public:
   virtual bool screen_changed();
   bool add_screen();
   void set_mon_values(int screen, int raw, float perc);
+  void set_running(bool run);
+  void set_watering(bool water);
 
 private:
+  char _run_symbols[4];
   int _n_screens;
   int _screen_id;
   int _v_monit_raw[AW::MAX_SENSORS];
