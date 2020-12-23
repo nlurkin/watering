@@ -204,6 +204,7 @@ void LCDWaterDisplay::displayShowConstants(int screen, int water, int dry) {
  * @param watering: True to display, false to hide
  */
 void LCDWaterDisplay::initWatering(bool watering) {
+  _m_monitor.set_watering(watering);
 //  _lcd.setCursor(15,2);
 //  if(watering)
 //    _lcd.print(F("~"));
@@ -222,6 +223,7 @@ void LCDWaterDisplay::initWatering(bool watering) {
  * @param running: True to display, false to hide
  */
 void LCDWaterDisplay::initRunning(bool running) {
+  _m_monitor.set_running(running);
 //  _lcd.setCursor(14,1);
 //  if(running)
 //    _lcd.print(F("@"));
