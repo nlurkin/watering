@@ -449,7 +449,7 @@ bool ATClient::CIPSENDEX(uint16_t length, int link_id, uint8_t ip[4], int32_t po
   return waitMessage(F(">"));
 }
 
-bool ATClient::CIPSENDBUF(const char *data, uint8_t &bufferNr, int link_id) {
+bool ATClient::CIPSENDBUF(const char *data, uint8_t &/*bufferNr*/, int link_id) {
   if(link_id!=-1 && link_id>4) //Maximum 4 links in CIPMUX=1, if CIPMUX=0, must be -1 (we do not check ourselves here)
     return false;
   uint16_t datas = strlen(data);
