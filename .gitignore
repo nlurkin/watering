@@ -2,3 +2,9 @@ build/
 .project
 .cproject
 .settings/
+esspressif/
+Release/
+__pycache__/
+dbdata/
+.pydevproject
+spec.d
