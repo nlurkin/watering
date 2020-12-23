@@ -190,31 +190,9 @@ void AutomaticWater::runCalibrationMode(LCDButton::button button){
  * @param button: Eventual button pressed on the LCD display
  */
 void AutomaticWater::runShowMode(LCDButton::button button){
-  //If sub mode is not one of the SHOW sub modes, we are just entering
-  //SHOW mode from another mode
-  if(_gSubMode!=MODE_SHOW_CONST){
-    //Set the display and the sub mode properly
-    lcdDisplay.initShowMode();
-    _gSubMode = MODE_SHOW_CONST;
-  }
-
-  switch(_gSubMode) {
-  case MODE_SHOW_CONST: // Mode SHOW
-    //Display the calibration constants on the LCD
-    lcdDisplay.displayShowConstants(sensors[_currentSensor]->getWaterValue(), sensors[_currentSensor]->getDryValue());
-    if(button==LCDButton::btnLEFT){ // If left button pressed again, go back to MONITOR mode
-      //_gMainMode = MAIN_MODE_MONITOR;
-    }
-    else if(button==LCDButton::btnUP){ // If up button pressed, change active sensor to the next one
-      loopActiveSensor(1);
-    }
-    else if(button==LCDButton::btnDOWN){ // If down button pressed, change active sensor to the previous one
-      loopActiveSensor(-1);
-    }
-    break;
-  default:
-    break;
-  }
+  //Update the calibration constants in the LCD Show Menu
+  for(uint8_t i=0; i<_nCircuits; ++i)
+    lcdDisplay.displayShowConstants(i, sensors[i]->getWaterValue(), sensors[i]->getDryValue());
 }
 
 /**
