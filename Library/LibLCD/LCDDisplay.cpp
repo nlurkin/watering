@@ -78,11 +78,36 @@ bool LCDDisplay::add_menu(SubMenu *menu) {
   return false;
 }
 
+void LCDDisplay::force_refresh() {
+  _menu.update();
+}
+
 /**
  * @return handle to the LCD driver as it needs to be passed to the SubMenus on creation
  */
 LiquidCrystal& LCDDisplay::get_lcd_handle() {
   return _lcd;
+}
+
+const SubMenu *LCDDisplay::get_current_menu() {
+  if(_currentMenu>=_nMenus) return nullptr;
+
+  return _subMenus[_currentMenu];
+}
+
+uint8_t LCDDisplay::get_current_menu_id() {
+  return _currentMenu;
+}
+
+bool LCDDisplay::change_menu(SubMenu *menu) {
+  for(uint8_t iMenu=0; iMenu<_nMenus; ++iMenu){
+    if(_subMenus[iMenu] == menu){
+      _menu.change_menu(menu->get_menu_handle());
+      _currentMenu = iMenu;
+      return true;
+    }
+  }
+  return false;
 }
 
 /**

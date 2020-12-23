@@ -33,6 +33,11 @@ public:
   LCDButton::button tick();
   bool add_menu(SubMenu *menu);
   LiquidCrystal& get_lcd_handle();
+  const SubMenu * get_current_menu();
+  uint8_t get_current_menu_id();
+
+  bool change_menu(SubMenu *menu);
+  void force_refresh();
 
 private:
   bool check_btn_changes(LCDButton::button btn);
