@@ -219,5 +219,13 @@ void LCDWaterDisplay::initRunning(bool running) {
 
 LCDButton::button LCDWaterDisplay::tick() {
   LCDButton::button btn = _lcd.tick();
+  const SubMenu *menu = _lcd.get_current_menu();
+  if(&_m_show==menu)
+      _gMainMode = AW::MAIN_MODE_SHOW;
+  else if(&_m_calib==menu)
+    _gMainMode=AW::MAIN_MODE_CALIB;
+  else
+    _gMainMode = AW::MAIN_MODE_MONITOR;
+
   return btn;
 }

@@ -64,7 +64,6 @@ private:
   void checkCommands();
   void updatePublications();
 
-  enum MainMode {MAIN_MODE_MONITOR, MAIN_MODE_CALIB, MAIN_MODE_SHOW};     /** enum to identify the main modes */
   enum SubMode  {MODE_MONITOR_IDLE, MODE_MONITOR_RUN,  //Sub modes for MONITOR
                MODE_CALIB_WATER, MODE_CALIB_WATER_W, MODE_CALIB_DRY, MODE_CALIB_DRY_W, //Sub modes for CALIB
            MODE_SHOW_CONST}; //Sub modes for SHOW                   /** enum to identify the sub modes */
@@ -74,7 +73,6 @@ private:
   static constexpr long int SHORT_INTERVAL     = 1000;               /** Long interval between measurements */
   static constexpr SubMode  defaultMonitorMode = MODE_MONITOR_RUN;   /** Default starting sub mode of the monitoring mode when switching to the monitor mode (Running) */
 
-  MainMode       _gMainMode         = MAIN_MODE_MONITOR;  /** Main mode currently running (defaults to MONITOR) */
   SubMode        _gSubMode          = defaultMonitorMode; /** Sub mode currently running (defaults to defaultMonitorMode) */
   unsigned int   _gTickInterval;                          /** Tick interval to be set to all classes used */
   unsigned int   _currentCounter;                         /** Internal tick counter */

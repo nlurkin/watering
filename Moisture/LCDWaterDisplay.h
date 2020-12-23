@@ -44,7 +44,11 @@ public:
 
   LCDButton::button tick();
 
+  AW::MainMode getMainMode() const { return _gMainMode; }
+  void setMainMode(AW::MainMode gMainMode) { _gMainMode = gMainMode; }
+
 private:
+  AW::MainMode       _gMainMode         = AW::MAIN_MODE_MONITOR;  /** Main mode currently running (defaults to MONITOR) */
   LCDDisplay _lcd; /** Reference to the LCD display*/
   MenuWelcome _m_welcome;
   MenuMonitor _m_monitor;
