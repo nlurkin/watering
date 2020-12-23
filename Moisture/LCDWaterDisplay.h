@@ -34,7 +34,6 @@ public:
   void initRunning(bool running);
 
   void lcd_clear_line(uint8_t l);
-  LCDWaterDisplay::button read_LCD_buttons();
 
   void displayCalibMode(MenuCalib::calibType type);
   void displayCalibValues(int raw, float average);

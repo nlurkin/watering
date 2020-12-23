@@ -101,30 +101,6 @@ void LCDWaterDisplay::lcd_clear_line(uint8_t l){
 }
 
 /**
- * Read the currently pressed button.
- * From Mark Bramwell, July 2010
- * @return Enum type corresponding to the read button
- */
-LCDWaterDisplay::button LCDWaterDisplay::read_LCD_buttons(){
-    int adc_key_in = analogRead(0);       // read the value from the digital pin
-
-    // my buttons when read are centered at these values: 0, 144, 329, 504, 741
-    // we add approx 50 to those values and check to see if we are close
-    // We make this the 1st option for speed reasons since it will be the most likely result
-
-    if (adc_key_in > 1000) return btnNONE;
-
-    // For V1.1 us this threshold
-    if (adc_key_in < 50)   return btnRIGHT;
-    if (adc_key_in < 250)  return btnUP;
-    if (adc_key_in < 450)  return btnDOWN;
-    if (adc_key_in < 650)  return btnLEFT;
-    if (adc_key_in < 850)  return btnSELECT;
-
-    return btnNONE;                // when all others fail, return this.
-}
-
-/**
  * Display the sensor values on the second line. To be used during calibration mode.
  *
  * ###################
@@ -239,4 +215,9 @@ void LCDWaterDisplay::initRunning(bool running) {
 //    _lcd.print(F("@"));
 //  else
 //    _lcd.print(F(" "));
+}
+
+LCDButton::button LCDWaterDisplay::tick() {
+  LCDButton::button btn = _lcd.tick();
+  return btn;
 }

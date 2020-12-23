@@ -337,7 +337,7 @@ bool AutomaticWater::addSensor(uint8_t pin, uint8_t powerPin) {
  */
 void AutomaticWater::tick() {
   //Reads the button info from the LCD
-  LCDWaterDisplay::button button = lcdDisplay.read_LCD_buttons();
+  LCDButton::button button = lcdDisplay.tick();
 
   // Pass to the rest of the function only every 10 ticks, or when a button is pressed
   if(++_currentCounter<10 && button==LCDButton::btnNONE) return;
