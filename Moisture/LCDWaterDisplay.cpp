@@ -46,6 +46,7 @@ bool LCDWaterDisplay::add_circuit() {
  * @param type: Specify the phase of the calibration mode (wet or dry).
  */
 void LCDWaterDisplay::initCalibrationMode(MenuCalib::calibType type){
+  _m_calib.set_values(type, true);
   // First line
   /*
   lcd_clear_line(0);
@@ -58,6 +59,10 @@ void LCDWaterDisplay::initCalibrationMode(MenuCalib::calibType type){
   else if(type==MenuMonitor::DRY)
     _lcd.print(F("Put dry -> SEL"));
   */
+}
+
+void LCDWaterDisplay::resetCalibrationMode(){
+  _m_calib.reset();
 }
 
 /**
@@ -112,6 +117,7 @@ void LCDWaterDisplay::lcd_clear_line(uint8_t l){
  * @param average: Average sensor value
  */
 void LCDWaterDisplay::displayCalibValues(int raw, float average) {
+  _m_calib.set_values(raw, average);
 //  lcd_clear_line(1);
 //  _lcd.print(F("R:"));
 //  _lcd.print(raw);
@@ -119,6 +125,11 @@ void LCDWaterDisplay::displayCalibValues(int raw, float average) {
 //  _lcd.print(F("A:"));
 //  _lcd.print(average);
 }
+
+void LCDWaterDisplay::displayCalibSensor(uint8_t sensor) {
+  _m_calib.set_sensor(sensor);
+}
+
 
 /**
  * Display the calibration type at the end of the first line. To be used during calibration mode.
@@ -131,6 +142,7 @@ void LCDWaterDisplay::displayCalibValues(int raw, float average) {
  * @param type: Enum corresponding to the type to display
  */
 void LCDWaterDisplay::displayCalibMode(MenuCalib::calibType type) {
+  _m_calib.set_values(type, false);
 //  _lcd.setCursor(11,0);
 //  if(type==MenuMonitor::WATER)
 //    _lcd.print(F("water"));

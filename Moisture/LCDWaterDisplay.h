@@ -27,6 +27,7 @@ public:
   LCDWaterDisplay();
   virtual ~LCDWaterDisplay();
 
+  void resetCalibrationMode();
   void initCalibrationMode(MenuCalib::calibType type);
   void initMonitorMode();
   void initShowMode();
@@ -37,6 +38,7 @@ public:
 
   void displayCalibMode(MenuCalib::calibType type);
   void displayCalibValues(int raw, float average);
+  void displayCalibSensor(uint8_t sensor);
   void displayShowConstants(int screen, int water, int dry);
   void displayRunValues(int screen, int raw, float perc);
 
