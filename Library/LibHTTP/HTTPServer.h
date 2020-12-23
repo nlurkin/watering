@@ -12,19 +12,19 @@
 
 class HTTPServer {
 public:
-	HTTPServer(ESP8266Wifi &wifi);
-	virtual ~HTTPServer();
+  HTTPServer(ESP8266Wifi &wifi);
+  virtual ~HTTPServer();
 
-	bool startServer(uint16_t port);
-	bool stopServer();
+  bool startServer(uint16_t port);
+  bool stopServer();
 
-	String loop();
+  String loop();
 
-	bool sendData(String address, uint16_t port);
+  bool sendData(String address, uint16_t port);
 
 private:
-	uint16_t _port;
-	ESP8266Wifi &_wifi;
+  uint16_t _port;
+  ESP8266Wifi &_wifi;
 };
 
 #endif /* HTTPSERVER_H_ */

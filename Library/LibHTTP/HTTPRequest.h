@@ -11,41 +11,41 @@
 #include <Arduino.h>
 
 class HTTPRequest {
-	enum REQ_TYPE {UNDEF, GET, POST, PUT, DEL, HEAD, ANSWER};
-	enum HDR_CONN {CONN_UNDEF, CONN_CLOSE};
-	struct HTTPHeader {
-		REQ_TYPE _request_type;
-		HDR_CONN _connection;
-		uint8_t _version_major;
-		uint8_t _version_minor;
-		uint16_t _answer_code;
-		uint16_t _length;
-		String _answer_reason;
-		String _content_type;
-		String _path;
-		String _raw_header;
-	};
-	typedef struct HTTPHeader header_t;
+  enum REQ_TYPE {UNDEF, GET, POST, PUT, DEL, HEAD, ANSWER};
+  enum HDR_CONN {CONN_UNDEF, CONN_CLOSE};
+  struct HTTPHeader {
+    REQ_TYPE _request_type;
+    HDR_CONN _connection;
+    uint8_t _version_major;
+    uint8_t _version_minor;
+    uint16_t _answer_code;
+    uint16_t _length;
+    String _answer_reason;
+    String _content_type;
+    String _path;
+    String _raw_header;
+  };
+  typedef struct HTTPHeader header_t;
 public:
-	HTTPRequest();
-	HTTPRequest(String payload);
-	virtual ~HTTPRequest();
+  HTTPRequest();
+  HTTPRequest(String payload);
+  virtual ~HTTPRequest();
 
-	void print();
-	bool needs_answer();
-	String getData() { return _body; }
+  void print();
+  bool needs_answer();
+  String getData() { return _body; }
 
-	void addContent(String &data);
-	String generate();
-	unsigned int getTotalLength();
+  void addContent(String &data);
+  String generate();
+  unsigned int getTotalLength();
 
-	static HTTPRequest http_200();
-	static HTTPRequest http_post();
+  static HTTPRequest http_200();
+  static HTTPRequest http_post();
 private:
-	void extractParts(String payload);
-	bool decodeHeader(String line);
-	header_t _header;
-	String _body;
+  void extractParts(String payload);
+  bool decodeHeader(String line);
+  header_t _header;
+  String _body;
 };
 
 #endif /* HTTPREQUEST_H_ */
