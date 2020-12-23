@@ -25,29 +25,29 @@
  */
 class LCDDisplay {
 public:
-	static const uint8_t MAX_MENUS=5;
+  static const uint8_t MAX_MENUS=5;
 
-	LCDDisplay(unsigned int tickInterval, unsigned int updateInterval=1000);
-	virtual ~LCDDisplay();
+  LCDDisplay(unsigned int tickInterval, unsigned int updateInterval=1000);
+  virtual ~LCDDisplay();
 
-	LCDButton::button tick();
-	bool add_menu(SubMenu *menu);
-	LiquidCrystal& get_lcd_handle();
+  LCDButton::button tick();
+  bool add_menu(SubMenu *menu);
+  LiquidCrystal& get_lcd_handle();
 
 private:
-	bool check_btn_changes(LCDButton::button btn);
-	bool check_updates();
+  bool check_btn_changes(LCDButton::button btn);
+  bool check_updates();
 
-	uint8_t _nMenus;              /** Number of menus */
-	uint8_t _currentMenu;         /** Index of the currently displayed menu */
-	unsigned int _tickInterval;   /** Length of a tick*/
-	unsigned int _updateInterval; /** Length between consecutive update of the screen*/
-	unsigned int _currentCounter; /** Counter of ticks */
-	LiquidCrystal _lcd;           /** Reference to the LCD driver */
-	LCDButton     _btn;           /** Reference to the button reader */
-	LiquidSystem  _menu;          /** Reference to the LiquidMenu instance */
+  uint8_t _nMenus;              /** Number of menus */
+  uint8_t _currentMenu;         /** Index of the currently displayed menu */
+  unsigned int _tickInterval;   /** Length of a tick*/
+  unsigned int _updateInterval; /** Length between consecutive update of the screen*/
+  unsigned int _currentCounter; /** Counter of ticks */
+  LiquidCrystal _lcd;           /** Reference to the LCD driver */
+  LCDButton     _btn;           /** Reference to the button reader */
+  LiquidSystem  _menu;          /** Reference to the LiquidMenu instance */
 
-	SubMenu* _subMenus[MAX_MENUS]; /** Array of SubMenus */
+  SubMenu* _subMenus[MAX_MENUS]; /** Array of SubMenus */
 };
 
 #endif /* LIBLCD_LCDDISPLAY_H_ */
