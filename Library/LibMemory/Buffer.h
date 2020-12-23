@@ -12,33 +12,33 @@
 
 class Buffer {
 public:
-	Buffer(size_t size);
-	virtual ~Buffer();
+  Buffer(size_t size);
+  virtual ~Buffer();
 
-	void   clear();
-	void   drop(size_t nchar);
-	size_t push(char c);
-	size_t push(const char *str);
+  void   clear();
+  void   drop(size_t nchar);
+  size_t push(char c);
+  size_t push(const char *str);
 
-	inline size_t len() const;
-	char peek() const;
-	bool startsWith(const char *str) const;
-	bool startsWith(const __FlashStringHelper *str) const;
-	void print() const;
+  inline size_t len() const;
+  char peek() const;
+  bool startsWith(const char *str) const;
+  bool startsWith(const __FlashStringHelper *str) const;
+  void print() const;
 
-	char   read();
-	size_t get(char *dest, size_t max);
-	size_t get(char *dest, size_t max, char until);
-	String getString();
+  char   read();
+  size_t get(char *dest, size_t max);
+  size_t get(char *dest, size_t max, char until);
+  String getString();
 
 private:
-	void increment(char*& ptr, size_t len=1) const;
+  void increment(char*& ptr, size_t len=1) const;
 
-	bool _allow_overwrite;
-	char* _buffer;
-	char* _p_begin;
-	char* _p_end;
-	size_t _size;
+  bool _allow_overwrite;
+  char* _buffer;
+  char* _p_begin;
+  char* _p_end;
+  size_t _size;
 };
 
 #endif /* BUFFER_H_ */

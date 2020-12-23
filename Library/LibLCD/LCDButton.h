@@ -20,19 +20,19 @@
  */
 class LCDButton {
 public:
-	enum button {btnRIGHT, btnUP, btnDOWN, btnLEFT, btnSELECT, btnNONE}; /** enum for the pressed buttons */
+  enum button {btnRIGHT, btnUP, btnDOWN, btnLEFT, btnSELECT, btnNONE}; /** enum for the pressed buttons */
 
-	LCDButton(uint8_t pin, uint16_t debounceDelay = 50);
+  LCDButton(uint8_t pin, uint16_t debounceDelay = 50);
 
-	button read_LCD_buttons();
-	button check_LCD_push();
+  button read_LCD_buttons();
+  button check_LCD_push();
 
 private:
-	const uint8_t _pin;         /** Pin on which to read the button states */
-	button _state;              /** Last reported state of the button */
-	button _lastState;          /** Last recorded state of the button */
-	uint16_t _debounceDelay;    /** Delay before the button is considered pressed */
-	uint32_t _lastDebounceTime; /** Last change of recorded state */
+  const uint8_t _pin;         /** Pin on which to read the button states */
+  button _state;              /** Last reported state of the button */
+  button _lastState;          /** Last recorded state of the button */
+  uint16_t _debounceDelay;    /** Delay before the button is considered pressed */
+  uint32_t _lastDebounceTime; /** Last change of recorded state */
 };
 
 #endif /* LIBLCD_LCDBUTTON_H_ */
