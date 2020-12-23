@@ -12,15 +12,15 @@
 
 class MenuWelcome: public SubMenu {
 public:
-	MenuWelcome(LiquidCrystal& ref, const char name[16]);
-	virtual ~MenuWelcome();
-	virtual void init();
+  MenuWelcome(LiquidCrystal& ref, const char name[16]);
+  virtual ~MenuWelcome();
+  virtual void init();
 
 private:
-	const char _project_name[16];     /** Project name to be displayed on the welcome screen */
-	LiquidScreen *_s_welcome;
-	LiquidLine   *_l_welcome_top;
-	LiquidLine   *_l_welcome_bottom;
+  const char _project_name[16];     /** Project name to be displayed on the welcome screen */
+  LiquidScreen *_s_welcome;
+  LiquidLine   *_l_welcome_top;
+  LiquidLine   *_l_welcome_bottom;
 };
 
 #endif /* MENUWELCOME_H_ */

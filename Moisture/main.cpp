@@ -24,9 +24,9 @@ void setup(){
 }
 
 void loop(){
-	// But run at 0.1s
-	// This ensures enough reactivity when buttons are pressed
-	waterSystem.tick();
-	delay(100);
+  // But run at 0.1s
+  // This ensures enough reactivity when buttons are pressed
+  waterSystem.tick();
+  delay(100);
 }
 

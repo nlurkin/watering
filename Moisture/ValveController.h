@@ -16,15 +16,15 @@
  */
 class ValveController {
 public:
-	ValveController(uint8_t pin);
-	virtual ~ValveController();
+  ValveController(uint8_t pin);
+  virtual ~ValveController();
 
-	void open(bool state);
-	void toggle();
+  void open(bool state);
+  void toggle();
 
 private:
-	uint8_t  _pin; /** Digital pin on which the pump is connected */
-	bool _open;    /** Current state of the pump */
+  uint8_t  _pin; /** Digital pin on which the pump is connected */
+  bool _open;    /** Current state of the pump */
 };
 
 #endif /* VALVECONTROLLER_H_ */
