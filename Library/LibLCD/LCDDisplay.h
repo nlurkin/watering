@@ -39,13 +39,13 @@ public:
 
   bool change_menu(SubMenu *menu);
   void force_refresh();
-  void EnableButtons(bool en) { _disableBnts = !en; }
+  void EnableNavigation(bool en) { _NavEnabled = !en; }
 
 private:
   bool check_btn_changes(LCDButton::button btn);
   bool check_updates();
 
-  bool    _disableBnts;
+  bool    _NavEnabled;
   uint8_t _nMenus;              /** Number of menus */
   uint8_t _currentMenu;         /** Index of the currently displayed menu */
   unsigned int _tickInterval;   /** Length of a tick*/
