@@ -65,7 +65,7 @@ private:
   void updatePublications();
 
   enum SubMode  {MODE_MONITOR_IDLE, MODE_MONITOR_RUN,  //Sub modes for MONITOR
-                 MODE_CALIB_WATER, MODE_CALIB_WATER_W, MODE_CALIB_DRY, MODE_CALIB_DRY_W}; //Sub modes for CALIB /** enum to identify the sub modes */
+                 MODE_CALIB_INIT, MODE_CALIB_WATER, MODE_CALIB_WATER_W, MODE_CALIB_DRY, MODE_CALIB_DRY_W}; //Sub modes for CALIB /** enum to identify the sub modes */
 
   static constexpr int      LEVEL_WATER        = 600;                /** Value returned by the sensor below which watering is needed */
   static constexpr long int LONG_INTERVAL      = 3600000;            /** Long interval between measurements */

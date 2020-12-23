@@ -119,19 +119,31 @@ void AutomaticWater::runCalibrationMode(LCDButton::button button){
   // If the sub mode is not one of the CALIB sub modes, we are just entering CALIB
   // from another mode. The calibrated sensor is the active one.
   // It is not possible to change the active sensor during the procedure.
-  if(    _gSubMode!=MODE_CALIB_WATER && _gSubMode!=MODE_CALIB_WATER_W
+  if(_gSubMode!=MODE_CALIB_INIT && _gSubMode!=MODE_CALIB_WATER && _gSubMode!=MODE_CALIB_WATER_W
     && _gSubMode!=MODE_CALIB_DRY   && _gSubMode!=MODE_CALIB_DRY_W){
     // In this case, initialise the CALIB mode to the first sub mode (WATER wait)
     // Also set the measuring interval of the sensor to fast and set the display accordingly.
-    lcdDisplay.initCalibrationMode(LCDWaterDisplay::WATER);
-    _gSubMode = MODE_CALIB_WATER_W;
-    sensors[_currentSensor]->setMeasureInterval(_gTickInterval);
+    _gSubMode = MODE_CALIB_INIT;
+    lcdDisplay.resetCalibrationMode();
   }
 
 
   bool calibOver;
   //Choose actions depending on submode
   switch(_gSubMode) {
+  case MODE_CALIB_INIT: // Mode init (sensor not selected yet)
+    if(button==LCDButton::btnRIGHT)
+      loopActiveSensor(1);
+    else if(button==LCDButton::btnLEFT)
+      loopActiveSensor(-1);
+    if(button==LCDButton::btnSELECT){
+      lcdDisplay.disableMenuChange();
+      lcdDisplay.initCalibrationMode(MenuCalib::WATER);
+      sensors[_currentSensor]->setMeasureInterval(_gTickInterval);
+      _gSubMode = MODE_CALIB_WATER_W;
+    }
+    lcdDisplay.displayCalibSensor(_currentSensor);
+    break;
   case MODE_CALIB_WATER_W:  // Mode WATER wait
     // Wait until the user says that the sensor is correctly in the moist medium (SELECT button)
     if(button==LCDButton::btnSELECT){
@@ -172,6 +184,9 @@ void AutomaticWater::runCalibrationMode(LCDButton::button button){
       // If this is finished, return to the main MONITOR mode and reset the monitoring
       // interval of the sensor to slow
       sensors[_currentSensor]->setMeasureInterval(LONG_INTERVAL);
+      _gSubMode = MODE_CALIB_INIT;
+      lcdDisplay.resetCalibrationMode();
+      lcdDisplay.enableMenuChange();
     }
     break;
   default:

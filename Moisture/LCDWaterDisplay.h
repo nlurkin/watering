@@ -43,6 +43,8 @@ public:
   void displayRunValues(int screen, int raw, float perc);
 
   bool add_circuit();
+  void disableMenuChange();
+  void enableMenuChange();
 
   LCDButton::button tick();
 

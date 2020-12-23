@@ -241,3 +241,11 @@ LCDButton::button LCDWaterDisplay::tick() {
 
   return btn;
 }
+
+void LCDWaterDisplay::disableMenuChange() {
+  _lcd.EnableNavigation(false);
+}
+
+void LCDWaterDisplay::enableMenuChange() {
+  _lcd.EnableNavigation(true);
+}
