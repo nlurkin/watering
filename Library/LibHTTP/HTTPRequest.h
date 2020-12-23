@@ -9,7 +9,7 @@
 #define HTTPREQUEST_H_
 
 #include <Arduino.h>
-#include "../LibESP8266/ESP8266Wifi.h"
+#include "ESP8266Wifi.h"
 
 class HTTPRequest {
 public:

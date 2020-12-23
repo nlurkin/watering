@@ -87,10 +87,6 @@ public:
   bool PINGA(uint8_t ip[4]);
   bool CIPDINFO(bool on);
 
-  //template<uint8_t N>
-  //bool checkSequence(const char* seq[N]);
-  //template<uint8_t N>
-  //bool checkSequenceCapture(const char* seq[N], String (&data)[N]);
 private:
 #ifdef BUFFERED
   size_t transferBuffer();

@@ -63,7 +63,7 @@ const char* HTTPRequest::getData() const {
 }
 
 const HTTPRequest::header_t& HTTPRequest::getHeader() const {
-    return _header;
+  return _header;
 }
 
 void HTTPRequest::getRawRequest(char *to) const {
@@ -99,8 +99,8 @@ size_t HTTPRequest::generate() {
   sprintf_P(buf, PSTR("Content-Type: %s\r\n"), _header._content_type);
   strcat(_raw_header, buf);
 
-    sprintf_P(buf, PSTR("Content-Length: %u\r\n"), strlen(_body));
-    strcat(_raw_header, buf);
+  sprintf_P(buf, PSTR("Content-Length: %u\r\n"), strlen(_body));
+  strcat(_raw_header, buf);
 
   strcat_P(_raw_header, PSTR("\r\n"));
   return getTotalLength();
@@ -183,23 +183,23 @@ HTTPRequest HTTPRequest::http_post(const char* path) {
 }
 
 bool HTTPRequest::wait200OK(ESP8266Wifi &wifi, uint8_t conn) {
-    char buffr[ESP8266Wifi::PAYLOAD_SIZE];
-    int8_t connr = wifi.waitPayload(conn, buffr, 1000);
-    if(connr!=-1){
-        //answer received
-        HTTPRequest http(buffr);
-        #ifdef DEBUG
-        http.print();
-        #endif
-        if(http.getHeader()._answer_code==200)
-            return true;
-        else{
-            DEBUG_P("Received HTTP error: ");
-            DEBUG_PRAW(http.getHeader()._answer_code);
-            DEBUG_PRAW(" ");
-            DEBUG_PRAWLN(http.getHeader()._answer_reason);
-            return false;
-        }
+  char buffr[ESP8266Wifi::PAYLOAD_SIZE];
+  int8_t connr = wifi.waitPayload(conn, buffr, 1000);
+  if(connr!=-1){
+    //answer received
+    HTTPRequest http(buffr);
+    #ifdef DEBUG
+    http.print();
+    #endif
+    if(http.getHeader()._answer_code==200)
+      return true;
+    else{
+      DEBUG_P("Received HTTP error: ");
+      DEBUG_PRAW(http.getHeader()._answer_code);
+      DEBUG_PRAW(" ");
+      DEBUG_PRAWLN(http.getHeader()._answer_reason);
+      return false;
     }
-    return false;
+  }
+  return false;
 }

@@ -810,6 +810,5 @@ bool ATClient::waitMessage(const __FlashStringHelper* message) {
   #ifdef DEBUG
   _dataCapture.print();
   #endif
-
   return got_message;
 }
