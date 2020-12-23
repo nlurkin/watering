@@ -15,19 +15,19 @@
  */
 class SubMenu {
 public:
-	SubMenu(LiquidCrystal& ref);
-	virtual ~SubMenu();
+  SubMenu(LiquidCrystal& ref);
+  virtual ~SubMenu();
 
-	virtual void init() = 0; /** Pure virtual init method to be used and called by the constructor */
-	bool has_changed();
-	LiquidMenu& get_menu_handle();
+  virtual void init() = 0; /** Pure virtual init method to be used and called by the constructor */
+  bool has_changed();
+  LiquidMenu& get_menu_handle();
 
 protected:
-	void changed();
+  void changed();
 
-	LiquidMenu _menu;  /** Reference to the LiquidMenu instance to be passed to the LiquidSystem */
+  LiquidMenu _menu;  /** Reference to the LiquidMenu instance to be passed to the LiquidSystem */
 private:
-	bool _has_changed; /** Tells whether the content of the menu has changed */
+  bool _has_changed; /** Tells whether the content of the menu has changed */
 };
 
 #endif /* LIBMENUS_SUBMENU_H_ */
