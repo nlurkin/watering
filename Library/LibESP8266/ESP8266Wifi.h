@@ -11,7 +11,7 @@
 #include <Arduino.h>
 
 #include "ATClient.h"
-#include "../LibMemory/Buffer.h"
+#include "Buffer.h"
 
 class ESP8266Wifi {
 public:

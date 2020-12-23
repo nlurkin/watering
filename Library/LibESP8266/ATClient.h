@@ -11,7 +11,7 @@
 //#define BUFFERED 1 //Uncomment to use an additional buffer between _atSerial and the processing (Should not be needed)
 
 #include <Arduino.h>
-#include "../LibMemory/Buffer.h"
+#include "Buffer.h"
 
 // https://cdn.sparkfun.com/assets/learn_tutorials/4/0/3/4A-ESP8266__AT_Instruction_Set__EN_v0.30.pdf
 // https://www.espressif.com/sites/default/files/documentation/4a-esp8266_at_instruction_set_en.pdf -- Also useful

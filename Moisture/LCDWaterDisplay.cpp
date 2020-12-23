@@ -38,14 +38,14 @@ LCDWaterDisplay::~LCDWaterDisplay() {
 void LCDWaterDisplay::initCalibrationMode(calibType type){
   // First line
   lcd_clear_line(0);
-  _lcd.print("CALIB mode");
+  _lcd.print(F("CALIB mode"));
 
   //Second line
   lcd_clear_line(1);
   if(type==WATER)
-    _lcd.print("Put water -> SEL");
+    _lcd.print(F("Put water -> SEL"));
   else if(type==DRY)
-    _lcd.print("Put dry -> SEL");
+    _lcd.print(F("Put dry -> SEL"));
 }
 
 /**
@@ -59,7 +59,7 @@ void LCDWaterDisplay::initCalibrationMode(calibType type){
 void LCDWaterDisplay::initMonitorMode(){
   // First line
   lcd_clear_line(0);
-  _lcd.print("Moisture,SEL=Cal");
+  _lcd.print(F("Moisture,SEL=Cal"));
 }
 
 /**
@@ -73,7 +73,7 @@ void LCDWaterDisplay::initMonitorMode(){
 void LCDWaterDisplay::initShowMode(){
   // First line
   lcd_clear_line(0);
-  _lcd.print("Calib const");
+  _lcd.print(F("Calib const"));
 }
 
 /**
@@ -82,7 +82,7 @@ void LCDWaterDisplay::initShowMode(){
  */
 void LCDWaterDisplay::lcd_clear_line(uint8_t l){
   _lcd.setCursor(0, l);
-  _lcd.print("                ");
+  _lcd.print(F("                "));
   _lcd.setCursor(0,l);
 }
 
@@ -123,10 +123,10 @@ LCDWaterDisplay::button LCDWaterDisplay::read_LCD_buttons(){
  */
 void LCDWaterDisplay::displayCalibValues(int raw, float average) {
   lcd_clear_line(1);
-  _lcd.print("R:");
+  _lcd.print(F("R:"));
   _lcd.print(raw);
   _lcd.setCursor(8,1);
-  _lcd.print("A:");
+  _lcd.print(F("A:"));
   _lcd.print(average);
 }
 
@@ -143,9 +143,9 @@ void LCDWaterDisplay::displayCalibValues(int raw, float average) {
 void LCDWaterDisplay::displayCalibMode(calibType type) {
   _lcd.setCursor(11,0);
   if(type==WATER)
-    _lcd.print("water");
+    _lcd.print(F("water"));
   else if(type==DRY)
-    _lcd.print("dry");
+    _lcd.print(F("dry"));
 }
 
 /**
@@ -161,12 +161,12 @@ void LCDWaterDisplay::displayCalibMode(calibType type) {
  */
 void LCDWaterDisplay::displayRunValues(int raw, float perc) {
   lcd_clear_line(1);
-  _lcd.print("R:");
+  _lcd.print(F("R:"));
   _lcd.print(raw);
   _lcd.setCursor(8,1);
   _lcd.print((int)perc);
   _lcd.setCursor(11,1);
-  _lcd.print("%");
+  _lcd.print(F("%"));
 }
 
 /**
@@ -182,10 +182,10 @@ void LCDWaterDisplay::displayRunValues(int raw, float perc) {
  */
 void LCDWaterDisplay::displayShowConstants(int water, int dry) {
   lcd_clear_line(1);
-  _lcd.print("W:");
+  _lcd.print(F("W:"));
   _lcd.print(water);
   _lcd.setCursor(8,1);
-  _lcd.print("D:");
+  _lcd.print(F("D:"));
   _lcd.print(dry);
 }
 
@@ -202,9 +202,9 @@ void LCDWaterDisplay::displayShowConstants(int water, int dry) {
 void LCDWaterDisplay::initWatering(bool watering) {
   _lcd.setCursor(15,2);
   if(watering)
-    _lcd.print("~");
+    _lcd.print(F("~"));
   else
-    _lcd.print(" ");
+    _lcd.print(F(" "));
 }
 
 /**
@@ -220,7 +220,7 @@ void LCDWaterDisplay::initWatering(bool watering) {
 void LCDWaterDisplay::initRunning(bool running) {
   _lcd.setCursor(14,1);
   if(running)
-    _lcd.print("@");
+    _lcd.print(F("@"));
   else
-    _lcd.print(" ");
+    _lcd.print(F(" "));
 }

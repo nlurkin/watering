@@ -5,9 +5,9 @@
  *      Author: Nicolas Lurkin
  */
 
-#include "../LibNetwork/NetworkStream.h"
+#include "NetworkStream.h"
 
-#include "../LibHTTP/HTTPRequest.h"
+#include "HTTPRequest.h"
 
 #define FPSTR(pstr_pointer) (reinterpret_cast<const __FlashStringHelper *>(pstr_pointer))
 

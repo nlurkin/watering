@@ -51,7 +51,7 @@ private:
   unsigned int  _tickInterval;    /** Length of a tick [ms] */
   unsigned int  _currentCounter;  /** Internal tick counter */
 
-  unsigned short _currentValueIndex; /** Index of the current value in the _valArray buffer */
+  uint8_t _currentValueIndex;        /** Index of the current value in the _valArray buffer */
   int _lastValue;                    /** Last raw value read */
   int _valArray[30];                 /** Buffer of values used for averaging during calibration */
   int _WATER_VALUE;                  /** Calibration value for maximum moisture */
