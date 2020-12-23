@@ -12,10 +12,16 @@
  * Constructor. Initialises the LCD display driver.
  */
 LCDWaterDisplay::LCDWaterDisplay() :
-  _lcd(8, 9, 4, 5, 6, 7) //List of used pins
+  _lcd(100),
+  _m_welcome(_lcd.get_lcd_handle()),
+  _m_monitor(_lcd.get_lcd_handle()),
+  _m_show(_lcd.get_lcd_handle()),
+  _m_calib(_lcd.get_lcd_handle())
 {
-   _lcd.begin(16, 2);               // start the library
-   _lcd.setCursor(0,0);             // set the LCD cursor position
+  _lcd.add_menu(&_m_welcome);
+  _lcd.add_menu(&_m_monitor);
+  _lcd.add_menu(&_m_show);
+  _lcd.add_menu(&_m_calib);
 }
 
 /**
@@ -24,6 +30,10 @@ LCDWaterDisplay::LCDWaterDisplay() :
 LCDWaterDisplay::~LCDWaterDisplay() {
 }
 
+
+bool LCDWaterDisplay::add_circuit() {
+  return _m_show.add_screen() && _m_monitor.add_screen();
+}
 /**
  * Prepare the display for the calibration mode. This is the initial state where
  * the user is asked to prepare the calibration and press the Select button.
@@ -35,17 +45,19 @@ LCDWaterDisplay::~LCDWaterDisplay() {
  *
  * @param type: Specify the phase of the calibration mode (wet or dry).
  */
-void LCDWaterDisplay::initCalibrationMode(calibType type){
+void LCDWaterDisplay::initCalibrationMode(MenuCalib::calibType type){
   // First line
+  /*
   lcd_clear_line(0);
   _lcd.print(F("CALIB mode"));
 
   //Second line
   lcd_clear_line(1);
-  if(type==WATER)
+  if(type==MenuMonitor::WATER)
     _lcd.print(F("Put water -> SEL"));
-  else if(type==DRY)
+  else if(type==MenuMonitor::DRY)
     _lcd.print(F("Put dry -> SEL"));
+  */
 }
 
 /**
@@ -58,8 +70,10 @@ void LCDWaterDisplay::initCalibrationMode(calibType type){
  */
 void LCDWaterDisplay::initMonitorMode(){
   // First line
-  lcd_clear_line(0);
-  _lcd.print(F("Moisture,SEL=Cal"));
+  //lcd_clear_line(0);
+//  _lcd.print(F("Moisture,SEL=Cal"));
+  //_lcd_monit.change_menu(&_m_monitor);
+  //_lcd_monit.force_refresh();
 }
 
 /**
@@ -72,8 +86,8 @@ void LCDWaterDisplay::initMonitorMode(){
  */
 void LCDWaterDisplay::initShowMode(){
   // First line
-  lcd_clear_line(0);
-  _lcd.print(F("Calib const"));
+//  lcd_clear_line(0);
+//  _lcd.print(F("Calib const"));
 }
 
 /**
@@ -81,9 +95,9 @@ void LCDWaterDisplay::initShowMode(){
  * @param l: Display line to clear
  */
 void LCDWaterDisplay::lcd_clear_line(uint8_t l){
-  _lcd.setCursor(0, l);
-  _lcd.print(F("                "));
-  _lcd.setCursor(0,l);
+//  _lcd.setCursor(0, l);
+//  _lcd.print(F("                "));
+//  _lcd.setCursor(0,l);
 }
 
 /**
@@ -122,12 +136,12 @@ LCDWaterDisplay::button LCDWaterDisplay::read_LCD_buttons(){
  * @param average: Average sensor value
  */
 void LCDWaterDisplay::displayCalibValues(int raw, float average) {
-  lcd_clear_line(1);
-  _lcd.print(F("R:"));
-  _lcd.print(raw);
-  _lcd.setCursor(8,1);
-  _lcd.print(F("A:"));
-  _lcd.print(average);
+//  lcd_clear_line(1);
+//  _lcd.print(F("R:"));
+//  _lcd.print(raw);
+//  _lcd.setCursor(8,1);
+//  _lcd.print(F("A:"));
+//  _lcd.print(average);
 }
 
 /**
@@ -140,12 +154,12 @@ void LCDWaterDisplay::displayCalibValues(int raw, float average) {
  *
  * @param type: Enum corresponding to the type to display
  */
-void LCDWaterDisplay::displayCalibMode(calibType type) {
-  _lcd.setCursor(11,0);
-  if(type==WATER)
-    _lcd.print(F("water"));
-  else if(type==DRY)
-    _lcd.print(F("dry"));
+void LCDWaterDisplay::displayCalibMode(MenuCalib::calibType type) {
+//  _lcd.setCursor(11,0);
+//  if(type==MenuMonitor::WATER)
+//    _lcd.print(F("water"));
+//  else if(type==MenuMonitor::DRY)
+//    _lcd.print(F("dry"));
 }
 
 /**
@@ -159,14 +173,15 @@ void LCDWaterDisplay::displayCalibMode(calibType type) {
  * @param raw: Raw sensor value
  * @param perc: Percentage value according to the calibration wet and dry
  */
-void LCDWaterDisplay::displayRunValues(int raw, float perc) {
-  lcd_clear_line(1);
-  _lcd.print(F("R:"));
-  _lcd.print(raw);
-  _lcd.setCursor(8,1);
-  _lcd.print((int)perc);
-  _lcd.setCursor(11,1);
-  _lcd.print(F("%"));
+void LCDWaterDisplay::displayRunValues(int screen, int raw, float perc) {
+  _m_monitor.set_mon_values(screen, raw, perc);
+//  lcd_clear_line(1);
+//  _lcd.print(F("R:"));
+//  _lcd.print(raw);
+//  _lcd.setCursor(8,1);
+//  _lcd.print((int)perc);
+//  _lcd.setCursor(11,1);
+//  _lcd.print(F("%"));
 }
 
 /**
@@ -180,13 +195,14 @@ void LCDWaterDisplay::displayRunValues(int raw, float perc) {
  * @param water: Wet constant
  * @param dry: Dry constant
  */
-void LCDWaterDisplay::displayShowConstants(int water, int dry) {
-  lcd_clear_line(1);
-  _lcd.print(F("W:"));
-  _lcd.print(water);
-  _lcd.setCursor(8,1);
-  _lcd.print(F("D:"));
-  _lcd.print(dry);
+void LCDWaterDisplay::displayShowConstants(int screen, int water, int dry) {
+  _m_show.set_const_values(screen, water, dry);
+//  lcd_clear_line(1);
+//  _lcd.print(F("W:"));
+//  _lcd.print(water);
+//  _lcd.setCursor(8,1);
+//  _lcd.print(F("D:"));
+//  _lcd.print(dry);
 }
 
 /**
@@ -200,11 +216,11 @@ void LCDWaterDisplay::displayShowConstants(int water, int dry) {
  * @param watering: True to display, false to hide
  */
 void LCDWaterDisplay::initWatering(bool watering) {
-  _lcd.setCursor(15,2);
-  if(watering)
-    _lcd.print(F("~"));
-  else
-    _lcd.print(F(" "));
+//  _lcd.setCursor(15,2);
+//  if(watering)
+//    _lcd.print(F("~"));
+//  else
+//    _lcd.print(F(" "));
 }
 
 /**
@@ -218,9 +234,9 @@ void LCDWaterDisplay::initWatering(bool watering) {
  * @param running: True to display, false to hide
  */
 void LCDWaterDisplay::initRunning(bool running) {
-  _lcd.setCursor(14,1);
-  if(running)
-    _lcd.print(F("@"));
-  else
-    _lcd.print(F(" "));
+//  _lcd.setCursor(14,1);
+//  if(running)
+//    _lcd.print(F("@"));
+//  else
+//    _lcd.print(F(" "));
 }

@@ -323,6 +323,8 @@ bool AutomaticWater::addSensor(uint8_t pin, uint8_t powerPin) {
   sensors[_nCircuits]->setTickInterval(_gTickInterval);
   ++_nCircuits;
 
+  lcdDisplay.add_circuit();
+
   return true;
 }
 
