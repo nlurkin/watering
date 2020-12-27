@@ -19,6 +19,7 @@ public:
   void   drop(size_t nchar);
   size_t push(char c);
   size_t push(const char *str);
+  size_t push(const char *str, size_t len);
 
   size_t len() const;
   char peek() const;

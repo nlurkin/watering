@@ -66,7 +66,7 @@ private:
   uint8_t new_connection(const char *data);
   uint8_t end_connection(const char *data);
   void disconnect();
-  void read_payload(const char *initdata);
+  void read_payload(const char *initdata, size_t len);
   void init_connection(uint8_t conn_number);
 
   static Buffer _persistent_buffer;

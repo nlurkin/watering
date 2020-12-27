@@ -103,7 +103,7 @@ bool ESP8266Wifi::readAndPrint() {
       DEBUGS_P(_logSerial, F("> "));
       DEBUGS_PLN(_logSerial, response);
       if(startsWith(response, F("+IPD"))){ //+IPD
-        read_payload(response);
+        read_payload(response, len);
       }
       else if(endsWith(response, F("CONNECT\r")))
         new_connection(response);
@@ -398,7 +398,7 @@ void ESP8266Wifi::printIPAddress() const {
   Serial.println();
 }
 
-void ESP8266Wifi::read_payload(const char *initdata) {
+void ESP8266Wifi::read_payload(const char *initdata, size_t len) {
   uint8_t conn_number = strtoul(initdata+5, nullptr, 10);
   // Do not try to read payload for undefined payloads
   if(conn_number>4 || !_payload[conn_number])
@@ -410,7 +410,7 @@ void ESP8266Wifi::read_payload(const char *initdata) {
   if(data_start==nullptr)
     return;
 
-  size_t init_len = _payload[conn_number]->push(data_start+1);
+  size_t init_len = _payload[conn_number]->push(data_start+1, len-(data_start-initdata));
   _payload[conn_number]->push('\n');
   if(init_len==datas-1) {//No more to read
     return;

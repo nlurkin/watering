@@ -52,6 +52,15 @@ size_t Buffer::push(const char *str) {
   return p-str;
 }
 
+size_t Buffer::push(const char *str, size_t len) {
+  const char *p = str;
+  for(size_t i=0; i<len; ++i){
+    if(push(*p)==0) return p-str; //Buffer full, return the number of char inserted so far
+    ++p;
+  }
+  return p-str;
+}
+
 size_t Buffer::len() const {
   if(_p_end<_p_begin)
     return _p_end-_p_begin+_size;
