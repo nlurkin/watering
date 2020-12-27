@@ -98,10 +98,10 @@ bool ESP8266Wifi::readAndPrint() {
   bool has_response = len > 0;
 
   if (has_response) {
-    DEBUGS_PLN(_logSerial, F("Response Received:"));
+    DEBUGS_PLN((*_logSerial), F("Response Received:"));
     while (len > 0) {
-      DEBUGS_P(_logSerial, F("> "));
-      DEBUGS_PLN(_logSerial, response);
+      DEBUGS_P((*_logSerial), F("> "));
+      DEBUGS_PRAWLN((*_logSerial), response);
       if(startsWith(response, F("+IPD"))){ //+IPD
         read_payload(response, len);
       }
@@ -114,9 +114,9 @@ bool ESP8266Wifi::readAndPrint() {
       len = _client.readUntil(response, read_size, '\n');
     }
 
-    DEBUGS_PRAWLN(_logSerial, "");
-    DEBUGS_PRAWLN(_logSerial, F("============"));
-    DEBUGS_PRAWLN(_logSerial, "");
+    DEBUGS_PRAWLN((*_logSerial), "");
+    DEBUGS_PRAWLN((*_logSerial), F("============"));
+    DEBUGS_PRAWLN((*_logSerial), "");
   }
   return has_response;
 }

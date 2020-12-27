@@ -29,33 +29,33 @@ void ATClient::setLogSerial(Stream *serial){
 
 bool ATClient::sendCommand(const char *cmd) {
   _dataCapture.clear();
-  DEBUGS_P(_logSerial, F("Sending: "));
-  DEBUGS_PRAWLN(_logSerial, cmd);
+  DEBUGS_P((*_logSerial), F("Sending: "));
+  DEBUGS_PRAWLN((*_logSerial), cmd);
   _atSerial->println(cmd);
   return true;
 }
 
 bool ATClient::sendCommand(const __FlashStringHelper* cmd) {
   _dataCapture.clear();
-  DEBUGS_P(_logSerial, F("Sending: "));
-  DEBUGS_PRAWLN(_logSerial, cmd);
+  DEBUGS_P((*_logSerial), F("Sending: "));
+  DEBUGS_PRAWLN((*_logSerial), cmd);
   _atSerial->println(cmd);
   return true;
 }
 
 bool ATClient::sendData(const char *data) {
   _dataCapture.clear();
-  DEBUGS_P(_logSerial, F("Sending data: "));
-  DEBUGS_PRAWLN(_logSerial, data);
-  DEBUGS_PLN(_logSerial, F("--- end data ---"));
+  DEBUGS_P((*_logSerial), F("Sending data: "));
+  DEBUGS_PRAWLN((*_logSerial), data);
+  DEBUGS_PLN((*_logSerial), F("--- end data ---"));
   _atSerial->print(data);
   return true;
 }
 
 bool ATClient::sendDataConfirm(const char *data) {
-  DEBUGS_P(_logSerial, F("Sending data: "));
-  DEBUGS_PRAWLN(_logSerial, data);
-  DEBUGS_PLN(_logSerial, F("--- end data ---"));
+  DEBUGS_P((*_logSerial), F("Sending data: "));
+  DEBUGS_PRAWLN((*_logSerial), data);
+  DEBUGS_PLN((*_logSerial), F("--- end data ---"));
   _atSerial->println(data);
   return waitMessage(F("SEND OK"));
 }
@@ -714,7 +714,7 @@ bool ATClient::waitMessage(const char *message) {
     available = waitData(str_len);
 #else
     c = read();
-    DEBUGS_PRAW(_logSerial, c);
+    DEBUGS_PRAW((*_logSerial), c);
     if(!got_first_char && (c=='\r' || c=='\n')){
       available = waitData(str_len); // One of the char was empty space, need to wait for the full message
       continue;
@@ -779,7 +779,7 @@ bool ATClient::waitMessage(const __FlashStringHelper* message) {
     available = waitData(str_len);
 #else
     c = read();
-    DEBUGS_PRAW(_logSerial, c);
+    DEBUGS_PRAW((*_logSerial), c);
     if(!got_first_char && (c=='\r' || c=='\n')){
       available = waitData(str_len);
       continue;
