@@ -356,7 +356,7 @@ bool ESP8266Wifi::isHTTPPayloadComplete(int8_t conn) {
     return true;
 }
 
-int8_t ESP8266Wifi::waitPayload(int8_t connlisten, char *buff, unsigned long timeout) {
+int8_t ESP8266Wifi::waitPayload(int8_t connlisten, char *buff, unsigned long timeout, bool single) {
     unsigned long expire_at = millis()+timeout;
     bool expired = false;
     int8_t conn = -1;
@@ -372,7 +372,7 @@ int8_t ESP8266Wifi::waitPayload(int8_t connlisten, char *buff, unsigned long tim
     }
 
     uint8_t max_try = 0;
-    while(!isHTTPPayloadComplete(conn) && isConnectionOpened(conn) && (max_try++<10)){
+    while(!single && !isHTTPPayloadComplete(conn) && isConnectionOpened(conn) && (max_try++<10)){
         readAndPrint();
     }
 
