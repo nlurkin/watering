@@ -8,6 +8,8 @@
 #include "ESP8266Wifi.h"
 #include "DebugDef.h"
 
+//\TODO add checkDataCapture possibly after each command
+
 static const char g_SEP_NEWLINE[] PROGMEM = {"\n"};
 static const char g_SEP_DOT[]     PROGMEM = {"."};
 static const char g_SEP_COLUMN[]  PROGMEM = {":"};
@@ -118,6 +120,29 @@ bool ESP8266Wifi::readAndPrint(unsigned int timeout) {
     DEBUGS_PRAWLN((*_logSerial), F("============"));
     DEBUGS_PRAWLN((*_logSerial), "");
   }
+  return has_response;
+}
+
+bool ESP8266Wifi::checkDataCapture() {
+  if(_client.dataAvailable()==0)
+    return false;
+
+  char response[ATClient::DATA_BUFFER_SIZE];
+  size_t len = _client.getLastData(response, _client.dataAvailable());
+
+  bool has_response = false;
+  //At the moment deal only with +IPD
+  DEBUGS_PLN((*_logSerial), F("Response Received:"));
+  DEBUGS_P((*_logSerial), F("> "));
+  DEBUGS_PRAWLN((*_logSerial), response);
+  char * ipd = strstr_P(response, PSTR("+IPD"));
+  if(ipd){
+    read_payload(ipd, len-(ipd-response));
+    has_response = true;
+  }
+  DEBUGS_PRAWLN((*_logSerial), "");
+  DEBUGS_PRAWLN((*_logSerial), F("============"));
+  DEBUGS_PRAWLN((*_logSerial), "");
   return has_response;
 }
 
@@ -427,6 +452,7 @@ bool ESP8266Wifi::sendPacket(const char *data, uint8_t conn) const {
 bool ESP8266Wifi::sendPacketLen(const char *data, uint8_t conn, size_t len) const {
   if(!_client.CIPSENDEX(len, conn))
     return false;
+  checkDataCapture();
   return _client.sendDataConfirm(data, len);
 }
 

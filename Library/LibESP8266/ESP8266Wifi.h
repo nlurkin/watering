@@ -28,6 +28,7 @@ public:
   bool sendCommand(const char *cmd) const;
   bool sendData(const char *data) const;
   bool readAndPrint(unsigned int timeout=1000);
+  bool checkDataCapture();
 
   bool checkBoardConnection() const;
   bool checkWifiConnection();
