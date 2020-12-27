@@ -29,8 +29,8 @@ public:
 
   bool sendCommand(const char *cmd);
   bool sendCommand(const __FlashStringHelper *cmd);
-  bool sendData(const char *data);
-  bool sendDataConfirm(const char *data);
+  bool sendData(const char *data, size_t size=0);
+  bool sendDataConfirm(const char *data, size_t size=0);
 
   size_t readUntil(char *to, size_t max, const char c='\n');
   size_t readRaw(char * to, size_t max);

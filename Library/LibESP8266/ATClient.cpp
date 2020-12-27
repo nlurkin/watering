@@ -43,20 +43,28 @@ bool ATClient::sendCommand(const __FlashStringHelper* cmd) {
   return true;
 }
 
-bool ATClient::sendData(const char *data) {
+bool ATClient::sendData(const char *data, size_t size) {
   _dataCapture.clear();
   DEBUGS_P((*_logSerial), F("Sending data: "));
+  DEBUGS_PRAW((*_logSerial), size);
   DEBUGS_PRAWLN((*_logSerial), data);
   DEBUGS_PLN((*_logSerial), F("--- end data ---"));
-  _atSerial->print(data);
+  if(size==0)
+      _atSerial->println(data);
+    else
+      _atSerial->write(data, size);
   return true;
 }
 
-bool ATClient::sendDataConfirm(const char *data) {
+bool ATClient::sendDataConfirm(const char *data, size_t size) {
   DEBUGS_P((*_logSerial), F("Sending data: "));
+  DEBUGS_PRAW((*_logSerial), size);
   DEBUGS_PRAWLN((*_logSerial), data);
   DEBUGS_PLN((*_logSerial), F("--- end data ---"));
-  _atSerial->println(data);
+  if(size==0)
+    _atSerial->println(data);
+  else
+    _atSerial->write(data, size);
   return waitMessage(F("SEND OK"));
 }
 
