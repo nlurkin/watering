@@ -169,7 +169,7 @@ bool ESP8266Wifi::checkWifiConnection() {
 bool ESP8266Wifi::startServer(int port) const {
   bool success = _client.CIPMUX(true);
 
-  if(success)
+  if(success && port>0)
     success = _client.CIPSERVER(true, port);
 
   return success;

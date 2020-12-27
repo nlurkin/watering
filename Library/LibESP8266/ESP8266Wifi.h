@@ -35,7 +35,7 @@ public:
   bool disConnectWifi();
   bool isConnected() const;
 
-  bool startServer(int port) const;
+  bool startServer(int port=-1) const;
   bool stopServer() const;
 
   bool sendPacket(const char *data, uint8_t conn) const;
