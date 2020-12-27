@@ -7,7 +7,7 @@
 
 #include "AutomaticWater.h"
 #include <Arduino.h>
-#include "RemoteControl.h"
+#include "ControlServer.h"
 
 /**
  * Constructor
@@ -70,7 +70,7 @@ void AutomaticWater::initSystem(){
  * Sets the publication server if it is to be used
  * @param server: PubServer instance
  */
-void AutomaticWater::setPublicationServer(RemoteControl *server){
+void AutomaticWater::setPublicationServer(ControlServer *server){
   _controlServer = server;
   if(server==nullptr)
     return;

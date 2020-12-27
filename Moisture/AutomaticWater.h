@@ -15,7 +15,7 @@
 #include "Publication.h"
 #include "Command.h"
 
-class RemoteControl;
+class ControlServer;
 
 /**
  * \brief This is the main class of the program. It runs the state machine determining the actions to take.
@@ -33,7 +33,7 @@ public:
   virtual ~AutomaticWater();
 
   void initSystem();
-  void setPublicationServer(RemoteControl *server);
+  void setPublicationServer(ControlServer *server);
 
   void runCalibrationMode(LCDWaterDisplay::button button);
   void runShowMode(LCDWaterDisplay::button button);
@@ -87,7 +87,7 @@ private:
   PumpControl      pump1;      /** Pump controller */
   LCDWaterDisplay  lcdDisplay; /** LCD Display and buttons controller */
 
-  RemoteControl     *_controlServer;
+  ControlServer     *_controlServer;
   Publication<bool> *_pub_pump;
   Publication<bool> *_pub_pump_enabled;
   Publication<bool> *_pub_pump_valves[MAX_SENSORS];

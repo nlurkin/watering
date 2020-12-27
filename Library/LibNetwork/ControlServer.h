@@ -9,7 +9,6 @@
 #define PUBSERVER_H_
 
 #include <Arduino.h>
-#include "../LibESP8266/ESP8266Wifi.h"
 
 class PublicationBase;
 /*
@@ -22,7 +21,7 @@ public:
   static constexpr size_t MAX_PUBLICATIONS = 20;
   static constexpr size_t MAX_MESSAGE_LENGTH = 70;
 
-  ControlServer(ESP8266Wifi &wifi);
+  ControlServer();
   virtual ~ControlServer();
 
   bool addPublication(PublicationBase* pub);
@@ -30,19 +29,17 @@ public:
 
   bool serve(bool force=false);
   bool listen();
-  void setDestination(const char *address, uint16_t port);
-  void begin(uint16_t port=80);
   bool advertise();
 
-private:
+  virtual bool updatePublications(uint8_t nPubReady, PublicationBase *readyPub[MAX_PUBLICATIONS]) = 0;
+  virtual bool checkSubscriptions(char *sname, char *value) = 0;
+  virtual bool publishAdvertise(const char * services) = 0;
 
+private:
   uint8_t _num_publications;
   uint8_t _num_commands;
   PublicationBase * _publications[MAX_PUBLICATIONS];
   PublicationBase * _commands[MAX_COMMANDS];
-  char *_dest_address;
-  uint16_t _dest_port;
-  ESP8266Wifi &_wifi;
 };
 
 #endif /* PUBSERVER_H_ */
