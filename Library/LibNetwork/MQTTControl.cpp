@@ -40,7 +40,7 @@ bool MQTTControl::updatePublications(uint8_t nPubReady, PublicationBase *readyPu
 }
 
 bool MQTTControl::checkSubscriptions(char *sname, char *value) {
-  return true;
+  return _mqtt.listen(sname, value);
 }
 
 bool MQTTControl::publishAdvertise(const char *services) {
