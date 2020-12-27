@@ -39,6 +39,7 @@ public:
   bool stopServer() const;
 
   bool sendPacket(const char *data, uint8_t conn) const;
+  bool sendPacketLen(const char *data, uint8_t conn, size_t len) const;
   bool closeConnection(uint8_t conn) const;
   int  openConnection(const char *address, uint16_t port);
   int  openConnection(uint8_t ip[4], uint16_t port);

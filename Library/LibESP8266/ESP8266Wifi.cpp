@@ -424,6 +424,12 @@ bool ESP8266Wifi::sendPacket(const char *data, uint8_t conn) const {
   return _client.CIPSEND(data, conn);
 }
 
+bool ESP8266Wifi::sendPacketLen(const char *data, uint8_t conn, size_t len) const {
+  if(!_client.CIPSENDEX(len, conn))
+    return false;
+  return _client.sendDataConfirm(data, len);
+}
+
 bool ESP8266Wifi::closeConnection(uint8_t conn) const {
     if(_conn_opened[conn])
         return _client.CIPCLOSE(conn);
