@@ -9,11 +9,13 @@
 #include "Packet.h"
 
 MQTTClient::MQTTClient(ESP8266Wifi &wifi) :
+  _connection(-1),
   _dest_address(nullptr),
   _dest_port(0),
-  _wifi(wifi),
-  _connection(-1)
+  _wifi(wifi)
 {
+  for(uint8_t i=0;i<MAX_MESSAGE_IDS; ++i)
+    _msg_ids[i] = -1;
 }
 
 MQTTClient::~MQTTClient() {
@@ -54,11 +56,33 @@ bool MQTTClient::publish(const char *pubname, const char *data) {
   return _wifi.sendPacketLen(buff, _connection, len);
 }
 
+bool MQTTClient::subscribe(const char *pubname) {
+  if(!connect()) // Unable to establish connection
+    return false;
+
+  MQTT::Packet packet;
+  packet.setCtrlType(MQTT::SUBSCRIBE);
+  packet.setMsgType(MQTT::QOS_1);
+
+  uint8_t msg_id = get_unused_id();
+  packet.addVarHeader((uint8_t)0);      // Message ID (MSB)
+  packet.addVarHeader((uint8_t)msg_id); // Message ID (LSB)
+
+  packet.addPayload(pubname);         // Publication name
+  packet.addPayload((uint8_t)0);
+
+  packet.computeRLength();
+
+  char buff[512];
+  uint32_t len = packet.fillBuffer(buff);
+
+  return _wifi.sendPacketLen(buff, _connection, len);
+}
+
 
 bool MQTTClient::send_connect(uint8_t conn) {
   MQTT::Packet packet;
   packet.setCtrlType(MQTT::CONNECT);
-  packet.setMsgType(0);
 
   packet.addVarHeader("MQTT");     //Protocol name
   packet.addVarHeader(0x04);       //Protocol version
@@ -90,4 +114,36 @@ bool MQTTClient::connected() {
 
 void MQTTClient::begin() {
   _wifi.startServer();
+}
+
+uint8_t MQTTClient::get_unused_id() {
+  bool found = false;
+  uint8_t id=1;
+  while(!found){
+    found = true;
+    for(uint8_t i=0; i<MAX_MESSAGE_IDS; ++i){
+      if(_msg_ids[i]==id){
+        ++id;
+        found = false;
+        break;
+      }
+    }
+  }
+
+  for(uint8_t i=0; i<MAX_MESSAGE_IDS; ++i){
+    if(_msg_ids[i]==-1){
+      _msg_ids[i] = id;
+      break;
+    }
+  }
+  return id;
+}
+
+void MQTTClient::free_id(uint16_t id) {
+  for(uint8_t i=0; i<MAX_MESSAGE_IDS; ++i){
+    if((uint16_t)_msg_ids[i]==id){
+      _msg_ids[i] = -1;
+      return;
+    }
+  }
 }
