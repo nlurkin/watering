@@ -116,6 +116,34 @@ void MQTTClient::begin() {
   _wifi.startServer();
 }
 
+bool MQTTClient::listen(char *pubname, char*pubdata) {
+  if(!connect()) // Unable to establish connection
+    return false;
+
+  char buff[ESP8266Wifi::PAYLOAD_SIZE];
+  int8_t conn = _wifi.waitPayload(_connection, buff, 10, true);
+  if(conn==-1)
+      return false;
+
+  MQTT::Packet packet(buff);
+  packet.print();
+
+
+  switch (packet.getFixedHeader()._ctrl_type) {
+  case(MQTT::SUBACK): {
+    uint16_t msg_id = packet.getVarHeader16_t(0);
+    free_id(msg_id);
+    return false;
+  }
+  case(MQTT::PUBLISH): {
+    packet.getVarHeaderString(0, pubname);
+    packet.getFullPayload(pubdata);
+    break;
+  }
+  }
+  return true;
+}
+
 uint8_t MQTTClient::get_unused_id() {
   bool found = false;
   uint8_t id=1;

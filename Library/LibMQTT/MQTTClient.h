@@ -22,6 +22,7 @@ public:
   bool connect();
   bool publish(const char* pubname, const char *data);
   bool subscribe(const char* pubname);
+  bool listen(char *pubname, char*pubdata);
 
 private:
   bool connected();
