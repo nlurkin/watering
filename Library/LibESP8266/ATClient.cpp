@@ -57,6 +57,7 @@ bool ATClient::sendData(const char *data, size_t size) {
 }
 
 bool ATClient::sendDataConfirm(const char *data, size_t size) {
+  _dataCapture.clear();
   DEBUGS_P((*_logSerial), F("Sending data: "));
   DEBUGS_PRAW((*_logSerial), size);
   DEBUGS_PRAWLN((*_logSerial), data);
