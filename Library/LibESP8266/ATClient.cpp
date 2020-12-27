@@ -68,7 +68,7 @@ bool ATClient::sendDataConfirm(const char *data, size_t size) {
   return waitMessage(F("SEND OK"));
 }
 
-size_t ATClient::readUntil(char * to, size_t max, const char c_search) {
+size_t ATClient::readUntil(char * to, size_t max, const char c_search, unsigned int timeout) {
 #ifdef BUFFERED
   if(transferBuffer()==0){
     *to = '\0';
@@ -77,7 +77,14 @@ size_t ATClient::readUntil(char * to, size_t max, const char c_search) {
 
   return _buffer.get(to, max, c_search);
 #else
+  unsigned int oldto;
+  if(timeout!=1000){
+    oldto = _atSerial->getTimeout();
+    _atSerial->setTimeout(timeout);
+  }
   size_t len = _atSerial->readBytesUntil(c_search, to, max-1);
+  if(timeout!=1000)
+    _atSerial->setTimeout(oldto);
   if(len>0){
     to[len++] = '\0';
   }

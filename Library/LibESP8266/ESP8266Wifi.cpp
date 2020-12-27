@@ -90,11 +90,11 @@ bool ESP8266Wifi::sendData(const char *data) const {
   return _client.sendData(data);
 }
 
-bool ESP8266Wifi::readAndPrint() {
+bool ESP8266Wifi::readAndPrint(unsigned int timeout) {
   static constexpr size_t read_size = 100;
   char response[read_size];
   //delay(10); // Give time to actually fill the buffer. Else we will most likely have only 1 char
-  size_t len = _client.readUntil(response, read_size, '\n');
+  size_t len = _client.readUntil(response, read_size, '\n', timeout);
   bool has_response = len > 0;
 
   if (has_response) {
@@ -361,7 +361,7 @@ int8_t ESP8266Wifi::waitPayload(int8_t connlisten, char *buff, unsigned long tim
     bool expired = false;
     int8_t conn = -1;
     while(conn==-1){
-        readAndPrint();
+        readAndPrint(timeout);
         expired = millis()>expire_at;
         if(connlisten==-1) // Listen to any available connection
             conn = payloadAvailable();

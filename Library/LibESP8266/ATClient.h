@@ -32,7 +32,7 @@ public:
   bool sendData(const char *data, size_t size=0);
   bool sendDataConfirm(const char *data, size_t size=0);
 
-  size_t readUntil(char *to, size_t max, const char c='\n');
+  size_t readUntil(char *to, size_t max, const char c='\n', unsigned int timeout=1000);
   size_t readRaw(char * to, size_t max);
   size_t getLastData(char *to, size_t max);
   size_t dataAvailable() const;

@@ -27,7 +27,7 @@ public:
   bool sendSomething(const char *cmd) const;
   bool sendCommand(const char *cmd) const;
   bool sendData(const char *data) const;
-  bool readAndPrint();
+  bool readAndPrint(unsigned int timeout=1000);
 
   bool checkBoardConnection() const;
   bool checkWifiConnection();
