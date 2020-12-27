@@ -57,9 +57,10 @@ public:
 
   uint32_t fillBuffer(char* buffer);
   uint32_t getTotalLen();
+  uint32_t getRemainLen();
 
-  uint8_t getExpectedHeaderSize();
-  uint8_t getExpectedPayloadSize();
+  int16_t getExpectedHeaderSize();
+  int16_t getExpectedPayloadSize();
 
   void print();
 

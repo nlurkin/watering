@@ -20,10 +20,23 @@ Packet::Packet(char *buff) {
     if(_fixed_header._len[i]<128)
       break;
   }
-  _var_header._n_bytes = getExpectedHeaderSize();
+  int16_t hsize = getExpectedHeaderSize();
+  if(hsize>0){
+    _var_header._n_bytes = hsize;
+  }
+  else if(hsize==-2){
+    uint16_t s_size = (buff[0]>>8) + buff[1];
+    _var_header._n_bytes = s_size + 2;
+  }
   memcpy(_var_header._bytes, buff, _var_header._n_bytes * sizeof(uint8_t));
   buff += _var_header._n_bytes;
-  _payload._n_bytes = getExpectedPayloadSize();
+  int16_t psize = getExpectedPayloadSize();
+  if(psize>0){
+    _payload._n_bytes = psize;
+  }
+  else if(psize<0){
+    _payload._n_bytes = getRemainLen()-_var_header._n_bytes;
+  }
   memcpy(_payload._bytes, buff, _payload._n_bytes * sizeof(uint8_t));
 }
 
@@ -123,7 +136,7 @@ void Packet::print() {
   Serial.print(" ");
   Serial.println(_fixed_header._ctrl_type);
   Serial.print("RLen:");
-  Serial.print(_fixed_header._len[0] + _fixed_header._len[1]*128 + _fixed_header._len[2]*16384 + _fixed_header._len[3]*2097152);
+  Serial.print(getRemainLen());
   Serial.print(" -> ");
   for(int i=0; i<4; ++i){
     Serial.print(_fixed_header._len[i]);
@@ -148,24 +161,35 @@ uint32_t Packet::getTotalLen() {
   return sizeof(FixHeader) + _var_header._n_bytes + _payload._n_bytes;
 }
 
-uint8_t Packet::getExpectedHeaderSize() {
+uint32_t Packet::getRemainLen() {
+  return _fixed_header._len[0] + _fixed_header._len[1]*128 + _fixed_header._len[2]*16384 + _fixed_header._len[3]*2097152;
+}
+
+int16_t Packet::getExpectedHeaderSize() {
   switch (_fixed_header._ctrl_type) {
   case (CONNECT):
     break;
   case (CONNACK):
     return 2;
     break;
+  case (PUBLISH): {
+    return -2;
+    break;
+  }
   }
 
   return 0;
 }
 
-uint8_t Packet::getExpectedPayloadSize() {
+int16_t Packet::getExpectedPayloadSize() {
   switch (_fixed_header._ctrl_type) {
   case (CONNECT):
     break;
   case (CONNACK):
     return 0;
+    break;
+  case (PUBLISH):
+    return -1;
     break;
   }
 
@@ -174,7 +198,7 @@ uint8_t Packet::getExpectedPayloadSize() {
 
 size_t Packet::getVarHeaderString(uint8_t byte, char *buff) const {
   uint16_t len = (_var_header._bytes[byte]<<8) + _var_header._bytes[byte+1];
-  for(uint8_t i=0; 0<len; ++i){
+  for(uint8_t i=0; i<len; ++i){
     buff[i] = _var_header._bytes[i+2];
   }
   buff[len] = '\0';
@@ -187,7 +211,8 @@ uint16_t Packet::getVarHeader16_t(uint8_t byte) const {
 
 size_t Packet::getPayloadString(uint8_t byte, char *buff) const {
   uint16_t len = (_payload._bytes[byte]<<8) + _payload._bytes[byte+1];
-  for(uint8_t i=0; 0<len; ++i){
+  for(uint8_t i=0; i<len; ++i){
+    Serial.print(_payload._bytes[i+2]);
     buff[i] = _payload._bytes[i+2];
   }
   buff[len] = '\0';
@@ -195,11 +220,15 @@ size_t Packet::getPayloadString(uint8_t byte, char *buff) const {
 }
 
 size_t Packet::getFullPayload(char *buff) const {
-  for(uint8_t i=0; i<_var_header._n_bytes; ++i)
-    buff[i] = _var_header._bytes[i];
+  uint8_t offset=0;
+  if(_payload._bytes[0]==0) // Must be the format with size:value
+    offset = 2;
 
-  buff[_var_header._n_bytes+1] = '\0';
-  return _var_header._n_bytes;
+  for(uint8_t i=0; i<_payload._n_bytes-offset; ++i)
+    buff[i] = _payload._bytes[i+offset];
+
+  buff[_payload._n_bytes-offset] = '\0';
+  return _payload._n_bytes;
 }
 
 } /* namespace MQTT */
