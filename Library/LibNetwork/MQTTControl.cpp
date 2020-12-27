@@ -22,6 +22,7 @@ void MQTTControl::setDestination(const char *address, uint16_t port) {
 
 void MQTTControl::begin() {
   _mqtt.begin();
+  _mqtt.connect();
 }
 
 bool MQTTControl::updatePublications(uint8_t nPubReady, PublicationBase *readyPub[MAX_PUBLICATIONS]) {
