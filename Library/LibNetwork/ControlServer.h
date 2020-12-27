@@ -24,8 +24,8 @@ public:
   ControlServer();
   virtual ~ControlServer();
 
-  bool addPublication(PublicationBase* pub);
-  bool addCommand(PublicationBase* cmd);
+  virtual bool addPublication(PublicationBase* pub);
+  virtual bool addCommand(PublicationBase* cmd);
 
   bool serve(bool force=false);
   bool listen();

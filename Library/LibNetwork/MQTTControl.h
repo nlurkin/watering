@@ -19,6 +19,8 @@ public:
   void setDestination(const char *address, uint16_t port);
   void begin();
 
+  virtual bool addCommand(PublicationBase* cmd);
+
   virtual bool updatePublications(uint8_t nPubReady, PublicationBase *readyPub[MAX_PUBLICATIONS]);
   virtual bool checkSubscriptions(char *sname, char *value);
   virtual bool publishAdvertise(const char * services);

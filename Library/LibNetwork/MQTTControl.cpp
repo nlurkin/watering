@@ -43,6 +43,13 @@ bool MQTTControl::checkSubscriptions(char *sname, char *value) {
   return _mqtt.listen(sname, value);
 }
 
+bool MQTTControl::addCommand(PublicationBase *cmd) {
+  if(!ControlServer::addCommand(cmd))
+    return false;
+
+  return _mqtt.subscribe(cmd->getName());
+}
+
 bool MQTTControl::publishAdvertise(const char *services) {
   _mqtt.publish("advertise", services);
   delay(10);
