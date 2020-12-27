@@ -75,6 +75,11 @@ public:
     return _var_header;
   }
 
+  size_t getVarHeaderString(uint8_t byte, char *buff) const;
+  uint16_t getVarHeader16_t(uint8_t byte) const;
+  size_t getPayloadString(uint8_t byte, char *buff) const;
+  size_t getFullPayload(char *buff) const;
+
 private:
   FixHeader _fixed_header;
   VarHeader _var_header;

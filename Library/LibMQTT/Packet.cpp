@@ -172,4 +172,34 @@ uint8_t Packet::getExpectedPayloadSize() {
   return 0;
 }
 
+size_t Packet::getVarHeaderString(uint8_t byte, char *buff) const {
+  uint16_t len = (_var_header._bytes[byte]<<8) + _var_header._bytes[byte+1];
+  for(uint8_t i=0; 0<len; ++i){
+    buff[i] = _var_header._bytes[i+2];
+  }
+  buff[len] = '\0';
+  return len;
+}
+
+uint16_t Packet::getVarHeader16_t(uint8_t byte) const {
+  return (_var_header._bytes[byte]<<8) + _var_header._bytes[byte+1];
+}
+
+size_t Packet::getPayloadString(uint8_t byte, char *buff) const {
+  uint16_t len = (_payload._bytes[byte]<<8) + _payload._bytes[byte+1];
+  for(uint8_t i=0; 0<len; ++i){
+    buff[i] = _payload._bytes[i+2];
+  }
+  buff[len] = '\0';
+  return len;
+}
+
+size_t Packet::getFullPayload(char *buff) const {
+  for(uint8_t i=0; i<_var_header._n_bytes; ++i)
+    buff[i] = _var_header._bytes[i];
+
+  buff[_var_header._n_bytes+1] = '\0';
+  return _var_header._n_bytes;
+}
+
 } /* namespace MQTT */
