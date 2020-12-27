@@ -37,10 +37,10 @@
    ser.print(__LINE__);            \
    ser.print(' ');                 \
    ser.print(str);
-#define DEBUG_PLN(str) DEBUG_PLN(Serial, str)
-#define DEBUG_PRAW(str) DEBUG_PRAW(Serial, str)
-#define DEBUG_PRAWLN(str) DEBUG_PRAWLN(Serial, str)
-#define DEBUG_P(str) DEBUG_P(Serial, str)
+#define DEBUG_PLN(str) DEBUGS_PLN(Serial, str)
+#define DEBUG_PRAW(str) DEBUGS_PRAW(Serial, str)
+#define DEBUG_PRAWLN(str) DEBUGS_PRAWLN(Serial, str)
+#define DEBUG_P(str) DEBUGS_P(Serial, str)
 #else
 #define DEBUG_PLN(str)
 #define DEBUG_PRAW(str)
