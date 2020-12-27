@@ -9,7 +9,7 @@
 #include "AutomaticWater.h"
 #include "ESP8266Wifi.h"
 #include "NetworkStream.h"
-#include "RemoteControl.h"
+#include "ControlServer.h"
 
 //TODO add detection of sensor failure and permanently disable pump
 //TODO add detection of empty tank and permanently disable pump
@@ -17,7 +17,7 @@
 AutomaticWater waterSystem(22);
 ESP8266Wifi wifi;
 NetworkStream mySerial(wifi);
-RemoteControl pubServer(wifi);
+ControlServer pubServer(wifi);
 
 const char ssid[] = {""};
 const char pwd[]  = {""};
