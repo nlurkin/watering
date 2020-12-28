@@ -11,7 +11,7 @@
 
 MQTTControl::MQTTControl(ESP8266Wifi &wifi, const char *name) :
  _mqtt_owned(true),
- _mqtt(new MQTTClient(wifi))
+ _mqtt(new MQTTClient(wifi, name))
 {
   _name = new char[min(strlen(name)+1, PublicationBase::MAX_NAME_LENGTH+1)];
   strncpy(_name, name, PublicationBase::MAX_NAME_LENGTH);
@@ -32,10 +32,9 @@ MQTTControl::~MQTTControl() {
     delete _mqtt;
     _mqtt = nullptr;
   }
-  if(_name){
+  if(_name)
     delete[] _name;
-    _name = nullptr;
-  }
+  _name = nullptr;
 }
 
 void MQTTControl::setDestination(const char *address, uint16_t port) {

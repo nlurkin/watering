@@ -17,7 +17,7 @@ public:
   static constexpr size_t  MAX_HEADER_LENGTH = 50;
   static constexpr size_t  MAX_PACKET_LENGTH = MAX_MESSAGE_LENGTH + MAX_HEADER_LENGTH;
 
-  MQTTClient(ESP8266Wifi &wifi);
+  MQTTClient(ESP8266Wifi &wifi, const char* name);
   virtual ~MQTTClient();
 
   void setDestination(const char *address, uint16_t port);
@@ -37,6 +37,7 @@ private:
   int8_t _connection;
   char *_dest_address;
   uint16_t _dest_port;
+  char *_name;
   int8_t _msg_ids[MAX_MESSAGE_IDS];
   ESP8266Wifi &_wifi;
 };

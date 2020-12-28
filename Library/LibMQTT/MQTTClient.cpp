@@ -8,7 +8,7 @@
 #include <MQTTClient.h>
 #include "Packet.h"
 
-MQTTClient::MQTTClient(ESP8266Wifi &wifi) :
+MQTTClient::MQTTClient(ESP8266Wifi &wifi, const char* name) :
   _connection(-1),
   _dest_address(nullptr),
   _dest_port(0),
@@ -16,9 +16,15 @@ MQTTClient::MQTTClient(ESP8266Wifi &wifi) :
 {
   for(uint8_t i=0;i<MAX_MESSAGE_IDS; ++i)
     _msg_ids[i] = -1;
+
+  _name = new char[strlen(name)+1];
+  strcpy(_name, name);
 }
 
 MQTTClient::~MQTTClient() {
+  if(_name)
+    delete[] _name;
+  _name = nullptr;
 }
 
 void MQTTClient::setDestination(const char *address, uint16_t port) {
@@ -94,7 +100,10 @@ bool MQTTClient::send_connect(uint8_t conn) {
   packet.addVarHeader((uint8_t)0); //Keep alive MSB
   packet.addVarHeader(120);        //Keep alive LSB
 
-  packet.addPayload("arduino");
+  if(_name)
+    packet.addPayload(_name);
+  else
+    packet.addPayload("arduino");
 
   packet.computeRLength();
 

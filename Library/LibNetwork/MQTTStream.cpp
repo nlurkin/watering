@@ -9,7 +9,7 @@
 
 MQTTStream::MQTTStream(ESP8266Wifi &wifi) :
   _mqtt_owned(true),
-  _mqtt(new MQTTClient(wifi))
+  _mqtt(new MQTTClient(wifi, "arduino"))
 {
 }
 
