@@ -13,8 +13,8 @@
 
 class MQTTControl : public ControlServer {
 public:
-  MQTTControl(ESP8266Wifi &wifi);
-  MQTTControl(MQTTClient &mqtt);
+  MQTTControl(ESP8266Wifi &wifi, const char *name);
+  MQTTControl(MQTTClient &mqtt, const char *name);
   virtual ~MQTTControl();
 
   void setDestination(const char *address, uint16_t port);
@@ -28,6 +28,7 @@ public:
 
 private:
   bool _mqtt_owned;
+  char * _name;
   MQTTClient *_mqtt;
 };
 
