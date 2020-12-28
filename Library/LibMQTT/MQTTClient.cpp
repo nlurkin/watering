@@ -51,7 +51,9 @@ bool MQTTClient::publish(const char *pubname, const char *data) {
 
   packet.computeRLength();
 
-  char buff[512];
+  char buff[MAX_PACKET_LENGTH];
+  if(packet.getTotalLen()>MAX_PACKET_LENGTH)
+    return false;
   uint32_t len = packet.fillBuffer(buff);
   return _wifi.sendPacketLen(buff, _connection, len);
 }
@@ -73,7 +75,9 @@ bool MQTTClient::subscribe(const char *pubname) {
 
   packet.computeRLength();
 
-  char buff[512];
+  char buff[MAX_PACKET_LENGTH];
+  if(packet.getTotalLen()>MAX_PACKET_LENGTH)
+    return false;
   uint32_t len = packet.fillBuffer(buff);
 
   return _wifi.sendPacketLen(buff, _connection, len);
@@ -94,7 +98,9 @@ bool MQTTClient::send_connect(uint8_t conn) {
 
   packet.computeRLength();
 
-  char buff[512];
+  char buff[MAX_PACKET_LENGTH];
+  if(packet.getTotalLen()>MAX_PACKET_LENGTH)
+    return false;
   uint32_t len = packet.fillBuffer(buff);
 
   if(_wifi.sendPacketLen(buff, conn, len)){

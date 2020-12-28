@@ -57,7 +57,7 @@ bool ControlServer::serve(bool force) {
 
 bool ControlServer::listen() {
   char sname[PublicationBase::MAX_NAME_LENGTH+1];
-  char value[30];
+  char value[MAX_MESSAGE_LENGTH];
 
   if(!checkSubscriptions(sname, value))
     return false;
@@ -73,7 +73,7 @@ bool ControlServer::listen() {
 }
 
 bool ControlServer::advertise() {
-  char buff[MAX_MESSAGE_LENGTH] = ""; //Must be able to contain data + header
+  char buff[MAX_MESSAGE_LENGTH] = "";
   char* p = buff;
   for(uint8_t iPub=0; iPub<_num_publications; ++iPub){
     p = _publications[iPub]->def_string(p);

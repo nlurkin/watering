@@ -82,7 +82,7 @@ void HTTPRequest::setConnectionType(HDR_CONN type) {
 }
 
 size_t HTTPRequest::generate() {
-  char buf[50];
+  char buf[MAX_HEADER_LENGTH];
 
   if (_header._request_type == ANSWER)
     sprintf_P(buf, PSTR("HTTP/%u.%u %u %s\r\n"), _header._version_major,

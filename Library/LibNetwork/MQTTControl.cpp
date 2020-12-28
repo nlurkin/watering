@@ -26,7 +26,7 @@ void MQTTControl::begin() {
 }
 
 bool MQTTControl::updatePublications(uint8_t nPubReady, PublicationBase *readyPub[MAX_PUBLICATIONS]) {
-  char buff1[MAX_MESSAGE_LENGTH] = ""; //Must be able to contain data + header
+  char buff1[MAX_MESSAGE_LENGTH] = "";
 
   for(uint8_t iPub=0; iPub<nPubReady; ++iPub){
       Serial.print("Updating publication ");
