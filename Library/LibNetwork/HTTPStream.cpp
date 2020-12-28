@@ -29,6 +29,7 @@ void HTTPStream::begin(uint16_t port) {
 }
 
 int HTTPStream::available() {
+  // \TODO this is broken. How do we know when we read a NetworkStream publication or a control publication
   String data;
   if(_wifi.payloadAvailable()>=0)
     data = _server.loop();

@@ -38,6 +38,7 @@ void MQTTStream::begin() {
 }
 
 int MQTTStream::available() {
+  // \TODO this is broken. How do we know when we read a NetworkStream publication or a control publication
   char pubname[MQTTClient::MAX_HEADER_LENGTH];
   char data[MQTTClient::MAX_MESSAGE_LENGTH];
   if(!_mqtt->listen(pubname, data))
