@@ -5,7 +5,7 @@
  *      Author: Nicolas Lurkin
  */
 
-#include <HTTPStream.h>
+#include "HTTPStream.h"
 #include "HTTPRequest.h"
 
 HTTPStream::HTTPStream(ESP8266Wifi &wifi) :

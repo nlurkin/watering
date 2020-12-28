@@ -8,7 +8,7 @@
 #ifndef LIBRARIES_LIBNETWORK_HTTPSTREAM_H_
 #define LIBRARIES_LIBNETWORK_HTTPSTREAM_H_
 
-#include <NetworkStream.h>
+#include "NetworkStream.h"
 #include "ESP8266Wifi.h"
 #include "HTTPServer.h"
 
