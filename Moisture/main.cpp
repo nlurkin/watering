@@ -8,16 +8,17 @@
 #include <Arduino.h>
 #include "AutomaticWater.h"
 #include "ESP8266Wifi.h"
-#include "NetworkStream.h"
-#include "ControlServer.h"
+#include "MQTTStream.h"
+#include "MQTTControl.h"
 
 //TODO add detection of sensor failure and permanently disable pump
 //TODO add detection of empty tank and permanently disable pump
 
 AutomaticWater waterSystem(22);
 ESP8266Wifi wifi;
-NetworkStream mySerial(wifi);
-ControlServer pubServer(wifi);
+MQTTClient mqtt(wifi, "arduino");
+MQTTStream mySerial(mqtt);
+MQTTControl pubServer(mqtt, "arduino");
 
 const char ssid[] = {""};
 const char pwd[]  = {""};
@@ -33,9 +34,9 @@ void setup(){
   Serial.println(F("----- Arduino WIFI -----"));
   wifi.init(ssid, pwd, true, true);
   mySerial.setDestination(serverIP, 8000);
-  mySerial.begin(80);
-  pubServer.setDestination(serverIP, 8000);
-  pubServer.begin(80);
+  mySerial.begin();
+  pubServer.setDestination(serverIP, 1883);
+  pubServer.begin();
 
   mySerial.println("Arduino running");
 
