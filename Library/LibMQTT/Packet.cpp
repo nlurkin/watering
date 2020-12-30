@@ -105,8 +105,8 @@ bool Packet::addPayload(const char *p) {
   uint8_t n_bytes = strlen(p);
   if(n_bytes+2 > 128-_payload._n_bytes)
     return false;
-  _var_header._bytes[_var_header._n_bytes++] = 0;
-  _var_header._bytes[_var_header._n_bytes++] = n_bytes;
+  _payload._bytes[_payload._n_bytes++] = 0;
+  _payload._bytes[_payload._n_bytes++] = n_bytes;
   for(uint8_t i=0; i<n_bytes; ++i){
     _payload._bytes[_payload._n_bytes++] = p[i];
   }
