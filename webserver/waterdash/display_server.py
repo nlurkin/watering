@@ -11,7 +11,7 @@ import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 from dash.dependencies import Input, Output
 from waterapp import app
-from apps import dashboard, add_sensor, add_dashboard
+from apps import dashboard, add_sensor, add_dashboard, publications
 from waterapp import mongoClient
 
 left_col = []
@@ -35,7 +35,8 @@ def get_dashboard_list():
                  dbc.Col(dcc.Link('Update dashboard', href = '/update/dashboard'), width = 1)]),
         dbc.Row([dbc.Col(dcc.Link('New sensor', href = '/add/sensor'), width = 1),
                  dbc.Col(dcc.Link('Update sensor', href = '/update/sensor'), width = 1),
-                 dbc.Col(dcc.Link('List sensors', href = '/list/sensor'), width = 1)]),
+                 dbc.Col(dcc.Link('List sensors', href = '/list/sensor'), width = 1),
+                 dbc.Col(dcc.Link('List publications', href = '/list/publications'), width = 1)]),
         html.H3("Available dashboards"), ]
 
     db_list = mongoClient.get_dashboards_dropdown()
@@ -62,6 +63,8 @@ def display_page(pathname):
         return add_sensor.get_layout(update = True)
     elif pathname == "/list/sensor":
         return add_sensor.get_layout(dolist = True)
+    elif pathname == "/list/publications":
+        return publications.get_layout()
     elif pathname == "/add/dashboard":
         return add_dashboard.get_layout(update = False)
     elif pathname == "/update/dashboard":

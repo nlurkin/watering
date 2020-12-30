@@ -14,6 +14,7 @@ import traceback
 import pytz
 from datetime import datetime
 import time
+import re
 
 broker_address = "192.168.0.15"
 db_address = "192.168.0.18"
@@ -167,6 +168,7 @@ def advertise(data):
 
 
 if __name__ == '__main__':
+    get_db().clear_advertised_current()
 
     try:
         get_client()
