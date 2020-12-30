@@ -24,10 +24,13 @@ def from_utc(dt):
 
 class myMongoClient(object):
 
-    def __init__(self, hostname, port):
+    def __init__(self, hostname, port, username = None, password = None):
         self.hostname = hostname
         self.port = port
         self.client = None
+        self.dbuser = username
+        self.dbpasswd = password
+
         self.sensors_db = None
         self.advertised_cur_db = None
         self.advertised_all_db = None
@@ -35,6 +38,9 @@ class myMongoClient(object):
 
     def connect(self):
         self.client = pymongo.MongoClient(self.hostname, self.port)
+
+        if self.dbuser is not None:
+            self.client["perm"].authenticate(self.dbuser, self.dbpasswd)
 
         self.sensors_db = self.client["sensors"]["definition"]
         self.dashboard_db = self.client["dashboard"]["dashboard_config"]
