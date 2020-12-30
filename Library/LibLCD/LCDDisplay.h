@@ -28,16 +28,24 @@ public:
   static const uint8_t MAX_MENUS=5;
 
   LCDDisplay(unsigned int tickInterval, unsigned int updateInterval=1000);
+  LCDDisplay(LiquidCrystal &lcd, unsigned int tickInterval, unsigned int updateInterval=1000);
   virtual ~LCDDisplay();
 
   LCDButton::button tick();
   bool add_menu(SubMenu *menu);
   LiquidCrystal& get_lcd_handle();
+  const SubMenu * get_current_menu();
+  uint8_t get_current_menu_id();
+
+  bool change_menu(SubMenu *menu);
+  void force_refresh();
+  void EnableNavigation(bool en) { _NavEnabled = !en; }
 
 private:
   bool check_btn_changes(LCDButton::button btn);
   bool check_updates();
 
+  bool    _NavEnabled;
   uint8_t _nMenus;              /** Number of menus */
   uint8_t _currentMenu;         /** Index of the currently displayed menu */
   unsigned int _tickInterval;   /** Length of a tick*/

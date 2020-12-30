@@ -15,7 +15,6 @@
  * @param pump_pin: Digital pin controlling the pump
  */
 AutomaticWater::AutomaticWater(uint8_t pump_pin) :
-  _gMainMode(MAIN_MODE_MONITOR),
   _gSubMode(defaultMonitorMode),
   _gTickInterval(500),
   _currentCounter(0),
@@ -29,7 +28,7 @@ AutomaticWater::AutomaticWater(uint8_t pump_pin) :
   _pub_sensors{nullptr},
   _cmd_pump{nullptr}
 {
-  for(unsigned short i=0; i<MAX_SENSORS; ++i) {
+  for(unsigned short i=0; i<AW::MAX_SENSORS; ++i) {
     sensors[i] = nullptr;
     valves[i] = nullptr;
     _isWatering[i] = false;
@@ -64,6 +63,7 @@ void AutomaticWater::initSystem(){
 
   //Setup lcd
   lcdDisplay.initMonitorMode();
+  lcdDisplay.initRunning(true);
 }
 
 /**
@@ -116,28 +116,40 @@ void AutomaticWater::setPublicationServer(ControlServer *server){
  *
  * @param button: Eventual button pressed on the LCD display
  */
-void AutomaticWater::runCalibrationMode(LCDWaterDisplay::button button){
+void AutomaticWater::runCalibrationMode(LCDButton::button button){
   // If the sub mode is not one of the CALIB sub modes, we are just entering CALIB
   // from another mode. The calibrated sensor is the active one.
   // It is not possible to change the active sensor during the procedure.
-  if(    _gSubMode!=MODE_CALIB_WATER && _gSubMode!=MODE_CALIB_WATER_W
+  if(_gSubMode!=MODE_CALIB_INIT && _gSubMode!=MODE_CALIB_WATER && _gSubMode!=MODE_CALIB_WATER_W
     && _gSubMode!=MODE_CALIB_DRY   && _gSubMode!=MODE_CALIB_DRY_W){
     // In this case, initialise the CALIB mode to the first sub mode (WATER wait)
     // Also set the measuring interval of the sensor to fast and set the display accordingly.
-    lcdDisplay.initCalibrationMode(LCDWaterDisplay::WATER);
-    _gSubMode = MODE_CALIB_WATER_W;
-    sensors[_currentSensor]->setMeasureInterval(_gTickInterval);
+    _gSubMode = MODE_CALIB_INIT;
+    lcdDisplay.resetCalibrationMode();
   }
 
 
   bool calibOver;
   //Choose actions depending on submode
   switch(_gSubMode) {
+  case MODE_CALIB_INIT: // Mode init (sensor not selected yet)
+    if(button==LCDButton::btnRIGHT)
+      loopActiveSensor(1);
+    else if(button==LCDButton::btnLEFT)
+      loopActiveSensor(-1);
+    if(button==LCDButton::btnSELECT){
+      lcdDisplay.disableMenuChange();
+      lcdDisplay.initCalibrationMode(MenuCalib::WATER);
+      sensors[_currentSensor]->setMeasureInterval(_gTickInterval);
+      _gSubMode = MODE_CALIB_WATER_W;
+    }
+    lcdDisplay.displayCalibSensor(_currentSensor);
+    break;
   case MODE_CALIB_WATER_W:  // Mode WATER wait
     // Wait until the user says that the sensor is correctly in the moist medium (SELECT button)
-    if(button==LCDWaterDisplay::btnSELECT){
+    if(button==LCDButton::btnSELECT){
       //Move to the next mode (WATER), set the display accordingly and reset the sensor
-      lcdDisplay.displayCalibMode(LCDWaterDisplay::WATER);
+      lcdDisplay.displayCalibMode(MenuCalib::WATER);
       _gSubMode = MODE_CALIB_WATER;
       sensors[_currentSensor]->resetCalibration();
     }
@@ -150,15 +162,15 @@ void AutomaticWater::runCalibrationMode(LCDWaterDisplay::button button){
     // It is finished when the sensor says so (it decides when enough value have been read)
     if(calibOver){
       // If this is finished, move to the next mode (DRY wait) and set the display accordingly
-      lcdDisplay.initCalibrationMode(LCDWaterDisplay::DRY);
+      lcdDisplay.initCalibrationMode(MenuCalib::DRY);
       _gSubMode = MODE_CALIB_DRY_W;
     }
     break;
   case MODE_CALIB_DRY_W: // Mode DRY wait
     // Wait until the user says that the sensor is correctly in the dry medium (SELECT button)
-    if(button==LCDWaterDisplay::btnSELECT){
+    if(button==LCDButton::btnSELECT){
       //Move to the next mode (DRY), set the display accordingly and reset the sensor
-      lcdDisplay.displayCalibMode(LCDWaterDisplay::DRY);
+      lcdDisplay.displayCalibMode(MenuCalib::DRY);
       _gSubMode = MODE_CALIB_DRY;
       sensors[_currentSensor]->resetCalibration();
     }
@@ -173,7 +185,9 @@ void AutomaticWater::runCalibrationMode(LCDWaterDisplay::button button){
       // If this is finished, return to the main MONITOR mode and reset the monitoring
       // interval of the sensor to slow
       sensors[_currentSensor]->setMeasureInterval(LONG_INTERVAL);
-      _gMainMode = MAIN_MODE_MONITOR;
+      _gSubMode = MODE_CALIB_INIT;
+      lcdDisplay.resetCalibrationMode();
+      lcdDisplay.enableMenuChange();
     }
     break;
   default:
@@ -191,32 +205,10 @@ void AutomaticWater::runCalibrationMode(LCDWaterDisplay::button button){
  *
  * @param button: Eventual button pressed on the LCD display
  */
-void AutomaticWater::runShowMode(LCDWaterDisplay::button button){
-  //If sub mode is not one of the SHOW sub modes, we are just entering
-  //SHOW mode from another mode
-  if(_gSubMode!=MODE_SHOW_CONST){
-    //Set the display and the sub mode properly
-    lcdDisplay.initShowMode();
-    _gSubMode = MODE_SHOW_CONST;
-  }
-
-  switch(_gSubMode) {
-  case MODE_SHOW_CONST: // Mode SHOW
-    //Display the calibration constants on the LCD
-    lcdDisplay.displayShowConstants(sensors[_currentSensor]->getWaterValue(), sensors[_currentSensor]->getDryValue());
-    if(button==LCDWaterDisplay::btnLEFT){ // If left button pressed again, go back to MONITOR mode
-      _gMainMode = MAIN_MODE_MONITOR;
-    }
-    else if(button==LCDWaterDisplay::btnUP){ // If up button pressed, change active sensor to the next one
-      loopActiveSensor(1);
-    }
-    else if(button==LCDWaterDisplay::btnDOWN){ // If down button pressed, change active sensor to the previous one
-      loopActiveSensor(-1);
-    }
-    break;
-  default:
-    break;
-  }
+void AutomaticWater::runShowMode(LCDButton::button /*button*/){
+  //Update the calibration constants in the LCD Show Menu
+  for(uint8_t i=0; i<_nCircuits; ++i)
+    lcdDisplay.displayShowConstants(i, sensors[i]->getWaterValue(), sensors[i]->getDryValue());
 }
 
 /**
@@ -230,53 +222,53 @@ void AutomaticWater::runShowMode(LCDWaterDisplay::button button){
  *
  * @param button: Eventual button pressed on the LCD display
  */
-void AutomaticWater::runMonitorMode(LCDWaterDisplay::button button){
+void AutomaticWater::runMonitorMode(LCDButton::button button){
   // If current sub mode is not one of the MONITOR mode, we are coming to MONITOR
   // mode from another mode
   if( _gSubMode!=MODE_MONITOR_IDLE &&
     _gSubMode!=MODE_MONITOR_RUN){
     // Set sub mode as the default monitor mode and set the display accordingly
-    lcdDisplay.initMonitorMode();
+    // LCD does not display the running symbol
+    lcdDisplay.initRunning(true);
     _gSubMode = defaultMonitorMode;
   }
 
   // Display the moisture level and the percentage
-  if(_nCircuits>0)
-    lcdDisplay.displayRunValues(sensors[_currentSensor]->getRawMoisture(), sensors[_currentSensor]->getPercentageMoisture());
+  for(uint8_t i=0; i<_nCircuits; ++i)
+    lcdDisplay.displayRunValues(i, sensors[i]->getRawMoisture(), sensors[i]->getPercentageMoisture());
 
   //We can change active sensor in all cases
-  if(button==LCDWaterDisplay::btnUP){ // If up button pressed, change active sensor to the next one
-    loopActiveSensor(1);
-  }
-  else if(button==LCDWaterDisplay::btnDOWN){ // If down button pressed, change active sensor to the previous one
-    loopActiveSensor(-1);
-  }
+  //if(button==LCDWaterDisplay::btnUP){ // If up button pressed, change active sensor to the next one
+  //  loopActiveSensor(1);
+  //}
+  //else if(button==LCDWaterDisplay::btnDOWN){ // If down button pressed, change active sensor to the previous one
+  //  loopActiveSensor(-1);
+  //}
 
   checkCommands();
   updatePublications();
   switch(_gSubMode){
   case MODE_MONITOR_IDLE: // Mode IDLE
     // In this case we only monitor the moisture level without taking any action
-    // LCD does not display the running symbol
-    lcdDisplay.initRunning(false);
-
     // Check what are the possible button pressed
-    if(button==LCDWaterDisplay::btnSELECT) // If Select was pressed, move to CALIB mode
-      _gMainMode = MAIN_MODE_CALIB;
-    else if(button==LCDWaterDisplay::btnLEFT) // If Left was pressed, move to SHOW mode
-      _gMainMode = MAIN_MODE_SHOW;
-    else if(button==LCDWaterDisplay::btnRIGHT) { // If Right was pressed, move to RUNNING sub mode
+    if(button==LCDButton::btnSELECT) { // If Select was pressed, move to CALIB mode
       _gSubMode = MODE_MONITOR_RUN;
+      // LCD does display the running symbol
+      lcdDisplay.initRunning(true);
     }
+      //_gMainMode = MAIN_MODE_CALIB;
+    //else if(button==LCDWaterDisplay::btnLEFT) // If Left was pressed, move to SHOW mode
+    //  _gMainMode = MAIN_MODE_SHOW;
+    //else if(button==LCDWaterDisplay::btnRIGHT) { // If Right was pressed, move to RUNNING sub mode
+    //}
     break;
   case MODE_MONITOR_RUN: // Mode IDLE
     // In this mode we monitor the moisture level and start watering if it drops too low
-    // LCD does display the running symbol
-    lcdDisplay.initRunning(true);
-
-    if(button==LCDWaterDisplay::btnRIGHT){ // If Right button was pressed, move to IDLE sub mode
+    if(button==LCDButton::btnSELECT){ // If Select button was pressed, move to IDLE sub mode
       // Ensure the pump is not running, reset measurement interval to LONG_INTERVAL
       // and make sure all valves are closed
+      lcdDisplay.initRunning(false);
+      lcdDisplay.initWatering(false);
       _gSubMode = MODE_MONITOR_IDLE;
       pump1.run(false);
       setSensorsMeasureInterval(LONG_INTERVAL);
@@ -315,13 +307,15 @@ void AutomaticWater::runMonitorMode(LCDWaterDisplay::button button){
  */
 bool AutomaticWater::addSensor(uint8_t pin, uint8_t powerPin) {
   // Not more than MAX_SENSORS
-  if(_nCircuits>=MAX_SENSORS) return false;
+  if(_nCircuits>=AW::MAX_SENSORS) return false;
   sensors[_nCircuits] = new MoistureSensor(pin, powerPin);
 
   //Setup sensor 1, reading every hour
   sensors[_nCircuits]->setMeasureInterval(LONG_INTERVAL);
   sensors[_nCircuits]->setTickInterval(_gTickInterval);
   ++_nCircuits;
+
+  lcdDisplay.add_circuit();
 
   return true;
 }
@@ -335,25 +329,27 @@ bool AutomaticWater::addSensor(uint8_t pin, uint8_t powerPin) {
  */
 void AutomaticWater::tick() {
   //Reads the button info from the LCD
-  LCDWaterDisplay::button button = lcdDisplay.read_LCD_buttons();
+  LCDButton::button button = lcdDisplay.tick();
 
   // Pass to the rest of the function only every 10 ticks, or when a button is pressed
-  if(++_currentCounter<10 && button==LCDWaterDisplay::btnNONE) return;
+  if(++_currentCounter<10 && button==LCDButton::btnNONE) return;
   _currentCounter = 0;
 
   // Tick the sub classes
   tickSensors();
   pump1.tick();
 
+  AW::MainMode mode = lcdDisplay.getMainMode();
+
   // Run the method associated to the current main mode
-  switch(_gMainMode) {
-  case MAIN_MODE_MONITOR: //MONITORING MODE
+  switch(mode) {
+  case AW::MAIN_MODE_MONITOR: //MONITORING MODE
     runMonitorMode(button);
     break;
-  case MAIN_MODE_CALIB: //CALIBRATION MODE
+  case AW::MAIN_MODE_CALIB: //CALIBRATION MODE
     runCalibrationMode(button);
     break;
-  case MAIN_MODE_SHOW: //SHOW MODE
+  case AW::MAIN_MODE_SHOW: //SHOW MODE
     runShowMode(button);
     break;
   default:
