@@ -9,11 +9,11 @@ import dash
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
-from dash.dependencies import Input, Output, State, ALL, MATCH
+from dash.dependencies import Input, Output, State, MATCH
 import plotly.graph_objects as go
 import pandas as pd
 from waterapp import app, mongoClient
-from datetime import datetime
+from mongodb import to_utc
 
 
 def build_sensor_card(sensor):
@@ -35,7 +35,7 @@ def build_sensor_card(sensor):
             animate = True,
             )]
         if "controller" in sensor and sensor["controller"]:
-            day = datetime.now().strftime("%Y-%m-%d")
+            day = to_utc().strftime("%Y-%m-%d")
             controller_last_value = mongoClient.get_controller_values(sensor["sensor"], day)
             sensor_element.append(dbc.Checklist(options = [{"label": "", "value": 1}],
             value = [] if (len(controller_last_value) == 0 or controller_last_value[-1]["val"] == 0) else [1], id = {"type": "bool_controller", "sensor": sensor["sensor"]}, switch = True,))
@@ -72,7 +72,7 @@ def generate_layout(dashboard_name):
               [Input('interval-component', 'n_intervals')],
               [State({"type": "string_sensor", "sensor": MATCH}, 'id')])
 def update_string_metrics(_, sensor_name):
-    day = datetime.now().strftime("%Y-%m-%d")
+    day = to_utc().strftime("%Y-%m-%d")
     value_doc = mongoClient.get_sensor_values(sensor_name["sensor"], day)
     return "".join([_["val"] for _ in value_doc["samples"]])
 
@@ -81,7 +81,7 @@ def update_string_metrics(_, sensor_name):
               [Input('interval-component', 'n_intervals')],
               [State({"type": "bool_sensor", "sensor": MATCH}, 'id')])
 def update_bool_metrics(_, sensor_name):
-    day = datetime.now().strftime("%Y-%m-%d")
+    day = to_utc().strftime("%Y-%m-%d")
     value_doc = mongoClient.get_sensor_values(sensor_name["sensor"], day)
     sensor_doc = mongoClient.get_sensor_by_name(sensor_name["sensor"])
     with_setpoint = False
@@ -92,16 +92,17 @@ def update_bool_metrics(_, sensor_name):
             df = pd.DataFrame({"val": []})
         else:
             df = pd.DataFrame(value_doc["samples"])
-            df.index = pd.to_datetime(df['ts'], unit = "s")
+            df.index = pd.to_datetime(df['ts'], unit = "s", utc = True)
         if "setpoint" in value_doc:
             dsp = pd.DataFrame(value_doc["setpoint"])
-            dsp.index = pd.to_datetime(dsp['ts'], unit = "s")
+            dsp.index = pd.to_datetime(dsp['ts'], unit = "s", utc = True)
             dsp = dsp.rename(columns = {"val": "sp"})
             df = pd.merge(df, dsp, how = 'outer', left_index = True, right_index = True)
             with_setpoint = True
-        new_index = datetime.now()
+        new_index = to_utc()
         df = df.append(pd.DataFrame(index = [new_index], data = df.tail(1).values, columns = df.columns))
 
+    df.index = df.index.tz_convert("Europe/Brussels")
     figure = go.Figure(
         layout_title_text = sensor_doc["display"],
         layout_title_x = 0.5,
@@ -140,10 +141,8 @@ def update_bool_controller_setpoint(controller_value, sensor_name):
 
     sensor_doc = mongoClient.sensors_db.find_one({"sensor": sensor_name})
 
-    ts = datetime.now().timestamp()
-    day = datetime.now().strftime("%Y-%m-%d")
     val = 0 if len(controller_value) == 0 else 1
-    mongoClient.update_controller_values(sensor_doc, sensor_name, val, day, ts)
+    mongoClient.update_controller_values(sensor_doc, sensor_name, val)
 
     return ""
 
@@ -152,7 +151,7 @@ def update_bool_controller_setpoint(controller_value, sensor_name):
               [Input('interval-component', 'n_intervals')],
               [State({"type": "float_sensor", "sensor": MATCH}, 'id')])
 def update_float_metrics(_, sensor_name):
-    day = datetime.now().strftime("%Y-%m-%d")
+    day = to_utc().strftime("%Y-%m-%d")
     value_doc = mongoClient.get_sensor_values(sensor_name["sensor"], day)
     sensor_doc = mongoClient.get_sensor_by_name(sensor_name["sensor"])
     if value_doc is None:
@@ -162,10 +161,11 @@ def update_float_metrics(_, sensor_name):
             df = pd.DataFrame({"val": []})
         else:
             df = pd.DataFrame(value_doc["samples"])
-            df.index = pd.to_datetime(df['ts'], unit = "s")
-        new_index = datetime.now()
+            df.index = pd.to_datetime(df['ts'], unit = "s", utc = True)
+        new_index = to_utc()
         df = df.append(pd.DataFrame(index = [new_index], data = df.tail(1).values, columns = df.columns))
 
+    df.index = df.index.tz_convert("Europe/Brussels")
     figure = go.Figure(
         layout_title_text = sensor_doc["display"],
         layout_title_x = 0.5,

@@ -1,16 +1,12 @@
 '''
-Created on 18-Jun-2020
+Created on 30-Dec-2020
 
 @author: Nicolas Lurkin
 '''
 
-import dash
-import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
-from dash.dependencies import Input, Output, State
-from waterapp import app, mongoClient
-import re
+from waterapp import mongoClient
 
 
 def get_layout():
