@@ -84,12 +84,12 @@ bool ESP8266Wifi::sendSomething(const char *cmd) const {
     return _client.sendCommand(cmd);
 }
 
-bool ESP8266Wifi::sendCommand(const char *cmd) const {
-  return _client.sendCommand(cmd);
+bool ESP8266Wifi::sendCommand(const char *cmd) {
+  return checkBuffAndReturn(_client.sendCommand(cmd));
 }
 
-bool ESP8266Wifi::sendData(const char *data) const {
-  return _client.sendData(data);
+bool ESP8266Wifi::sendData(const char *data) {
+  return checkBuffAndReturn(_client.sendData(data));
 }
 
 bool ESP8266Wifi::readAndPrint(unsigned int timeout) {
@@ -161,7 +161,7 @@ bool ESP8266Wifi::checkBoardConnection() const {
 }
 
 bool ESP8266Wifi::checkWifiConnection() {
-  bool success = _client.CIFSR();
+  bool success = checkBuffAndReturn(_client.CIFSR());
 
   if(!success)
     return false;
@@ -455,15 +455,14 @@ void ESP8266Wifi::read_payload(const char *initdata, size_t len) {
   _payload[conn_number]->push(buff);
 }
 
-bool ESP8266Wifi::sendPacket(const char *data, uint8_t conn) const {
-  return _client.CIPSEND(data, conn);
+bool ESP8266Wifi::sendPacket(const char *data, uint8_t conn) {
+  return checkBuffAndReturn(_client.CIPSEND(data, conn));
 }
 
-bool ESP8266Wifi::sendPacketLen(const char *data, uint8_t conn, size_t len) const {
-  if(!_client.CIPSENDEX(len, conn))
+bool ESP8266Wifi::sendPacketLen(const char *data, uint8_t conn, size_t len) {
+  if(!checkBuffAndReturn(_client.CIPSENDEX(len, conn)))
     return false;
-  checkDataCapture();
-  return _client.sendDataConfirm(data, len);
+  return checkBuffAndReturn(_client.sendDataConfirm(data, len));
 }
 
 bool ESP8266Wifi::closeConnection(uint8_t conn) const {
@@ -515,3 +514,7 @@ bool ESP8266Wifi::endsWith(const char *str, const __FlashStringHelper* search) {
   return p_search==p_search_end+1; // The loop went through the whole string, finding each character equal
 }
 
+bool ESP8266Wifi::checkBuffAndReturn(bool val) {
+  checkDataCapture();
+  return val;
+}

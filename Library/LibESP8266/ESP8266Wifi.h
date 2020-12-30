@@ -25,8 +25,8 @@ public:
   void setLogSerial(Stream* serial);
 
   bool sendSomething(const char *cmd) const;
-  bool sendCommand(const char *cmd) const;
-  bool sendData(const char *data) const;
+  bool sendCommand(const char *cmd);
+  bool sendData(const char *data);
   bool readAndPrint(unsigned int timeout=1000);
   bool checkDataCapture();
 
@@ -39,8 +39,8 @@ public:
   bool startServer(int port=-1) const;
   bool stopServer() const;
 
-  bool sendPacket(const char *data, uint8_t conn) const;
-  bool sendPacketLen(const char *data, uint8_t conn, size_t len) const;
+  bool sendPacket(const char *data, uint8_t conn);
+  bool sendPacketLen(const char *data, uint8_t conn, size_t len);
   bool closeConnection(uint8_t conn) const;
   int  openConnection(const char *address, uint16_t port);
   int  openConnection(uint8_t ip[4], uint16_t port);
@@ -69,6 +69,7 @@ private:
   void disconnect();
   void read_payload(const char *initdata, size_t len);
   void init_connection(uint8_t conn_number);
+  bool checkBuffAndReturn(bool val);
 
   static Buffer _persistent_buffer;
   bool _conn_opened[5];
