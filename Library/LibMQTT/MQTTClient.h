@@ -25,14 +25,15 @@ public:
 
   bool connect();
   bool publish(const char* pubname, const char *data);
-  bool subscribe(const char* pubname);
+  uint8_t subscribe(const char* pubname);
   bool listen(char *pubname, char*pubdata);
+  bool id_used(uint16_t id);
+  void free_id(uint16_t id);
 
 private:
   bool connected();
   bool send_connect(uint8_t conn);
   uint8_t get_unused_id();
-  void free_id(uint16_t id);
 
   int8_t _connection;
   char *_dest_address;

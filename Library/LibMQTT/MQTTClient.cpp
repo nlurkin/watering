@@ -64,7 +64,7 @@ bool MQTTClient::publish(const char *pubname, const char *data) {
   return _wifi.sendPacketLen(buff, _connection, len);
 }
 
-bool MQTTClient::subscribe(const char *pubname) {
+uint8_t MQTTClient::subscribe(const char *pubname) {
   if(!connect()) // Unable to establish connection
     return false;
 
@@ -86,7 +86,9 @@ bool MQTTClient::subscribe(const char *pubname) {
     return false;
   uint32_t len = packet.fillBuffer(buff);
 
-  return _wifi.sendPacketLen(buff, _connection, len);
+  uint8_t trial = 0;
+  while(!_wifi.sendPacketLen(buff, _connection, len) && trial++<10) {}
+  return msg_id;
 }
 
 
@@ -160,17 +162,11 @@ bool MQTTClient::listen(char *pubname, char*pubdata) {
 }
 
 uint8_t MQTTClient::get_unused_id() {
-  bool found = false;
   uint8_t id=1;
-  while(!found){
-    found = true;
-    for(uint8_t i=0; i<MAX_MESSAGE_IDS; ++i){
-      if(_msg_ids[i]==id){
-        ++id;
-        found = false;
-        break;
-      }
-    }
+
+  // Look for the first unused id, starting with 1
+  while(id_used(id)) {
+    ++id;
   }
 
   for(uint8_t i=0; i<MAX_MESSAGE_IDS; ++i){
@@ -189,4 +185,13 @@ void MQTTClient::free_id(uint16_t id) {
       return;
     }
   }
+}
+
+bool MQTTClient::id_used(uint16_t id) {
+  for(uint8_t i=0; i<MAX_MESSAGE_IDS; ++i){
+    if((uint16_t)_msg_ids[i]==id){
+      return true;
+    }
+  }
+  return false;
 }

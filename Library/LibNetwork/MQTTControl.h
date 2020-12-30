@@ -27,7 +27,10 @@ public:
   virtual bool publishAdvertise(const char * services);
 
 private:
+  void requestSubscription(PublicationBase *cmd, uint8_t pubnum);
+
   bool _mqtt_owned;
+  uint8_t _cmd_msg_id[MAX_COMMANDS];
   char * _name;
   MQTTClient *_mqtt;
 };

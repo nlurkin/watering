@@ -84,3 +84,15 @@ bool ControlServer::advertise() {
 
   return publishAdvertise(buff);
 }
+
+PublicationBase* ControlServer::get_command(uint8_t cmd_num) {
+  if(cmd_num<_num_commands)
+    return _commands[cmd_num];
+  return nullptr;
+}
+
+PublicationBase* ControlServer::get_publication(uint8_t pub_num) {
+  if(pub_num<_num_publications)
+    return _publications[pub_num];
+  return nullptr;
+}

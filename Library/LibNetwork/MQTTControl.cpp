@@ -16,6 +16,10 @@ MQTTControl::MQTTControl(ESP8266Wifi &wifi, const char *name) :
   _name = new char[min(strlen(name)+1, PublicationBase::MAX_NAME_LENGTH+1)];
   strncpy(_name, name, PublicationBase::MAX_NAME_LENGTH);
   _name[PublicationBase::MAX_NAME_LENGTH] = '\0';
+
+  for(size_t i=0; i<MAX_COMMANDS; ++i){
+    _cmd_msg_id[i] = 0;
+  }
 }
 
 MQTTControl::MQTTControl(MQTTClient &mqtt, const char *name) :
@@ -25,6 +29,10 @@ MQTTControl::MQTTControl(MQTTClient &mqtt, const char *name) :
   _name = new char[min(strlen(name)+1, PublicationBase::MAX_NAME_LENGTH+1)];
   strcpy(_name, name);
   _name[PublicationBase::MAX_NAME_LENGTH] = '\0';
+
+  for(size_t i=0; i<MAX_COMMANDS; ++i){
+    _cmd_msg_id[i] = 0;
+  }
 }
 
 MQTTControl::~MQTTControl() {
@@ -66,18 +74,44 @@ bool MQTTControl::updatePublications(uint8_t nPubReady, PublicationBase *readyPu
 }
 
 bool MQTTControl::checkSubscriptions(char *sname, char *value) {
-  return _mqtt->listen(sname, value);
+  // Check subscriptions succeeded
+  for(uint8_t i=0; i<get_num_commands(); ++i){
+    if(_cmd_msg_id[i]!=0){
+      if(_mqtt->id_used(_cmd_msg_id[i])){
+        //subscription not succeeded, redo it
+        _mqtt->free_id(_cmd_msg_id[i]);
+        requestSubscription(get_publication(i), i);
+      }
+      else{
+        // Ack packet received. Subscription successful
+        _cmd_msg_id[i] = 0;
+      }
+    }
+  }
+
+  // Check subscriptions updates
+  char pubname[PublicationBase::MAX_NAME_LENGTH*2];
+  bool ready = _mqtt->listen(pubname, value);
+
+  if(ready)
+    strcpy(sname, pubname+strlen(_name)+5);
+  return ready;
 }
 
 bool MQTTControl::addCommand(PublicationBase *cmd) {
   if(!ControlServer::addCommand(cmd))
     return false;
 
+  requestSubscription(cmd, get_num_publications());
+  return true;
+}
+
+void MQTTControl::requestSubscription(PublicationBase *cmd, uint8_t pubnum) {
   char pubname[PublicationBase::MAX_NAME_LENGTH*2];
   strcpy(pubname, _name);
   strcpy_P(pubname + strlen(_name), PSTR("/cmd/"));
   strcpy(pubname + (strlen(_name)+5), cmd->getName());
-  return _mqtt->subscribe(pubname);
+  _cmd_msg_id[pubnum] = _mqtt->subscribe(pubname);
 }
 
 bool MQTTControl::publishAdvertise(const char *services) {
