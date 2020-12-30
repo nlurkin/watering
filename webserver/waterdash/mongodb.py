@@ -119,14 +119,15 @@ class myMongoClient(object):
         self.advertised_cur_db = self.client["advertised"]["current"]
 
     def add_advertised_current(self, sensor_data, sensor_name):
-        if self.advertised_cur_db.find_one({"sensor": sensor_name}) is not None:
+        if self.advertised_cur_db.find_one(sensor_data) is not None:
             # Already seen recently
             print("Already seen")
             return
 
         sensor_doc = self.advertised_cur_db.insert_one(sensor_data)
         if sensor_doc:
-            if self.advertised_all_db.find_one({"sensor": sensor_name}) is not None:
+            del sensor_data['_id']
+            if self.advertised_all_db.find_one(sensor_data) is not None:
                 # Already seen someday
                 return
             else:

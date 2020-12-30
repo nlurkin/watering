@@ -19,7 +19,7 @@ class ControlServer {
 public:
   static constexpr uint8_t MAX_COMMANDS = 5;
   static constexpr uint8_t MAX_PUBLICATIONS = 20;
-  static constexpr size_t MAX_MESSAGE_LENGTH = 70;
+  static constexpr size_t MAX_MESSAGE_LENGTH = 500;
 
   ControlServer();
   virtual ~ControlServer();

@@ -163,7 +163,6 @@ def advertise(data):
         if len(m) > 0:
             m = m[0]
             data_dict = {"sensor": m[0], "data-type": get_dtype(m[1]), "controller": True if m[2] == "1" else False}
-            print(data_dict)
             db.add_advertised_current(data_dict, m[0])
 
 
