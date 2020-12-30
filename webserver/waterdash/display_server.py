@@ -6,6 +6,7 @@ Created on 87 Jun 2020
 '''
 
 import dash
+import dash_auth
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
@@ -13,6 +14,12 @@ from dash.dependencies import Input, Output
 from waterapp import app, server
 from apps import dashboard, add_sensor, add_dashboard, publications
 from waterapp import mongoClient
+from data.config import VALID_USERNAME_PASSWORD_PAIRS
+
+auth = dash_auth.BasicAuth(
+    app,
+    VALID_USERNAME_PASSWORD_PAIRS
+)
 
 left_col = []
 right_col = []
