@@ -6,6 +6,20 @@ Created on 18-Jun-2020
 
 import pymongo
 from bson.objectid import ObjectId
+from tzlocal import get_localzone
+from datetime import datetime
+import pytz
+tz = get_localzone()
+
+
+def to_utc(dt = None):
+    if dt is None:
+        return tz.localize(datetime.now()).astimezone(pytz.utc)
+    return tz.localize(dt).astimezone(pytz.utc)
+
+
+def from_utc(dt):
+    return None  # tz.localize(datetime.now()).astimezone(pytz.utc)
 
 
 class myMongoClient(object):
@@ -85,8 +99,11 @@ class myMongoClient(object):
     def get_controllers_list(self):
         return list(self.sensors_db.find({"controller": True}))
 
-    def update_sensor_values(self, sensor_doc, sensor_name, val, day, ts):
+    def update_sensor_values(self, sensor_doc, sensor_name, val):
         sensor_coll = self.client["sensors"][sensor_name]
+        dt = tz.localize(datetime.now())
+        ts = dt.timestamp()
+        day = dt.strftime("%Y-%m-%d")
 
         sample = {"val": val, "ts": ts}
         sensor_coll.update_one({"sensorid": str(sensor_doc["_id"]), "nsamples": {"$lt": 200}, "day": day},
@@ -97,8 +114,12 @@ class myMongoClient(object):
                                },
                               upsert = True)
 
-    def update_controller_values(self, sensor_doc, sensor_name, val, day, ts):
+    def update_controller_values(self, sensor_doc, sensor_name, val):
         sensor_coll = self.client["sensors"][sensor_name]
+
+        dt = to_utc()
+        ts = dt.timestamp()
+        day = dt.strftime("%Y-%m-%d")
 
         sample = {"val": val, "ts": ts}
         sensor_coll.update_one({"sensorid": str(sensor_doc["_id"]), "nsamples": {"$lt": 200}, "day": day},

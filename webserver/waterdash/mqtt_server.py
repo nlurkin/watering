@@ -9,12 +9,9 @@ Created on 19-Jun-2020
 # TODO merge mongoDB documents when reading: maybe use first>now-24h or now-requested_range instead of using day
 
 import paho.mqtt.client as mqtt
-from mongodb import myMongoClient
-import traceback
-import pytz
-from datetime import datetime
-import time
+from mongodb import myMongoClient, to_utc
 import re
+import time
 
 broker_address = "192.168.0.15"
 db_address = "192.168.0.18"
@@ -29,15 +26,6 @@ def on_connect(client, userdata, flags, rc):
     # Subscribing in on_connect() means that if we lose the connection and
     # reconnect then subscriptions will be renewed.
     client.subscribe("arduino/#")
-
-
-# The callback for when a PUBLISH message is received from the server.
-def wrapped_on_message(client, userdata, msg):
-    try:
-        on_message(client, userdata, msg)
-    except Exception as e:
-        print(e)
-        traceback.print_exc()
 
 
 def on_message(client, userdata, msg):
@@ -110,21 +98,19 @@ def api_sensor(sensor_name, value):
 
     print(sensor_name, value)
 
-    ts = pytz.utc.localize(datetime.now()).timestamp()
-    day = datetime.now().strftime("%Y-%m-%d")
     val = value.decode("utf8")
     print(val)
     if sensor_doc["data-type"] == "float":
         val = float(val)
     elif sensor_doc["data-type"] == "bool":
         val = int(val)
-    db.update_sensor_values(sensor_doc, sensor_name, val, day, ts)
+    db.update_sensor_values(sensor_doc, sensor_name, val)
 
 
 def check_control():
     db = get_db()
     ctrl_list = db.get_controllers_list()
-    day = datetime.now().strftime("%Y-%m-%d")
+    day = to_utc().strftime("%Y-%m-%d")
     for controller in ctrl_list:
         ctrl_values = db.get_sensor_values(controller["sensor"], day)
         if not "setpoint" in ctrl_values:

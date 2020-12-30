@@ -13,10 +13,8 @@ from flask import make_response, jsonify
 from werkzeug.exceptions import abort
 from werkzeug.serving import WSGIRequestHandler
 
-from mongodb import myMongoClient
-from datetime import datetime
+from mongodb import myMongoClient, to_utc
 import requests
-import pytz
 import pprint
 import re
 
@@ -64,7 +62,7 @@ def teardown_db(exception):
 def check_control():
     db = get_db()
     ctrl_list = db.get_controllers_list()
-    day = datetime.now().strftime("%Y-%m-%d")
+    day = to_utc().strftime("%Y-%m-%d")
     for controller in ctrl_list:
         ctrl_values = db.get_sensor_values(controller["sensor"], day)
         if not "setpoint" in ctrl_values:
@@ -100,7 +98,6 @@ def advertise():
         if len(m)>0:
             m = m[0]
             data_dict = {"sensor": m[0], "data-type": get_dtype(m[1]), "controller": True if m[2] == "1" else False}
-            print(data_dict)
             db.add_advertised_current(data_dict, m[0])
     return jsonify({"status": 'Success'}), 200
 
@@ -135,14 +132,12 @@ def api_sensor(sensor_name):
 
     print(sensor_name, request.data)
     if request.method == "POST":
-        ts = pytz.utc.localize(datetime.now()).timestamp()
-        day = datetime.now().strftime("%Y-%m-%d")
         val = request.data.decode("utf8")
         if sensor_doc["data-type"] == "float":
             val = float(val)
         elif sensor_doc["data-type"] == "bool":
             val = int(val)
-        db.update_sensor_values(sensor_doc, sensor_name, val, day, ts)
+        db.update_sensor_values(sensor_doc, sensor_name, val)
 
         return jsonify({"status": 'Success'}), 200
 
