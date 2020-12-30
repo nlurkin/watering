@@ -10,7 +10,7 @@ import dash_bootstrap_components as dbc
 from mongodb import myMongoClient
 
 # Initialise the app
-app = dash.Dash(__name__, external_stylesheets = [dbc.themes.BOOTSTRAP], suppress_callback_exceptions = True)
+app = dash.Dash(__name__, external_stylesheets = [dbc.themes.BOOTSTRAP], requests_pathname_prefix="/arduihome/")
 server = app.server
 
 mongoClient = myMongoClient("192.168.0.18", 27017)

@@ -10,19 +10,21 @@ import dash_html_components as html
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 from dash.dependencies import Input, Output
-from waterapp import app
+from waterapp import app, server
 from apps import dashboard, add_sensor, add_dashboard, publications
 from waterapp import mongoClient
 
 left_col = []
 right_col = []
 
+app_prefix = "/arduihome"
+
 # Define the app
 index_layout = html.Div(
         children = [
         dcc.Location(id = 'url', refresh = False),
         dbc.Row(html.H2("Watering dashboard", className = "title"), className = "black"),
-        dcc.Link("Home", href = "/"),
+        dcc.Link("Home", href = app_prefix + "/"),
         html.Div(id = "page-content")
         ]
     )
@@ -31,18 +33,18 @@ index_layout = html.Div(
 def get_dashboard_list():
     elements = [
         html.H3("Add new elements"),
-        dbc.Row([dbc.Col(dcc.Link('New dashboard', href = '/add/dashboard'), width = 1),
-                 dbc.Col(dcc.Link('Update dashboard', href = '/update/dashboard'), width = 1)]),
-        dbc.Row([dbc.Col(dcc.Link('New sensor', href = '/add/sensor'), width = 1),
-                 dbc.Col(dcc.Link('Update sensor', href = '/update/sensor'), width = 1),
-                 dbc.Col(dcc.Link('List sensors', href = '/list/sensor'), width = 1),
-                 dbc.Col(dcc.Link('List publications', href = '/list/publications'), width = 1)]),
+        dbc.Row([dbc.Col(dcc.Link('New dashboard', href = app_prefix + '/add/dashboard'), width = 1),
+                 dbc.Col(dcc.Link('Update dashboard', href = app_prefix + '/update/dashboard'), width = 1)]),
+        dbc.Row([dbc.Col(dcc.Link('New sensor', href = app_prefix + '/add/sensor'), width = 1),
+                 dbc.Col(dcc.Link('Update sensor', href = app_prefix + '/update/sensor'), width = 1),
+                 dbc.Col(dcc.Link('List sensors', href = app_prefix + '/list/sensor'), width = 1),
+                 dbc.Col(dcc.Link('List publications', href = app_prefix + '/list/publications'), width = 1)]),
         html.H3("Available dashboards"), ]
 
     db_list = mongoClient.get_dashboards_dropdown()
     for db in db_list:
         elements.append(
-            dbc.Row(dbc.Col(dcc.Link(db["label"], href = f"/dashboard/{db['label']}"))))
+            dbc.Row(dbc.Col(dcc.Link(db["label"], href = f"{app_prefix}/dashboard/{db['label']}"))))
 
     return elements
 
@@ -55,21 +57,21 @@ app.layout = index_layout
 def display_page(pathname):
     if pathname is None:
         return dash.no_update
-    if pathname == "/":
+    if pathname == app_prefix + "/":
         return get_dashboard_list()
-    elif pathname == "/add/sensor":
+    elif pathname == app_prefix + "/add/sensor":
         return add_sensor.get_layout(update = False)
-    elif pathname == "/update/sensor":
+    elif pathname == app_prefix + "/update/sensor":
         return add_sensor.get_layout(update = True)
-    elif pathname == "/list/sensor":
+    elif pathname == app_prefix + "/list/sensor":
         return add_sensor.get_layout(dolist = True)
-    elif pathname == "/list/publications":
+    elif pathname == app_prefix + "/list/publications":
         return publications.get_layout()
-    elif pathname == "/add/dashboard":
+    elif pathname == app_prefix + "/add/dashboard":
         return add_dashboard.get_layout(update = False)
-    elif pathname == "/update/dashboard":
+    elif pathname == app_prefix + "/update/dashboard":
         return add_dashboard.get_layout(update = True)
-    elif pathname[:11] == '/dashboard/':
+    elif pathname[:11+strlen(app_prefix)] == app_prefix + '/dashboard/':
         return dashboard.generate_layout(pathname.split("/")[-1])
     else:
         return '404'
