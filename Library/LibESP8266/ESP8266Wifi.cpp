@@ -137,19 +137,19 @@ bool ESP8266Wifi::checkDataCapture() {
   DEBUGS_PRAWLN((*_logSerial), response);
   char * ipd = strstr_P(response, PSTR("+IPD"));
   char * connect = strstr_P(response, PSTR("CONNECT\r"));
-  char * close = strstr_P(response, PSTR("CLOSE\r"));
+  char * close = strstr_P(response, PSTR("CLOSED\r"));
   char * wifi = strstr_P(response, PSTR("WIFI DISCONNECT\r"));
   if(ipd){
     read_payload(ipd, len-(ipd-response));
     has_response = true;
   }
   else if(connect){
-    new_connection(connect);
+    new_connection(connect-2);
     has_response = true;
   }
   else if(close){
     Serial.println("Closed connection");
-    end_connection(close);
+    end_connection(close-2);
     has_response = true;
   }
   else if(wifi){
