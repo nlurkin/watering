@@ -11,7 +11,7 @@
 #ifndef DEBUGUTILS_H
 #define DEBUGUTILS_H
 
-#ifdef DEBUG
+#ifdef DEBUG_LIB
 #include <Arduino.h>
 #define DEBUGS_PLN(ser, str)                \
    ser.print(millis());            \
