@@ -136,10 +136,20 @@ bool ESP8266Wifi::checkDataCapture() {
   DEBUGS_P((*_logSerial), F("> "));
   DEBUGS_PRAWLN((*_logSerial), response);
   char * ipd = strstr_P(response, PSTR("+IPD"));
+  char * connect = strstr_P(response, PSTR("CONNECT\r"));
+  char * close = strstr_P(response, PSTR("CLOSE\r"));
+  char * wifi = strstr_P(response, PSTR("WIFI DISCONNECT\r"));
   if(ipd){
     read_payload(ipd, len-(ipd-response));
     has_response = true;
   }
+  else if(connect)
+    new_connection(connect);
+  else if(close)
+    end_connection(close);
+  else if(wifi)
+    disconnect();
+
   DEBUGS_PRAWLN((*_logSerial), "");
   DEBUGS_PRAWLN((*_logSerial), F("============"));
   DEBUGS_PRAWLN((*_logSerial), "");
