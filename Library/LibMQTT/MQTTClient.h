@@ -13,7 +13,7 @@
 class MQTTClient {
 public:
   static constexpr uint8_t MAX_MESSAGE_IDS = 5;
-  static constexpr size_t  MAX_MESSAGE_LENGTH = 70;
+  static constexpr size_t  MAX_MESSAGE_LENGTH = 300;
   static constexpr size_t  MAX_HEADER_LENGTH = 50;
   static constexpr size_t  MAX_PACKET_LENGTH = MAX_MESSAGE_LENGTH + MAX_HEADER_LENGTH;
 

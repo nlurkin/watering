@@ -119,7 +119,5 @@ bool MQTTControl::publishAdvertise(const char *services) {
   strcpy(pubname, _name);
   pubname[strlen(_name)] = '/';
   strcpy_P(pubname + (strlen(_name)+1), PSTR("advertise"));
-  _mqtt->publish(pubname, services);
-  delay(10);
-  return true;
+  return _mqtt->publish(pubname, services);
 }
