@@ -51,6 +51,7 @@ void setup(){
   while(!pubServer.advertise() && trials++<10) {}
   last_millis = millis();
   heartbeat_millis = millis();
+  waterSystem.loaded();
 }
 
 void loop(){

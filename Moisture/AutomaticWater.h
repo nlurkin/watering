@@ -33,6 +33,7 @@ public:
   virtual ~AutomaticWater();
 
   void initSystem();
+  void loaded();
   void setPublicationServer(ControlServer *server);
 
   void runCalibrationMode(LCDButton::button button);

@@ -251,3 +251,7 @@ void LCDWaterDisplay::disableMenuChange() {
 void LCDWaterDisplay::enableMenuChange() {
   _lcd.EnableNavigation(true);
 }
+
+void LCDWaterDisplay::loaded() {
+  _m_welcome.clear_init();
+}

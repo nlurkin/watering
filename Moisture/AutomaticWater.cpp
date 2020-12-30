@@ -66,6 +66,10 @@ void AutomaticWater::initSystem(){
   lcdDisplay.initRunning(true);
 }
 
+void AutomaticWater::loaded() {
+  lcdDisplay.loaded();
+}
+
 /**
  * Sets the publication server if it is to be used
  * @param server: PubServer instance

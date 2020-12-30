@@ -16,7 +16,10 @@ public:
   virtual ~MenuWelcome();
   virtual void init();
 
+  void clear_init();
+
 private:
+  char          _init_text[5];
   LiquidScreen *_s_welcome;
   LiquidLine   *_l_welcome_top;
   LiquidLine   *_l_welcome_bottom;

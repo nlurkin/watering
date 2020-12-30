@@ -46,6 +46,8 @@ public:
   void disableMenuChange();
   void enableMenuChange();
 
+  void loaded();
+
   LCDButton::button tick();
 
   AW::MainMode getMainMode() const { return _gMainMode; }
