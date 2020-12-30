@@ -73,7 +73,11 @@ bool MQTTControl::addCommand(PublicationBase *cmd) {
   if(!ControlServer::addCommand(cmd))
     return false;
 
-  return _mqtt->subscribe(cmd->getName());
+  char pubname[PublicationBase::MAX_NAME_LENGTH*2];
+  strcpy(pubname, _name);
+  strcpy_P(pubname + strlen(_name), PSTR("/cmd/"));
+  strcpy(pubname + (strlen(_name)+5), cmd->getName());
+  return _mqtt->subscribe(pubname);
 }
 
 bool MQTTControl::publishAdvertise(const char *services) {
