@@ -21,6 +21,7 @@ public:
   virtual ~MQTTClient();
 
   void setDestination(const char *address, uint16_t port);
+  void setUserPass(const char *username, const char *password);
   void begin();
 
   bool connect();
@@ -39,6 +40,8 @@ private:
   char *_dest_address;
   uint16_t _dest_port;
   char *_name;
+  char *_username;
+  char *_password;
   int8_t _msg_ids[MAX_MESSAGE_IDS];
   ESP8266Wifi &_wifi;
 };

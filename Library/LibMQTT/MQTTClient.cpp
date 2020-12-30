@@ -12,6 +12,8 @@ MQTTClient::MQTTClient(ESP8266Wifi &wifi, const char* name) :
   _connection(-1),
   _dest_address(nullptr),
   _dest_port(0),
+  _username(nullptr),
+  _password(nullptr),
   _wifi(wifi)
 {
   for(uint8_t i=0;i<MAX_MESSAGE_IDS; ++i)
@@ -25,12 +27,25 @@ MQTTClient::~MQTTClient() {
   if(_name)
     delete[] _name;
   _name = nullptr;
+  if(_username)
+    delete[] _username;
+  _username = nullptr;
+  if(_password)
+    delete[] _password;
+  _password = nullptr;
 }
 
 void MQTTClient::setDestination(const char *address, uint16_t port) {
   _dest_address = new char[strlen(address)+1];
   strcpy(_dest_address, address);
   _dest_port = port;
+}
+
+void MQTTClient::setUserPass(const char *username, const char *password) {
+  _username = new char[strlen(username)+1];
+  strcpy(_username, username);
+  _password = new char[strlen(password)+1];
+  strcpy(_password, password);
 }
 
 bool MQTTClient::connect() {
@@ -98,7 +113,10 @@ bool MQTTClient::send_connect(uint8_t conn) {
 
   packet.addVarHeader("MQTT");     //Protocol name
   packet.addVarHeader(0x04);       //Protocol version
-  packet.addVarHeader((uint8_t)0); //Connect flags
+  if(_username)
+    packet.addVarHeader(MQTT::USERNAME | MQTT::PASSWORD); //Connect flags
+  else
+    packet.addVarHeader((uint8_t)0); //Connect flags
   packet.addVarHeader((uint8_t)0); //Keep alive MSB
   packet.addVarHeader(120);        //Keep alive LSB
 
@@ -106,6 +124,11 @@ bool MQTTClient::send_connect(uint8_t conn) {
     packet.addPayload(_name);
   else
     packet.addPayload("arduino");
+
+  if(_username){
+    packet.addPayload(_username);
+    packet.addPayload(_password);
+  }
 
   packet.computeRLength();
 
