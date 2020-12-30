@@ -173,6 +173,30 @@ size_t Buffer::get(char *dest, size_t max, char until) {
   return read;
 }
 
+size_t Buffer::copyContent(char *dest, size_t max) const {
+  size_t strlen = len();
+  if(strlen==0){ //Shortcut, nothing to do
+    dest[0] = '\0';
+    return 0;
+  }
+  size_t t_len = 0;
+  if(strlen>max-1)
+    strlen = max-1;
+
+  char *intermediate = _p_begin;
+  if(intermediate+strlen>_buffer+_size){
+    size_t t_len = _buffer+_size-intermediate+1;
+    memcpy(dest, intermediate, t_len);
+    increment(intermediate, t_len);
+    dest += t_len;
+    strlen -= t_len-1;
+  }
+
+  memcpy(dest, intermediate, strlen);
+  dest[strlen+t_len] = '\0';
+  return strlen+t_len;
+}
+
 String Buffer::getString() {
   char buffer[_size];
   get(buffer, _size);

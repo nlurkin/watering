@@ -31,6 +31,7 @@ public:
   char   read();
   size_t get(char *dest, size_t max);
   size_t get(char *dest, size_t max, char until);
+  size_t copyContent(char *dest, size_t max) const;
   String getString();
 
 private:

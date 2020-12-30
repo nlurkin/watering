@@ -35,6 +35,7 @@ public:
   size_t readUntil(char *to, size_t max, const char c='\n', unsigned int timeout=1000);
   size_t readRaw(char * to, size_t max);
   size_t getLastData(char *to, size_t max);
+  size_t copyLastData(char *to, size_t max);
   size_t dataAvailable() const;
 
   //General commands

@@ -128,6 +128,10 @@ size_t ATClient::getLastData(char *to, size_t max) {
   return _dataCapture.get(to, max);
 }
 
+size_t ATClient::copyLastData(char *to, size_t max) {
+  return _dataCapture.copyContent(to, max);
+}
+
 size_t ATClient::dataAvailable() const {
   return _dataCapture.len();
 }

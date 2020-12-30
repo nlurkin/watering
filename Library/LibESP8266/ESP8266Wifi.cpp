@@ -128,7 +128,7 @@ bool ESP8266Wifi::checkDataCapture() {
     return false;
 
   char response[ATClient::DATA_BUFFER_SIZE];
-  size_t len = _client.getLastData(response, _client.dataAvailable());
+  size_t len = _client.copyLastData(response, _client.dataAvailable());
 
   bool has_response = false;
   //At the moment deal only with +IPD
@@ -143,12 +143,19 @@ bool ESP8266Wifi::checkDataCapture() {
     read_payload(ipd, len-(ipd-response));
     has_response = true;
   }
-  else if(connect)
+  else if(connect){
     new_connection(connect);
-  else if(close)
+    has_response = true;
+  }
+  else if(close){
+    Serial.println("Closed connection");
     end_connection(close);
-  else if(wifi)
+    has_response = true;
+  }
+  else if(wifi){
     disconnect();
+    has_response = true;
+  }
 
   DEBUGS_PRAWLN((*_logSerial), "");
   DEBUGS_PRAWLN((*_logSerial), F("============"));
