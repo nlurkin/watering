@@ -38,7 +38,7 @@ def build_sensor_card(sensor):
             day = to_utc().strftime("%Y-%m-%d")
             controller_last_value = mongoClient.get_controller_values(sensor["sensor"], day)
             sensor_element.append(dbc.Checklist(options = [{"label": "", "value": 1}],
-            value = [] if (len(controller_last_value) == 0 or controller_last_value[-1]["val"] == 0) else [1], id = {"type": "bool_controller", "sensor": sensor["sensor"]}, switch = True,))
+            value = [] if (controller_last_value is None or len(controller_last_value) == 0 or controller_last_value[-1]["val"] == 0) else [1], id = {"type": "bool_controller", "sensor": sensor["sensor"]}, switch = True,))
             sensor_element.append(html.P(id = {"type": "dummy", "sensor": sensor["sensor"]}))
     elif sensor["data-type"] == "float":
         sensor_element = [dcc.Graph(
@@ -74,6 +74,8 @@ def generate_layout(dashboard_name):
 def update_string_metrics(_, sensor_name):
     day = to_utc().strftime("%Y-%m-%d")
     value_doc = mongoClient.get_sensor_values(sensor_name["sensor"], day)
+    if not value_doc:
+        return ""
     return "".join([_["val"] for _ in value_doc["samples"]])
 
 

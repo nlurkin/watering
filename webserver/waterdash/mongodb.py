@@ -137,9 +137,12 @@ class myMongoClient(object):
                               upsert = True)
 
     def get_controller_values(self, sensor_name, day):
-        return self.client["sensors"][sensor_name].find_one({"day": {"$lte": day}, "setpoint": {"$exists": True}},
+        doc = self.client["sensors"][sensor_name].find_one({"day": {"$lte": day}, "setpoint": {"$exists": True}},
                                                             {"setpoint": 1, "_id": 0},
-                                                            sort = [("day", pymongo.DESCENDING), ("last", pymongo.DESCENDING)])["setpoint"]
+                                                            sort = [("day", pymongo.DESCENDING), ("last", pymongo.DESCENDING)])
+        if doc:
+            return doc["setpoint"]
+        return None
 
     def clear_advertised_current(self):
         self.advertised_cur_db.drop()
