@@ -14,7 +14,7 @@ from dash.dependencies import Input, Output
 from waterapp import app, server
 from apps import dashboard, add_sensor, add_dashboard, publications
 from waterapp import mongoClient
-from data.config import VALID_USERNAME_PASSWORD_PAIRS
+from data.config import VALID_USERNAME_PASSWORD_PAIRS, app_prefix
 
 auth = dash_auth.BasicAuth(
     app,
@@ -23,8 +23,6 @@ auth = dash_auth.BasicAuth(
 
 left_col = []
 right_col = []
-
-app_prefix = "/arduihome"
 
 # Define the app
 index_layout = html.Div(
@@ -78,7 +76,7 @@ def display_page(pathname):
         return add_dashboard.get_layout(update = False)
     elif pathname == app_prefix + "/update/dashboard":
         return add_dashboard.get_layout(update = True)
-    elif pathname[:11+strlen(app_prefix)] == app_prefix + '/dashboard/':
+    elif pathname[:11 + len(app_prefix)] == app_prefix + '/dashboard/':
         return dashboard.generate_layout(pathname.split("/")[-1])
     else:
         return '404'

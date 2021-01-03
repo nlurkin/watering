@@ -12,9 +12,8 @@ import paho.mqtt.client as mqtt
 from mongodb import myMongoClient, to_utc
 import re
 import time
+from data.config import broker_creds, mongo_creds
 
-broker_address = "192.168.0.15"
-db_address = "192.168.0.18"
 db = None
 client = None
 
@@ -52,7 +51,7 @@ def get_db():
     global db
     if db is None:
         print("Connecting to DB", end = '')
-        db = myMongoClient(db_address, 27017)
+        db = myMongoClient(mongo_creds["server"], 27017, mongo_creds["username"], mongo_creds["password"])
         print("..")
         db.connect()
         print("Connected")
@@ -68,7 +67,9 @@ def get_client():
         client.on_message = on_message
         client.on_log = on_log
         
-        client.connect(broker_address, 1883, 60)
+        client.username_pw_set(broker_creds["username"], broker_creds["password"])
+
+        client.connect(broker_creds["server"], 1883, 60)
         client.loop_start()
         
     return client
