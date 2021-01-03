@@ -200,6 +200,8 @@ def update_bool_metrics(_, sensor_name, control_switches, sd, ed):
                     connectgaps = True
                     )
         )
+
+    set_style(figure, sensor_doc["display"], control_switches, min_max)
     return figure
 
 
@@ -237,4 +239,40 @@ def update_float_metrics(_, sensor_name, control_switches, sd, ed):
                     name = "Read"
                     )
                 )
+
+    set_style(figure, sensor_doc["display"], control_switches, min_max)
     return figure
+
+
+def set_style(figure, title, control_switches, data_range):
+    offset_minutes = 2
+    data_range[0] -= datetime.timedelta(minutes = 20)
+    data_range[1] += datetime.timedelta(minutes = 20)
+    xaxis = dict()
+    if 1 in control_switches:
+        now = from_utc()
+        init_range = [now - datetime.timedelta(hours = 5), now + datetime.timedelta(minutes = offset_minutes)]
+        xaxis.update({"rangeslider_visible": True,
+              "range": init_range,
+              "rangeslider_range": data_range, })
+
+    xaxis["rangeselector"] = dict(
+        buttons = list([
+            dict(count = 1, label = "1h", step = "hour", stepmode = "todate"),
+            dict(count = 30 + offset_minutes, label = "30m", step = "minute", stepmode = "todate"),
+            dict(count = 5 + offset_minutes, label = "5m", step = "minute", stepmode = "todate"),
+            dict(step = "all")
+        ],),
+        font_color = 'black'
+    )
+
+    figure.update_layout(
+    title = dict(text = title,
+             x = 0.5,),
+    margin_t = 50,
+    margin_b = 10,
+    height = 200,
+    xaxis = xaxis,
+    # uirevision = "keep",
+    template = "plotly_dark",
+    )
