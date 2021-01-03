@@ -18,8 +18,10 @@ def to_utc(dt = None):
     return tz.localize(dt).astimezone(pytz.utc)
 
 
-def from_utc(dt):
-    return None  # tz.localize(datetime.now()).astimezone(pytz.utc)
+def from_utc(dt = None, timezone = "Europe/Brussels"):
+    if dt is None:
+        dt = tz.localize(datetime.now()).astimezone(pytz.utc)
+    return dt.astimezone(pytz.timezone(timezone))
 
 
 class myMongoClient(object):
@@ -98,6 +100,11 @@ class myMongoClient(object):
         return self.client["sensors"][sensor_name].find_one({"day": {"$lte": day}},
                                                             {"samples": 1, "setpoint": 1, "_id": 0},
                                                             sort = [("day", pymongo.DESCENDING), ("last", pymongo.DESCENDING)])
+
+    def get_all_sensor_values(self, sensor_name, d1, d2):
+        return self.client["sensors"][sensor_name].find({"day": {"$gte": d1, "$lte": d2}},
+                                                            {"samples": 1, "setpoint": 1, "_id": 0, "first": 1},
+                                                            sort = [("day", pymongo.ASCENDING), ("first", pymongo.ASCENDING)])
 
     def get_sensors_list(self):
         return list(self.sensors_db.find({}))

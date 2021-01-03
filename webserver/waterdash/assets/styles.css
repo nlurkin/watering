@@ -370,7 +370,7 @@ li {
 table {
   border-collapse: collapse;
 }
-th, td {
+th:not[Calendar], td:not[Calendar] {
   padding: 12px 15px;
   text-align: left;
   border-bottom: 1px solid #E1E1E1;
