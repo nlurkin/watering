@@ -97,35 +97,18 @@ def generate_layout(dashboard_name):
             ]
 
 
-@app.callback(Output({"type": "string_sensor", "sensor": MATCH}, 'value'),
-              [Input('interval-component', 'n_intervals')],
-              [State({"type": "string_sensor", "sensor": MATCH}, 'id')])
-def update_string_metrics(_, sensor_name):
+def get_and_merge_data(sensor_name, sd, ed):
     day = to_utc().strftime("%Y-%m-%d")
-    value_doc = mongoClient.get_sensor_values(sensor_name["sensor"], day)
-    if not value_doc:
-        return ""
-    return "".join([_["val"] for _ in value_doc["samples"]])
+    value_doc = mongoClient.get_all_sensor_values(sensor_name, dateutil.parser.parse(sd).strftime("%Y-%m-%d"), dateutil.parser.parse(ed).strftime("%Y-%m-%d"))
+    sensor_doc = mongoClient.get_sensor_by_name(sensor_name)
+    values = []
+    for doc in value_doc:
+        values.extend(doc["samples"])
+    if len(values) == 0:
+        value_doc = None
+    else:
+        value_doc = {'samples': values}
 
-
-
-@app.callback(
-    Output("control_menu", "is_open"),
-    [Input("control_menu_btn", "n_clicks")],
-    [State("control_menu", "is_open")],
-)
-def toggle_collapse(n, is_open):
-    if n:
-        return not is_open
-    return is_open
-
-@app.callback(Output({"type": "bool_sensor", "sensor": MATCH}, 'figure'),
-              [Input('interval-component', 'n_intervals')],
-              [State({"type": "bool_sensor", "sensor": MATCH}, 'id')])
-def update_bool_metrics(_, sensor_name):
-    day = to_utc().strftime("%Y-%m-%d")
-    value_doc = mongoClient.get_sensor_values(sensor_name["sensor"], day)
-    sensor_doc = mongoClient.get_sensor_by_name(sensor_name["sensor"])
     with_setpoint = False
     if value_doc is None:
         df = pd.DataFrame({"val": []})
@@ -144,15 +127,51 @@ def update_bool_metrics(_, sensor_name):
         new_index = to_utc()
         df = df.append(pd.DataFrame(index = [new_index], data = df.tail(1).values, columns = df.columns))
 
-    df.index = df.index.tz_convert("Europe/Brussels")
-    figure = go.Figure(
-        layout_title_text = sensor_doc["display"],
-        layout_title_x = 0.5,
-        layout_margin_t = 50,
-        layout_margin_b = 10,
-        layout_height = 200,
-        layout_template = "plotly_dark",
-        ).add_trace(go.Scatter(
+    if len(df) > 0:
+        df.index = df.index.tz_convert("Europe/Brussels")
+        min_max = [df.index[0], df.index[-1]]
+    else:
+        min_max = [from_utc(), from_utc()]
+
+    return df, sensor_doc, min_max, with_setpoint
+
+
+@app.callback(
+    Output("control_menu", "is_open"),
+    [Input("control_menu_btn", "n_clicks")],
+    [State("control_menu", "is_open")],
+)
+def toggle_collapse(n, is_open):
+    if n:
+        return not is_open
+    return is_open
+
+@app.callback(Output({"type": "string_sensor", "sensor": MATCH}, 'value'),
+              [Input('interval-component', 'n_intervals')],
+              [State({"type": "string_sensor", "sensor": MATCH}, 'id'),
+               State("control_switches", "value"),
+               State("date_range", "start_date"),
+               State("date_range", "end_date")
+               ])
+def update_string_metrics(_, sensor_name, control_switches, sd, ed):
+    day = to_utc().strftime("%Y-%m-%d")
+    value_doc = mongoClient.get_sensor_values(sensor_name["sensor"], sd, ed)
+    if not value_doc:
+        return ""
+    return "".join([_["val"] for _ in value_doc["samples"]])
+
+
+@app.callback(Output({"type": "bool_sensor", "sensor": MATCH}, 'figure'),
+              [Input('interval-component', 'n_intervals')],
+              [State({"type": "bool_sensor", "sensor": MATCH}, 'id'),
+               State("control_switches", "value"),
+               State("date_range", "start_date"),
+               State("date_range", "end_date")
+               ])
+def update_bool_metrics(_, sensor_name, control_switches, sd, ed):
+    df, sensor_doc, min_max, with_setpoint = get_and_merge_data(sensor_name["sensor"], sd, ed)
+
+    figure = go.Figure().add_trace(go.Scatter(
                     x = df.index,
                     y = df["val"],
                     mode = "lines+markers",
@@ -191,31 +210,14 @@ def update_bool_controller_setpoint(controller_value, sensor_name):
 
 @app.callback(Output({"type": "float_sensor", "sensor": MATCH}, 'figure'),
               [Input('interval-component', 'n_intervals')],
-              [State({"type": "float_sensor", "sensor": MATCH}, 'id')])
-def update_float_metrics(_, sensor_name):
-    day = to_utc().strftime("%Y-%m-%d")
-    value_doc = mongoClient.get_sensor_values(sensor_name["sensor"], day)
-    sensor_doc = mongoClient.get_sensor_by_name(sensor_name["sensor"])
-    if value_doc is None:
-        df = pd.DataFrame({"val": []})
-    else:
-        if "samples" not in value_doc:
-            df = pd.DataFrame({"val": []})
-        else:
-            df = pd.DataFrame(value_doc["samples"])
-            df.index = pd.to_datetime(df['ts'], unit = "s", utc = True)
-        new_index = to_utc()
-        df = df.append(pd.DataFrame(index = [new_index], data = df.tail(1).values, columns = df.columns))
+              [State({"type": "float_sensor", "sensor": MATCH}, 'id'),
+               State("control_switches", "value"),
+               State("date_range", "start_date"),
+               State("date_range", "end_date")])
+def update_float_metrics(_, sensor_name, control_switches, sd, ed):
+    df, sensor_doc, min_max, with_setpoint = get_and_merge_data(sensor_name["sensor"], sd, ed)
 
-    df.index = df.index.tz_convert("Europe/Brussels")
-    figure = go.Figure(
-        layout_title_text = sensor_doc["display"],
-        layout_title_x = 0.5,
-        layout_margin_t = 50,
-        layout_margin_b = 10,
-        layout_height = 200,
-        layout_template = "plotly_dark",
-        ).add_trace(go.Scatter(
+    figure = go.Figure().add_trace(go.Scatter(
                     x = df.index,
                     y = df["val"],
                     mode = "lines+markers",
