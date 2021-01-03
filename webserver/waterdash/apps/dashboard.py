@@ -58,12 +58,41 @@ def generate_dashboard_column(col_description):
     return col
 
 
+def build_controls():
+    now = from_utc()
+    switches = dbc.FormGroup([
+        dbc.Label("Controls"),
+        dbc.Checklist(
+            options = [
+                {"label": "Autoscale", "value": 1},
+            ],
+            value = [1],
+            id = "control_switches",
+            switch = True,)],
+        )
+    date_range = dbc.FormGroup([dbc.Label("Data range"),
+        dcc.DatePickerRange(id = "date_range",
+                            display_format = "D/M/Y",
+                            start_date = now - datetime.timedelta(days = 1),
+                            end_date = now + datetime.timedelta(minutes = 10),
+                            first_day_of_week = 1,
+                            )],
+        )
+    update_interval = dbc.FormGroup([dbc.Label("Refresh rate [s]"),
+        dcc.Input(type = "number", id = "refresh_rate", value = 10, debounce = True),
+        ]
+        )
+    return dbc.Collapse(dbc.Row([dbc.Col(switches, width = 1), dbc.Col(date_range, width = 2), dbc.Col(update_interval, width = 1)]), id = "control_menu")
+
+
 def generate_layout(dashboard_name):
     db_doc = mongoClient.get_dashboard_by_name(dashboard_name)
     left_col = generate_dashboard_column(db_doc["left"])
     right_col = generate_dashboard_column(db_doc["right"])
 
     return [dcc.Interval(id = 'interval-component', interval = 1 * 10000, n_intervals = 0),
+            dbc.Row([dbc.Button("Controls", color = "link", id = "control_menu_btn")]),
+            build_controls(),
             dbc.Row([dbc.Col(left_col, style = {"padding": "0px"}), dbc.Col(right_col, style = {"padding": "0px"})])
             ]
 
@@ -78,6 +107,17 @@ def update_string_metrics(_, sensor_name):
         return ""
     return "".join([_["val"] for _ in value_doc["samples"]])
 
+
+
+@app.callback(
+    Output("control_menu", "is_open"),
+    [Input("control_menu_btn", "n_clicks")],
+    [State("control_menu", "is_open")],
+)
+def toggle_collapse(n, is_open):
+    if n:
+        return not is_open
+    return is_open
 
 @app.callback(Output({"type": "bool_sensor", "sensor": MATCH}, 'figure'),
               [Input('interval-component', 'n_intervals')],
