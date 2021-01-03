@@ -9,7 +9,7 @@ import dash
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
-from dash.dependencies import Input, Output, State, MATCH
+from dash.dependencies import Input, Output, State, MATCH, ALL
 import plotly.graph_objects as go
 import pandas as pd
 from waterapp import app, mongoClient
@@ -242,6 +242,19 @@ def update_float_metrics(_, sensor_name, control_switches, sd, ed):
 
     set_style(figure, sensor_doc["display"], control_switches, min_max)
     return figure
+
+
+@app.callback(Output("control_switches", "value"),
+        [Input({"type": "float_sensor", "sensor": ALL}, 'relayoutData')],
+        [State("control_switches", "value")]
+        )
+def update_output_div(zoom, switches):
+    zoom_changes = ["xaxis.range" in _ for _ in zoom if _ is not None]
+    if sum(zoom_changes) == len(zoom) or sum(zoom_changes) == 0:
+        return dash.no_update
+    if 1 in switches:
+        switches.remove(1)
+    return switches
 
 
 def set_style(figure, title, control_switches, data_range):
