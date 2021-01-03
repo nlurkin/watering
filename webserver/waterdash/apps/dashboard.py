@@ -13,7 +13,9 @@ from dash.dependencies import Input, Output, State, MATCH
 import plotly.graph_objects as go
 import pandas as pd
 from waterapp import app, mongoClient
-from mongodb import to_utc
+from mongodb import to_utc, from_utc
+import datetime
+import dateutil
 
 
 def build_sensor_card(sensor):
@@ -145,6 +147,17 @@ def toggle_collapse(n, is_open):
     if n:
         return not is_open
     return is_open
+
+
+@app.callback(Output("interval-component", "interval"),
+              Input("refresh_rate", "value"))
+def update_interval(seconds):
+    ctx = dash.callback_context
+    if not ctx.triggered:
+        return dash.no_update
+
+    return seconds * 1000
+
 
 @app.callback(Output({"type": "string_sensor", "sensor": MATCH}, 'value'),
               [Input('interval-component', 'n_intervals')],
