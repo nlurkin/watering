@@ -143,16 +143,16 @@ bool ESP8266Wifi::checkDataCapture() {
     read_payload(ipd, len-(ipd-response));
     has_response = true;
   }
-  else if(connect){
+  if(connect){
     new_connection(connect-2);
     has_response = true;
   }
-  else if(close){
+  if(close){
     Serial.println("Closed connection");
     end_connection(close-2);
     has_response = true;
   }
-  else if(wifi){
+  if(wifi){
     disconnect();
     has_response = true;
   }
