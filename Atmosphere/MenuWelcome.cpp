@@ -9,6 +9,7 @@
 
 MenuWelcome::MenuWelcome(LiquidCrystal& ref) :
   SubMenu(ref),
+  _sym_connected("  -"),
   _project_name{"Atmosphere"}
 {
   init();
@@ -22,9 +23,16 @@ MenuWelcome::~MenuWelcome() {
 
 void MenuWelcome::init() {
   _l_welcome_top    = new LiquidLine(1, 0, "LiquidMenu ", LIQUIDMENU_VERSION);
-  _l_welcome_bottom = new LiquidLine(0, 1, _project_name);
+  _l_welcome_bottom = new LiquidLine(0, 1, _project_name, _sym_connected);
   _s_welcome        = new LiquidScreen(*_l_welcome_top, *_l_welcome_bottom);
 
   _menu.add_screen(*_s_welcome);
   changed();
+}
+
+void MenuWelcome::connected(bool val) {
+  if(val)
+    strcpy(_sym_connected, "  +");
+  else
+    strcpy(_sym_connected, "  -");
 }

@@ -16,7 +16,10 @@ public:
   virtual ~MenuWelcome();
   virtual void init();
 
+  void connected(bool val);
+
 private:
+  char _sym_connected[4];
   const char _project_name[17];     /** Project name to be displayed on the welcome screen */
   LiquidScreen *_s_welcome;
   LiquidLine   *_l_welcome_top;
