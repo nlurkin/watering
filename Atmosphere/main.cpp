@@ -31,8 +31,10 @@ BME280Reader bme1;
 unsigned long last_millis;
 unsigned long heartbeat_millis;
 unsigned long reset_failure;
+bool connected;
 
 void setup() {
+  connected = false;
   Serial.begin(115200);
   Serial1.begin(115200);
 
@@ -60,7 +62,10 @@ void setup() {
   bme1.updateAll();
   pubServer.advertise();
   pubServer.serve(true);
-  
+
+  connected = true;
+  _m_welcome.connected(true);
+
   reset_failure = 0;
 }
 
@@ -68,6 +73,8 @@ bool watchdog() {
   bool watchdog_ok = true;
   if(!wifi.isConnected()){ //Indicate connection lost
     if(!wifi.checkWifiConnection()){ //Double check, maybe only IP lost and recovered afterward
+      _m_welcome.connected(false);
+      connected = false;
       //Seems we really lost the wifi...
       watchdog_ok = false;
       if(reset_failure>10) {// Wifi reconnect failed many times. Try a full RESET of the ESP
@@ -86,6 +93,10 @@ bool watchdog() {
     }
   }
   // watchdog_ok is true if we have connection, or if we managed to recover a connection
+  if(watchdog_ok && !connected) {
+    _m_welcome.connected(true);
+    connected = true;
+  }
   return watchdog_ok;
 }
 
