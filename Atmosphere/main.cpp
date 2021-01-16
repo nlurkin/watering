@@ -72,6 +72,7 @@ bool watchdog() {
       watchdog_ok = false;
       if(reset_failure>10) {// Wifi reconnect failed many times. Try a full RESET of the ESP
         watchdog_ok = wifi.init(ssid, pwd, true, false);
+        reset_failure = 0;
         if(watchdog_ok)
           pubServer.begin();
       }
