@@ -10,6 +10,7 @@
 
 ATClient::ATClient(Stream* serial) :
   _set_default(false),
+  _last_error(NO_ERROR),
   _timeout(5000),
   _atSerial(serial),
   _logSerial(&Serial),
@@ -403,8 +404,19 @@ bool ATClient::CIPSTART(TCP_TYPE type, const char *address, uint16_t port, int8_
   bool ans = checkAnswer(cmd);
   if(!ans){
     int at = _dataCapture.containsAt("ALREADY CONNECTED");
-    Serial.println(at);
-    return at!=-1;
+    if(at!=-1){
+      // Already opened
+      Serial.println(at);
+      return true;
+    }
+    at = _dataCapture.containsAt("Link type ERROR");
+    if(at!=-1){
+      // Probably not the correct mux
+      Serial.println(at);
+      _last_error = LINK_TYPE;
+      return false;
+    }
+
   }
   return ans;
 }

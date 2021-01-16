@@ -307,6 +307,10 @@ int ESP8266Wifi::openConnection(const char *address, uint16_t port) {
       init_connection(4);
     return 4;
   }
+
+  if(_client.getLastErrorType()==ATClient::LINK_TYPE){
+    _client.CIPMUX(true);
+  }
   return -1;
 }
 
@@ -314,6 +318,10 @@ int ESP8266Wifi::openConnection(uint8_t ip[4], uint16_t port) {
   if(_client.CIPSTART(ATClient::TCP, ip, port, 4)){
       init_connection(4);
     return 4;
+  }
+
+  if(_client.getLastErrorType()==ATClient::LINK_TYPE){
+    _client.CIPMUX(true);
   }
   return -1;
 }

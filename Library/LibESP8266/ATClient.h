@@ -18,6 +18,7 @@
 class ATClient {
 public:
   enum TCP_TYPE {TCP, UDP};
+  enum ERROR_TYPE {NO_ERROR, LINK_TYPE};
   static constexpr size_t BUFFER_SIZE = 64; // Doubles the effective buffer size (64 from serial + 64 here)
   static constexpr size_t DATA_BUFFER_SIZE = 150; // Maximum amount of char while waiting for a specific message
 
@@ -37,6 +38,8 @@ public:
   size_t getLastData(char *to, size_t max);
   size_t copyLastData(char *to, size_t max);
   size_t dataAvailable() const;
+
+  ERROR_TYPE getLastErrorType() { ERROR_TYPE val = _last_error; _last_error = NO_ERROR; return val; }
 
   //General commands
   bool AT();
@@ -101,6 +104,7 @@ private:
   bool waitMessage(const __FlashStringHelper *message);
 
   bool _set_default;
+  ERROR_TYPE _last_error;
   unsigned long _timeout;
   Stream *_atSerial;
   Stream *_logSerial;
