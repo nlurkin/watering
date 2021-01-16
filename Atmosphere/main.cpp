@@ -35,12 +35,12 @@ void setup() {
   Serial.begin(115200);
   Serial1.begin(115200);
 
-  wifi.init(ssid, pwd, false, true);
-
   lcd.add_menu(&_m_welcome);
   lcd.add_menu(&_m_bme);
 
   mqtt.setUserPass("ardhome", "huY!rd89%");
+
+  wifi.init(ssid, pwd, true, false);
 
   bme1.init(&_m_bme);
 
