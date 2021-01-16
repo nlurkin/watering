@@ -76,7 +76,12 @@ bool MQTTClient::publish(const char *pubname, const char *data) {
   if(packet.getTotalLen()>MAX_PACKET_LENGTH)
     return false;
   uint32_t len = packet.fillBuffer(buff);
-  return _wifi.sendPacketLen(buff, _connection, len);
+  if(!_wifi.sendPacketLen(buff, _connection, len)){
+    //Connection might have been dropped.  Force reconnection next time
+    _connection = -1;
+    return false;
+  }
+  return true;
 }
 
 uint8_t MQTTClient::subscribe(const char *pubname) {
