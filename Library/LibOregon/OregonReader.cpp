@@ -95,7 +95,7 @@ bool OregonReader::decode(byte rf_long, RF_STATE state) {
       // probably not a preamble sequence.
       reset();
     }
-    if (_nshorts > 30 && state == RF_FALLING) { // Corresponds to 15 1s
+    if (_nshorts > 20 && state == RF_FALLING) { // Corresponds to 10 1s
     // Can reasonably be guessed we got a preamble sequence
       _state = SYNCINC;
       ++_half_time;
