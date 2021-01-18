@@ -13,10 +13,13 @@
 #include "ESP8266Wifi.h"
 #include "MQTTControl.h"
 #include "BME280Reader.h"
+#include "OregonSetup.h"
 
-ESP8266Wifi wifi;
+ESP8266Wifi wifi(&Serial2);
 MQTTClient mqtt(wifi, "arduino");
 MQTTControl pubServer(mqtt, "arduino");
+
+OregonSetup oregon;
 
 const char ssid[] = {""};
 const char pwd[]  = {""};
@@ -36,7 +39,7 @@ bool connected;
 void setup() {
   connected = false;
   Serial.begin(115200);
-  Serial1.begin(115200);
+  Serial2.begin(115200);
 
   lcd.add_menu(&_m_welcome);
   lcd.add_menu(&_m_bme);
@@ -46,12 +49,14 @@ void setup() {
   wifi.init(ssid, pwd, true, false);
 
   bme1.init(&_m_bme);
+  oregon.init(19);
 
   Serial.println("Stating publication server");
   pubServer.setDestination(serverHost, 1883);
   pubServer.begin();
 
   bme1.setPublicationServer(&pubServer);
+  oregon.setPublicationServer(&pubServer);
 
   Serial.println("Advertising services");
   pubServer.advertise();
@@ -103,6 +108,8 @@ bool watchdog() {
 void loop() {
   if(!watchdog()) // Something wrong, we cannot proceed
     return;
+
+  oregon.updateAll(); //Needs constant update. Does nothing if does not read 433MHz signal, but locks once receiving.
 
   lcd.tick();
   if(millis()-last_millis>60000){
