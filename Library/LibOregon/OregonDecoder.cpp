@@ -164,6 +164,17 @@ uint32_t OregonDecoder::read_bcd(byte nibble, size_t pos) {
  * 15   : 8     (Unknown)
  * 16-17: 24    (Checksum)
  * 18-19: FC    (post-amble)
+ *
+ * For THN132N
+ * 0    : A     (sync)
+ * 1-4  : EC40  (ID)
+ * 5    : 1     (channel)
+ * 6-7  : 49    (Rolling)
+ * 8    : 0     (Flag)
+ * 9-11 : 332   (Temp)
+ * 12   : 0     (Temp sign)
+ * 13-14: 24    (Checksum)
+ * 15   : FC    (post-amble)
  */
 void OregonDecoder::determine_sensor() {
   switch(_sensor_id) {
@@ -188,5 +199,19 @@ void OregonDecoder::determine_sensor() {
     _data_offset[PAEND] = 18;
     _data_end_nibble = 16;
     break;
+  case 0x04CE:
+  case 0x448C:
+    _nibble_dict[9]  = TEMP;
+    _nibble_dict[10] = TEMP;
+    _nibble_dict[11] = TEMP;
+    _nibble_dict[12] = TEMP_SIGN;
+    _nibble_dict[13] = CHECKSUM;
+    _nibble_dict[14] = CHECKSUM;
+    _nibble_dict[15] = PAEND;
+    _data_offset[TEMP] = 9;
+    _data_offset[TEMP_SIGN] = 12;
+    _data_offset[CHECKSUM] = 13;
+    _data_offset[PAEND] = 15;
+    _data_end_nibble = 13;
   }
 }
