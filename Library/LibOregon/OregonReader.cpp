@@ -28,7 +28,9 @@ void OregonReader::setup(uint8_t pin) {
   attachInterrupt(digitalPinToInterrupt(reader_pin), interrupt_width, CHANGE);
 }
 
-OregonReader::OregonReader() {
+OregonReader::OregonReader() :
+  _available(false)
+{
   reset();
 }
 

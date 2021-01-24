@@ -23,10 +23,10 @@ void OregonDecoder::next_nibble(byte nibble, uint8_t nibble_pos) {
 
   size_t pos;
   switch(_nibble_dict[nibble_pos]){
-  case(SYNC):
+  case SYNC:
     _got_sync = nibble == 0xA;
     break;
-  case(ID):
+  case ID:
     pos = nibble_pos - _data_offset[ID];
     _sensor_id |= nibble << pos*4;
     break;
@@ -117,26 +117,26 @@ bool OregonDecoder::is_complete() {
 void OregonDecoder::decode_data(byte nibble, uint8_t nibble_pos) {
   size_t pos;
   switch(_nibble_dict[nibble_pos]){
-  case(TEMP):
+  case TEMP:
     pos = nibble_pos - _data_offset[TEMP];
     _temperature += read_bcd(nibble, pos);
     break;
-  case(TEMP_SIGN):
+  case TEMP_SIGN:
     if(nibble!=0)
     _temperature *= -1;
     break;
-  case(HUMIDITY):
+  case HUMIDITY:
     pos = nibble_pos - _data_offset[HUMIDITY];
     _rel_hum += read_bcd(nibble, pos);
     break;
-  case(EMPTY):
+  case EMPTY:
     //Nothing to do
     break;
-  case(CHECKSUM):
+  case CHECKSUM:
     pos = nibble_pos - _data_offset[CHECKSUM];
     _checksum |= nibble << pos*4;
     break;
-  case(PAEND):
+  case PAEND:
     _postamble_complete = true;
     break;
   default:
@@ -178,9 +178,9 @@ uint32_t OregonDecoder::read_bcd(byte nibble, size_t pos) {
  */
 void OregonDecoder::determine_sensor() {
   switch(_sensor_id) {
-  case (0x02D1):
-  case (0x428F):
-  case (0x4B8F):
+  case 0x02D1:
+  case 0x428F:
+  case 0x4B8F:
     _nibble_dict[9]  = TEMP;
     _nibble_dict[10] = TEMP;
     _nibble_dict[11] = TEMP;
@@ -226,4 +226,32 @@ uint8_t OregonDecoder::get_rolling_code() {
 
 uint8_t OregonDecoder::get_flags() {
   return _flags;
+}
+
+bool OregonDecoder::has_temperature() {
+  switch(_sensor_id) {
+  case 0x02D1:
+  case 0x428F:
+  case 0x4B8F:
+  case 0x04CE:
+  case 0x448C:
+    return true;
+    break;
+  }
+  return false;
+}
+
+bool OregonDecoder::has_humidity() {
+  switch(_sensor_id) {
+  case 0x02D1:
+  case 0x428F:
+  case 0x4B8F:
+    return true;
+    break;
+  case 0x04CE:
+  case 0x448C:
+    return false;
+    break;
+  }
+  return false;
 }

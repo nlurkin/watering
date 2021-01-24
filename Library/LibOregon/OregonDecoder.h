@@ -27,6 +27,10 @@ public:
   uint8_t get_rolling_code();
   uint8_t get_flags();
 
+  bool has_temperature();
+  bool has_humidity();
+
+
 private:
   void decode_data(byte nibble, uint8_t nibble_pos);
   uint32_t read_bcd(byte nibble, size_t pos);
