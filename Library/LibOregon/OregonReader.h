@@ -33,6 +33,9 @@ private:
   enum REC_STATE {
     WAITING, LOCKING, SYNCINC, DATA
   };
+  enum PROTOCOL {
+    VUNKNOWN, V2, V3
+  };
   RF_STATE get_state();
   void reset();
   void end_of_message();
@@ -43,10 +46,14 @@ private:
   int8_t read_bit(byte rf_long, RF_STATE state);
 
   REC_STATE _state;
+  PROTOCOL _protocol;
   bool _available;
+  bool _prev_long;
+  bool _double_bit;
   byte _nibble;
   uint8_t _nibble_num;
   int _nshorts;
+  int _nlongs;
   unsigned long int _half_time;
   unsigned long int _ht_offset;
   OregonDecoder _decoder;

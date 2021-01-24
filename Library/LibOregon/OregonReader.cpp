@@ -57,6 +57,7 @@ bool OregonReader::next_width(word width, RF_STATE state) {
     reset();
     return false;
   }
+
   if (width < 200 || width > 1400) { // Definitely outside allowed range
     reset();
     return false;
@@ -87,30 +88,59 @@ int8_t OregonReader::read_bit(byte is_long, RF_STATE state) {
 
 bool OregonReader::decode(byte rf_long, RF_STATE state) {
   if (_state == LOCKING) {
-    //Waiting for a series of repeated bits (shorts)
-    if (!rf_long)
-      ++_nshorts;
-    else {
-      // We got a long during Locking, this is not supposed to happen so this is
-      // probably not a preamble sequence.
-      reset();
+    //Waiting for a series of repeated bits (shorts or long)
+    if (!rf_long){
+      if(_prev_long){
+        // We got a short during long Locking, this is not supposed to happen so this is
+        // probably not a preamble sequence.
+        reset();
+      }
+      else
+        ++_nshorts; // We might be in a short Locking
     }
-    if (_nshorts > 20 && state == RF_FALLING) { // Corresponds to 10 1s
-    // Can reasonably be guessed we got a preamble sequence
+    else {
+      if(!_prev_long){
+        // We got a long during short Locking, this is not supposed to happen so this is
+        // probably not a preamble sequence.
+        reset();
+      }
+      else
+        ++_nlongs; // We might be in a long Locking
+    }
+
+    // Check whether we reached a correct number to decide this was a preamble.
+    if (_nshorts > 20 && state == RF_FALLING) { // Corresponds to 10 1s in shorts sequence
+      // Can reasonably be guessed we got a preamble sequence
       _state = SYNCINC;
+      _protocol = V3;
       ++_half_time;
       ++_ht_offset;
+      _double_bit = true;
     }
+    if (_nlongs > 10 && state == RF_FALLING) { // Corresponds to 10 "01"s
+      // Can reasonably be guessed we got a preamble sequence
+      _state = SYNCINC;
+      _protocol = V2;
+      ++_half_time;
+      ++_ht_offset;
+      _double_bit = true;
+    }
+
+		// Record which kind of series we have
+    _prev_long = rf_long;
   } else if (_state == SYNCINC) {
-    // Waiting for the first 0 (RISING when _half_time is even)
+    // Waiting for the first 0 (RISING when _half_time is even and double_bit = false)
 
     _ht_offset += rf_long ? 2 : 1;
     int8_t val = read_bit(rf_long, state);
-    if (val == 0) {
+    if (val == 0 && _double_bit) {
       // First 0 bit of SYNC
       _state = DATA;
-    } else if (val == 1) // Else still a 1. Do not record it in the nibble
+    } else if(val == 0 && !_double_bit) { // Happens only for V2
+      // Checking bit
+    } else if (val == 1) {// Else still a 1. Do not record it in the nibble
       _nibble = 0;
+    }
   } else if (_state == DATA) // Keep reading
     read_bit(rf_long, state);
 
@@ -119,8 +149,18 @@ bool OregonReader::decode(byte rf_long, RF_STATE state) {
 }
 
 byte OregonReader::add_bit(RF_STATE state) {
-  uint8_t nibble_pos = (_half_time - _ht_offset) / 2 % 4;
+  int divider = 2;
+  if(_protocol == V2){
+    _double_bit = !_double_bit;
+    divider = 4;
+  }
+
+  uint8_t nibble_pos = ((_half_time - _ht_offset) / divider) % 4;
   byte val = state == RF_FALLING;
+
+  if(_protocol == V2 && !_double_bit) // This is the first bit of the pair. It is inverted
+    return val;
+
   _nibble |= val << nibble_pos;
   if (nibble_pos == 3) {
     // Nibble is complete -> send it to the decoder
@@ -136,9 +176,12 @@ void OregonReader::reset() {
   _half_time = 0;
   _state = LOCKING;
   _nshorts = 0;
+  _nlongs = 0;
   _ht_offset = 0;
   _nibble_num = 0;
   _nibble = 0;
+  _double_bit = false;
+  _protocol = VUNKNOWN;
 }
 
 void OregonReader::end_of_message() {
