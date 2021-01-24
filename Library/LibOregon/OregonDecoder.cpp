@@ -215,3 +215,15 @@ void OregonDecoder::determine_sensor() {
     _data_end_nibble = 13;
   }
 }
+
+uint16_t OregonDecoder::get_sensor_id() {
+  return _sensor_id;
+}
+
+uint8_t OregonDecoder::get_rolling_code() {
+  return _rolling;
+}
+
+uint8_t OregonDecoder::get_flags() {
+  return _flags;
+}

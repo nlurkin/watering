@@ -23,6 +23,9 @@ public:
   bool  checksum();
   float get_temperature();
   uint16_t get_relative_humidity();
+  uint16_t get_sensor_id();
+  uint8_t get_rolling_code();
+  uint8_t get_flags();
 
 private:
   void decode_data(byte nibble, uint8_t nibble_pos);
