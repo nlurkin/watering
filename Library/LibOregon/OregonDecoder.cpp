@@ -15,35 +15,38 @@ OregonDecoder::~OregonDecoder() {
 }
 
 void OregonDecoder::next_nibble(byte nibble, uint8_t nibble_pos) {
-  if(_postamble_complete) // Got all data. Rest are repetitions.
+  if(_postamble_complete || nibble_pos>_data_offset[PAEND]) // Got all data. Rest are repetitions.
     return;
 
-  if(nibble_pos>0 && !_data_complete)
+  if(nibble_pos>0 && (nibble_pos<_data_end_nibble))
     _sum += nibble;
-  if(nibble_pos==0) {
+
+  size_t pos;
+  switch(_nibble_dict[nibble_pos]){
+  case(SYNC):
     _got_sync = nibble == 0xA;
-  }
-  else if(nibble_pos<=4) {
-    size_t pos = nibble_pos-1;
+    break;
+  case(ID):
+    pos = nibble_pos - _data_offset[ID];
     _sensor_id |= nibble << pos*4;
-  }
-  else if(nibble_pos==5) {
+    break;
+  case CHANNEL:
+    determine_sensor(); // Information available now
     _channel = nibble;
-  }
-  else if(nibble_pos<=7) {
-    size_t pos = nibble_pos - 6;
+    break;
+  case ROLLING:
+    pos = nibble_pos - _data_offset[ROLLING];
     _rolling |= nibble << pos*4;
-  }
-  else if(nibble_pos==8) {
+    break;
+  case FLAG:
     _flags = nibble;
-  }
-  else {
+    break;
+  default:
     decode_data(nibble, nibble_pos);
   }
 }
 
 void OregonDecoder::reset() {
-  _stage = SYNC;
   _got_sync = false;
   _sensor_id = 0;
   _channel = 0;
@@ -54,7 +57,23 @@ void OregonDecoder::reset() {
   _temperature = 0;
   _rel_hum = 0;
   _postamble_complete = false;
-  _data_complete = false;
+  _nibble_dict[0] = SYNC;
+  _nibble_dict[1] = ID;
+  _nibble_dict[2] = ID;
+  _nibble_dict[3] = ID;
+  _nibble_dict[4] = ID;
+  _nibble_dict[5] = CHANNEL;
+  _nibble_dict[6] = ROLLING;
+  _nibble_dict[7] = ROLLING;
+  _nibble_dict[8] = FLAG;
+  _data_offset[SYNC] = 0;
+  _data_offset[ID] = 1;
+  _data_offset[CHANNEL] = 5;
+  _data_offset[ROLLING] = 6;
+  _data_offset[FLAG] = 8;
+  // We should know by 8th nibble. Else there is a problem and we can stop in any case
+  _data_offset[PAEND] = 8;
+  _data_end_nibble = 8;
 }
 
 void OregonDecoder::print() {
@@ -95,9 +114,46 @@ bool OregonDecoder::is_complete() {
   return _postamble_complete;
 }
 
+void OregonDecoder::decode_data(byte nibble, uint8_t nibble_pos) {
+  size_t pos;
+  switch(_nibble_dict[nibble_pos]){
+  case(TEMP):
+    pos = nibble_pos - _data_offset[TEMP];
+    _temperature += read_bcd(nibble, pos);
+    break;
+  case(TEMP_SIGN):
+    if(nibble!=0)
+    _temperature *= -1;
+    break;
+  case(HUMIDITY):
+    pos = nibble_pos - _data_offset[HUMIDITY];
+    _rel_hum += read_bcd(nibble, pos);
+    break;
+  case(EMPTY):
+    //Nothing to do
+    break;
+  case(CHECKSUM):
+    pos = nibble_pos - _data_offset[CHECKSUM];
+    _checksum |= nibble << pos*4;
+    break;
+  case(PAEND):
+    _postamble_complete = true;
+    break;
+  default:
+    break;
+  }
+}
+
+uint32_t OregonDecoder::read_bcd(byte nibble, size_t pos) {
+  uint32_t mult = 1;
+  for(size_t i=1; i<=pos; ++i)
+    mult *= 10;
+  return nibble * mult;
+}
+
 /*
  * For THGR221
- * 0   : A     (sync)
+ * 0    : A     (sync)
  * 1-4  : F824  (ID)
  * 5    : 1     (channel)
  * 6-7  : 49    (Rolling)
@@ -109,34 +165,28 @@ bool OregonDecoder::is_complete() {
  * 16-17: 24    (Checksum)
  * 18-19: FC    (post-amble)
  */
-void OregonDecoder::decode_data(byte nibble, uint8_t nibble_pos) {
-  if(nibble_pos<=11) {
-    size_t pos = nibble_pos - 9;
-    _temperature += read_bcd(nibble, pos);
+void OregonDecoder::determine_sensor() {
+  switch(_sensor_id) {
+  case (0x02D1):
+  case (0x428F):
+  case (0x4B8F):
+    _nibble_dict[9]  = TEMP;
+    _nibble_dict[10] = TEMP;
+    _nibble_dict[11] = TEMP;
+    _nibble_dict[12] = TEMP_SIGN;
+    _nibble_dict[13] = HUMIDITY;
+    _nibble_dict[14] = HUMIDITY;
+    _nibble_dict[15] = EMPTY;
+    _nibble_dict[16] = CHECKSUM;
+    _nibble_dict[17] = CHECKSUM;
+    _nibble_dict[18] = PAEND;
+    _data_offset[TEMP] = 9;
+    _data_offset[TEMP_SIGN] = 12;
+    _data_offset[HUMIDITY] = 13;
+    _data_offset[EMPTY] = 15;
+    _data_offset[CHECKSUM] = 16;
+    _data_offset[PAEND] = 18;
+    _data_end_nibble = 16;
+    break;
   }
-  else if(nibble_pos==12) {
-    if(nibble!=0)
-    _temperature *= -1;
-  }
-  else if(nibble_pos<=14) {
-    size_t pos = nibble_pos - 13;
-    _rel_hum += read_bcd(nibble, pos);
-  }
-  else if(nibble_pos==15) {
-    //Nothing to do
-    _data_complete = true;
-  }
-  else if(nibble_pos<=17) {
-    size_t pos = nibble_pos - 16;
-    _checksum |= nibble << pos*4;
-  }
-  else
-    _postamble_complete = true;
-}
-
-uint32_t OregonDecoder::read_bcd(byte nibble, size_t pos) {
-  uint32_t mult = 1;
-  for(size_t i=1; i<=pos; ++i)
-    mult *= 10;
-  return nibble * mult;
 }

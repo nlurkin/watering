@@ -27,22 +27,24 @@ public:
 private:
   void decode_data(byte nibble, uint8_t nibble_pos);
   uint32_t read_bcd(byte nibble, size_t pos);
+  void determine_sensor();
 
-  enum DECODE_STAGE {
-    SYNC, SID, CHANNEL, ROLLING, FLAGS, DATA, CS
+  enum DATA_BLOCK {
+    SYNC, ID, CHANNEL, ROLLING, FLAG, TEMP, TEMP_SIGN, HUMIDITY, EMPTY, CHECKSUM, PAEND
   };
-  DECODE_STAGE _stage;
   bool _got_sync;
-  bool _data_complete;
   bool _postamble_complete;
-  uint16_t _sensor_id;
   uint8_t _channel;
   uint8_t _rolling;
   uint8_t _flags;
   uint8_t _checksum;
   uint8_t _sum;
+  uint8_t _data_end_nibble;
+  uint16_t _sensor_id;
   uint16_t _temperature;
   uint16_t _rel_hum;
+  uint8_t _data_offset[PAEND];
+  DATA_BLOCK _nibble_dict[20];
 };
 
 #endif /* OREGON_OREGONDECODER_H_ */
