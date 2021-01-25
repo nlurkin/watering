@@ -35,7 +35,8 @@ bool OregonSetup::init(uint8_t pin) {
 }
 
 void OregonSetup::updateAll() {
-  while(_oregon->loop()) {}
+  uint8_t trials=30;
+  while(_oregon->loop() && 0<trials--) {}
 
   if(!_oregon->available())
     return;
