@@ -51,14 +51,14 @@ void setup() {
   bme1.init(&_m_bme);
   oregon.init(19);
 
-  Serial.println("Stating publication server");
+  Serial.println(F("Stating publication server"));
   pubServer.setDestination(serverHost, 1883);
   pubServer.begin();
 
   bme1.setPublicationServer(&pubServer);
   oregon.setPublicationServer(&pubServer);
 
-  Serial.println("Advertising services");
+  Serial.println(F("Advertising services"));
   pubServer.advertise();
 
   last_millis = millis();
