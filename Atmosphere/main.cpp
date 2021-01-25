@@ -106,8 +106,9 @@ bool watchdog() {
 }
 
 void loop() {
-  if(!watchdog()) // Something wrong, we cannot proceed
-    return;
+  if((millis()-last_millis) % 30000)
+    if(!watchdog()) // Something wrong, we cannot proceed
+      return;
 
   oregon.updateAll(); //Needs constant update. Does nothing if does not read 433MHz signal, but locks once receiving.
 
