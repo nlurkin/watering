@@ -54,8 +54,6 @@ OregonReader::RF_STATE OregonReader::get_state() {
 
 bool OregonReader::next_width(word width, RF_STATE state) {
   if (width > 40000) { // End of message ~ About 9-10 clock cycles without signal
-    if (_state == DATA) // End of a message where we actually recorded data
-      end_of_message();
     reset();
     return false;
   }
@@ -111,7 +109,7 @@ bool OregonReader::decode(byte rf_long, RF_STATE state) {
     }
 
     // Check whether we reached a correct number to decide this was a preamble.
-    if (_nshorts > 20 && state == RF_FALLING) { // Corresponds to 10 1s in shorts sequence
+    if (_nshorts > 16 && state == RF_FALLING) { // Corresponds to 8 1s in shorts sequence
       // Can reasonably be guessed we got a preamble sequence
       _state = SYNCINC;
       _protocol = V3;
@@ -119,7 +117,7 @@ bool OregonReader::decode(byte rf_long, RF_STATE state) {
       ++_ht_offset;
       _double_bit = true;
     }
-    if (_nlongs > 10 && state == RF_FALLING) { // Corresponds to 10 "01"s
+    if (_nlongs > 7 && state == RF_FALLING) { // Corresponds to 7 "01"s
       // Can reasonably be guessed we got a preamble sequence
       _state = SYNCINC;
       _protocol = V2;
@@ -173,6 +171,7 @@ byte OregonReader::add_bit(RF_STATE state) {
 }
 
 void OregonReader::reset() {
+  end_of_message();
   if (_nibble_num > 0 && !_available) // Do not bother resetting the decoder if we did not put anything inside yet. Also do not reset if not read.
     _decoder.reset();
   _half_time = 0;
