@@ -85,11 +85,19 @@ void OregonDecoder::print() {
   Serial.print(_rolling, HEX);
   Serial.print("    Flag   : ");
   Serial.println(_flags, BIN);
-  Serial.print("Temp  : ");
-  Serial.print(get_temperature());
-  Serial.print(" RH     : ");
-  Serial.print(get_relative_humidity());
-  Serial.println("%");
+  if(has_temperature()) {
+    Serial.print("Temp  : ");
+    Serial.print(get_temperature());
+  }
+  else
+    Serial.print("            ");
+  if(has_humidity()) {
+    Serial.print(" RH     : ");
+    Serial.print(get_relative_humidity());
+    Serial.println("%");
+  }
+  else
+    Serial.println();
   Serial.print("CS    : ");
   Serial.print(_checksum, HEX);
   Serial.print("    Sum    : ");
