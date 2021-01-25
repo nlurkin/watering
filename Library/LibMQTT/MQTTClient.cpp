@@ -123,7 +123,7 @@ bool MQTTClient::send_connect(uint8_t conn) {
   else
     packet.addVarHeader((uint8_t)0); //Connect flags
   packet.addVarHeader((uint8_t)0); //Keep alive MSB
-  packet.addVarHeader(120);        //Keep alive LSB
+  packet.addVarHeader(150);        //Keep alive LSB
 
   if(_name)
     packet.addPayload(_name);

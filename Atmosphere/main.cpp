@@ -113,8 +113,8 @@ void loop() {
   oregon.updateAll(); //Needs constant update. Does nothing if does not read 433MHz signal, but locks once receiving.
 
   lcd.tick();
-  if(millis()-last_millis>60000){
-    // Update every minute
+  if(millis()-last_millis>120000){
+    // Update every two minute
     bme1.updateAll();
     last_millis = millis();
   }
