@@ -14,7 +14,7 @@
  */
 class PublicationBase {
 public:
-  static constexpr size_t MAX_NAME_LENGTH=20;
+  static constexpr size_t MAX_NAME_LENGTH=30;
 
   PublicationBase(const char *name);
   virtual ~PublicationBase();
