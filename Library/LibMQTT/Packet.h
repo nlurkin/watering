@@ -36,10 +36,9 @@ struct VarHeader {
   uint8_t _bytes[128];
 };
 struct Payload {
-  static constexpr uint16_t MAX_PAYLOAD_LENGTH=700;
   Payload() : _n_bytes(0), _bytes{0} {};
-  uint16_t _n_bytes;
-  uint8_t _bytes[MAX_PAYLOAD_LENGTH];
+  uint8_t _n_bytes;
+  uint8_t _bytes[128];
 };
 
 class Packet {

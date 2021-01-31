@@ -30,7 +30,7 @@ Packet::Packet(char *buff) {
   }
   memcpy(_var_header._bytes, buff, _var_header._n_bytes * sizeof(uint8_t));
   buff += _var_header._n_bytes;
-  int32_t psize = getExpectedPayloadSize();
+  int16_t psize = getExpectedPayloadSize();
   if(psize>0){
     _payload._n_bytes = psize;
   }
@@ -95,15 +95,15 @@ bool Packet::addVarHeader(const char *h) {
 }
 
 bool Packet::addPayload(uint8_t p) {
-  if(_payload._n_bytes>=Payload::MAX_PAYLOAD_LENGTH)
+  if(_payload._n_bytes>=128)
     return false;
   _payload._bytes[_payload._n_bytes++] = p;
   return true;
 }
 
 bool Packet::addPayload(const char *p) {
-  uint16_t n_bytes = strlen(p);
-  if(n_bytes+2 > Payload::MAX_PAYLOAD_LENGTH-_payload._n_bytes)
+  uint8_t n_bytes = strlen(p);
+  if(n_bytes+2 > 128-_payload._n_bytes)
     return false;
   _payload._bytes[_payload._n_bytes++] = 0;
   _payload._bytes[_payload._n_bytes++] = n_bytes;
@@ -144,13 +144,13 @@ void Packet::print() {
   }
   Serial.println();
   Serial.println(" -- Var header --");
-  for(uint8_t i=0; i<_var_header._n_bytes; ++i){
+  for(int i=0; i<_var_header._n_bytes; ++i){
     Serial.print(_var_header._bytes[i]);
     Serial.print(" -> ");
     Serial.println((char)_var_header._bytes[i]);
   }
   Serial.println(" -- Payload --");
-  for(uint16_t i=0; i<_payload._n_bytes; ++i) {
+  for(int i=0; i<_payload._n_bytes; ++i) {
     Serial.print(_payload._bytes[i]);
     Serial.print(" -> ");
     Serial.println((char)_payload._bytes[i]);
@@ -211,7 +211,7 @@ uint16_t Packet::getVarHeader16_t(uint8_t byte) const {
 
 size_t Packet::getPayloadString(uint8_t byte, char *buff) const {
   uint16_t len = (_payload._bytes[byte]<<8) + _payload._bytes[byte+1];
-  for(uint16_t i=0; i<len; ++i){
+  for(uint8_t i=0; i<len; ++i){
     Serial.print(_payload._bytes[i+2]);
     buff[i] = _payload._bytes[i+2];
   }
@@ -220,11 +220,11 @@ size_t Packet::getPayloadString(uint8_t byte, char *buff) const {
 }
 
 size_t Packet::getFullPayload(char *buff) const {
-  uint16_t offset=0;
+  uint8_t offset=0;
   if(_payload._bytes[0]==0) // Must be the format with size:value
     offset = 2;
 
-  for(uint16_t i=0; i<_payload._n_bytes-offset; ++i)
+  for(uint8_t i=0; i<_payload._n_bytes-offset; ++i)
     buff[i] = _payload._bytes[i+offset];
 
   buff[_payload._n_bytes-offset] = '\0';
