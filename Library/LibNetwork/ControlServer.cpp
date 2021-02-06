@@ -42,8 +42,6 @@ bool ControlServer::serve(bool force) {
   PublicationBase *updatedPublications[MAX_PUBLICATIONS];
   for(uint8_t iPub=0; iPub<_num_publications; ++iPub){
     if(_publications[iPub]->isUpdated() || force){
-      Serial.print("Publication ready: ");
-      Serial.println(iPub);
       updatedPublications[nPubReady++] = _publications[iPub];
     }
   }
