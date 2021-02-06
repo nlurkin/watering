@@ -117,12 +117,12 @@ int8_t OregonSetup::addSensor(uint8_t id, OregonDecoder &sensor, uint8_t sight_i
     return index;
 
   if(sensor.has_temperature()) {
-    sprintf(buffer, "oregon_%04X_%02X_temperature", sensor_id, id);
+    sprintf(buffer, "%04X_%02X_temp", sensor_id, id);
     _pub_temperature[index] = new Publication<double>(buffer);
     _controlServer->addPublication(_pub_temperature[index]);
   }
   if(sensor.has_humidity()) {
-    sprintf(buffer, "oregon_%04X_%02X_humidity", sensor_id, id);
+    sprintf(buffer, "%04X_%02X_hum", sensor_id, id);
     _pub_humidity[index]    = new Publication<int>(buffer);
     _controlServer->addPublication(_pub_humidity[index]);
   }
