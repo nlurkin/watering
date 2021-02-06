@@ -17,6 +17,8 @@ OregonDecoder::~OregonDecoder() {
 void OregonDecoder::next_nibble(byte nibble, uint8_t nibble_pos) {
   if(_postamble_complete || nibble_pos>_data_offset[PAEND]) // Got all data. Rest are repetitions.
     return;
+//  for(int i=3; i>=0; --i)
+//    Serial.print(bitRead(nibble, i));
 
   if(nibble_pos>0 && (nibble_pos<_data_end_nibble))
     _sum += nibble;
