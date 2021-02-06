@@ -15,7 +15,7 @@
 #include <Arduino.h>
 #define DEBUGS_PLN(ser, str)                \
    ser.print(millis());            \
-   ser.print(": ");                \
+   ser.print(F(": "));                \
    ser.print(__PRETTY_FUNCTION__); \
    ser.print(' ');                 \
    ser.print(__FILE__);            \
@@ -29,7 +29,7 @@
    ser.println(str);
 #define DEBUGS_P(ser, str)                  \
    ser.print(millis());            \
-   ser.print(": ");                \
+   ser.print(F(": "));                \
    ser.print(__PRETTY_FUNCTION__); \
    ser.print(' ');                 \
    ser.print(__FILE__);            \

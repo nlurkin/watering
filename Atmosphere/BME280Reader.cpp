@@ -59,19 +59,19 @@ void BME280Reader::updateAll() {
 
   //Serial.print(F("Temperature = "));
   //Serial.print(temperature);
-  //Serial.println(" *C");
+  //Serial.println(F(" *C"));
   //
   //Serial.print(F("Pressure = "));
   //Serial.print(pressure); //displaying the Pressure in hPa, you can change the unit
-  //Serial.println(" hPa");
+  //Serial.println(F(" hPa"));
   //
   //Serial.print(F("Humidity = "));
   //Serial.print(humidity); //displaying the Pressure in hPa, you can change the unit
-  //Serial.println(" %");
+  //Serial.println(F(" %"));
   //
   //Serial.print(F("Approx altitude = "));
   //Serial.print(altitude); //The "1019.66" is the pressure(hPa) at sea level in day in your region
-  //Serial.println(" m");                    //If you don't know it, modify it until you get your current altitude
+  //Serial.println(F(" m"));                    //If you don't know it, modify it until you get your current altitude
   //
   //Serial.println();
   if(_m_bme)
