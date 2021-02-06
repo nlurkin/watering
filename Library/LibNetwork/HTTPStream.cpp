@@ -46,7 +46,9 @@ int HTTPStream::available() {
 }
 
 void HTTPStream::flush() {
-  HTTPRequest r = HTTPRequest::http_post("/api/v1/arduino_console");
+  char address[25];
+  strcpy_P(address, PSTR("/api/v1/arduino_console"));
+  HTTPRequest r = HTTPRequest::http_post(address);
   char buff[NETWORK_TX_BUFFER_SIZE+HTTPRequest::MAX_HEADER_LENGTH]; //Must be able to contain data + header
   _tx_buffer.get(buff, NETWORK_TX_BUFFER_SIZE);
   clear();

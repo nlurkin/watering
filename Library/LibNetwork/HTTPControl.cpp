@@ -48,9 +48,9 @@ bool HTTPControl::updatePublications(uint8_t nPubReady, PublicationBase *readyPu
   if(nPubReady>0)
     conn = _wifi.openConnection(_dest_address, _dest_port);
   for(uint8_t iPub=0; iPub<nPubReady; ++iPub){
-      Serial.print("Updating publication ");
       Serial.println(readyPub[iPub]->getName());
-      char path_buf[30] = "/api/v1/";
+      char path_buf[30];
+      strcpy_P(path_buf, PSTR("/api/v1/"));
       strcpy(path_buf+8, readyPub[iPub]->getName());
       HTTPRequest r = HTTPRequest::http_post(path_buf);
       readyPub[iPub]->to_string(buff1);
@@ -114,7 +114,9 @@ bool HTTPControl::publishAdvertise(const char *services) {
   if(conn==-1)
     return false;
   char buff[MAX_MESSAGE_LENGTH+HTTPRequest::MAX_HEADER_LENGTH] = ""; //Must be able to contain data + header
-  HTTPRequest r = HTTPRequest::http_post("/api/v1/advertise");
+  char address[20];
+  strcpy_P(address, "/api/v1/advertise");
+  HTTPRequest r = HTTPRequest::http_post(address);
   r.addContent(services);
   r.setConnectionType(HTTPRequest::CONN_CLOSE);
   r.generate();
