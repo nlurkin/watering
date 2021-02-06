@@ -77,33 +77,33 @@ void OregonDecoder::reset() {
 }
 
 void OregonDecoder::print() {
-  Serial.print("Sensor: ");
+  Serial.print(F("Sensor: "));
   Serial.print(_sensor_id, HEX);
-  Serial.print("  Channel: ");
+  Serial.print(F("  Channel: "));
   Serial.println(_channel, HEX);
-  Serial.print("RCode : ");
+  Serial.print(F("RCode : "));
   Serial.print(_rolling, HEX);
-  Serial.print("    Flag   : ");
+  Serial.print(F("    Flag   : "));
   Serial.println(_flags, BIN);
   if(has_temperature()) {
-    Serial.print("Temp  : ");
+    Serial.print(F("Temp  : "));
     Serial.print(get_temperature());
   }
   else
-    Serial.print("            ");
+    Serial.print(F("            "));
   if(has_humidity()) {
-    Serial.print(" RH     : ");
+    Serial.print(F(" RH     : "));
     Serial.print(get_relative_humidity());
-    Serial.println("%");
+    Serial.println(F("%"));
   }
   else
     Serial.println();
-  Serial.print("CS    : ");
+  Serial.print(F("CS    : "));
   Serial.print(_checksum, HEX);
-  Serial.print("    Sum    : ");
+  Serial.print(F("    Sum    : "));
   Serial.print(_sum, HEX);
-  Serial.print(" => ");
-  Serial.println(checksum() ? "Valid" : "Invalid");
+  Serial.print(F(" => "));
+  Serial.println(checksum() ? F("Valid") : F("Invalid"));
 }
 
 float OregonDecoder::get_temperature() {
