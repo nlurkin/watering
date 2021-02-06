@@ -7,6 +7,7 @@
 
 #include "ESP8266Wifi.h"
 #include "DebugDef.h"
+#include "FlashHelpers.h"
 
 //\TODO add checkDataCapture possibly after each command
 
@@ -495,7 +496,7 @@ bool ESP8266Wifi::startsWith(const char *str, const char *search) {
 }
 
 bool ESP8266Wifi::startsWith(const char *str, const __FlashStringHelper* search) {
-  PGM_P p_search = reinterpret_cast<PGM_P>(search);
+  PGM_P p_search = PSTRF(search);
   unsigned char c;
   c = pgm_read_byte(p_search++);
   while( (*str!='\0') && (c!='\0') ){
@@ -518,7 +519,7 @@ bool ESP8266Wifi::endsWith(const char *str, const char *search) {
 
 bool ESP8266Wifi::endsWith(const char *str, const __FlashStringHelper* search) {
   const char *str_end = str + strlen(str)-1;
-  PGM_P p_search = reinterpret_cast<PGM_P>(search);
+  PGM_P p_search = PSTRF(search);
   PGM_P p_search_end = p_search + strlen_P(p_search)-1;
   unsigned char c;
   while( (str_end!=str) && (p_search_end+1!=p_search) ){

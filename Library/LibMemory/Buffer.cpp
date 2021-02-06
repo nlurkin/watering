@@ -6,6 +6,7 @@
  */
 
 #include "Buffer.h"
+#include "FlashHelpers.h"
 
 Buffer::Buffer(size_t size):
   _allow_overwrite(true),
@@ -82,7 +83,7 @@ bool Buffer::startsWith(const char *str) const {
 
 bool Buffer::startsWith(const __FlashStringHelper* str) const {
   char *p = _p_begin;
-  PGM_P p_search = reinterpret_cast<PGM_P>(str);
+  PGM_P p_search = PSTRF(str);
   unsigned char c;
   c = pgm_read_byte(p_search++);
   while( (p!=_p_end) && (c!='\0') ){

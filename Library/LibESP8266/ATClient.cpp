@@ -7,6 +7,7 @@
 
 #include "ATClient.h"
 #include "DebugDef.h"
+#include "FlashHelpers.h"
 
 ATClient::ATClient(Stream* serial) :
   _set_default(false),
@@ -781,7 +782,7 @@ bool ATClient::waitMessage(const char *message) {
 bool ATClient::waitMessage(const __FlashStringHelper* message) {
   bool got_message = false;
   bool got_first_char = false;
-  size_t str_len = strlen_P(reinterpret_cast<PGM_P>(message));
+  size_t str_len = strlen_P(PSTRF(message));
   unsigned long start_time = millis();
   size_t available = waitData(str_len);
 
@@ -793,7 +794,7 @@ bool ATClient::waitMessage(const __FlashStringHelper* message) {
   char buff[20];
   char c;
   size_t pos = 0;
-  PGM_P p_msg = reinterpret_cast<PGM_P>(message);
+  PGM_P p_msg = PSTRF(message);
   char c_msg = pgm_read_byte(p_msg);
 #endif
 

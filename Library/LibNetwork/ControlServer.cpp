@@ -8,8 +8,7 @@
 #include "ControlServer.h"
 #include "PublicationBase.h"
 #include "DebugDef.h"
-
-#define FPSTR(pstr_pointer) (reinterpret_cast<const __FlashStringHelper *>(pstr_pointer))
+#include "FlashHelpers.h"
 
 ControlServer::ControlServer() :
   _num_publications(0),
