@@ -97,11 +97,28 @@ bool Buffer::startsWith(const __FlashStringHelper* str) const {
 int Buffer::containsAt(const char *str) const {
   char *p = _p_begin;
   const char *needle = str;
+  size_t len = strlen(str);
   while( (p!=_p_end)){
     if(*(p++)!=*(needle++))
       needle = str; // When the chars are not the same, reset the needle to beginning
     if(*needle=='\0') //We actually went through the whole needle. This is it
-      return p-_p_begin-strlen(str);
+      return p-_p_begin-len;
+  }
+  return -1; // We went through the whole buffer without finding the needle. Fail
+}
+
+int Buffer::containsAt(const __FlashStringHelper *str) const {
+  PGM_P p_str = PSTRF(str);
+  char *p = _p_begin;
+  char needle = pgm_read_byte(p_str);
+  size_t cur_pos = 0;
+  size_t len = strlen_P(p_str);
+  while( (p!=_p_end)){
+    if(*(p++)!=needle)
+      cur_pos = 0; // When the chars are not the same, reset the needle to beginning
+    if(needle=='\0') //We actually went through the whole needle. This is it
+      return p-_p_begin-len;
+    needle = pgm_read_byte(p_str + (cur_pos++));
   }
   return -1; // We went through the whole buffer without finding the needle. Fail
 }

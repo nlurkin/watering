@@ -363,7 +363,7 @@ bool ATClient::CIPSTART(TCP_TYPE type, uint8_t ip[4], uint16_t port, int8_t link
   sendCommand(cmd);
   bool ans = checkAnswer(cmd);
   if(!ans){
-      int at = _dataCapture.containsAt("ALREADY CONNECTED");
+      int at = _dataCapture.containsAt(F("ALREADY CONNECTED"));
       Serial.println(at);
       return at!=-1;
   }
@@ -404,13 +404,13 @@ bool ATClient::CIPSTART(TCP_TYPE type, const char *address, uint16_t port, int8_
   sendCommand(cmd);
   bool ans = checkAnswer(cmd);
   if(!ans){
-    int at = _dataCapture.containsAt("ALREADY CONNECTED");
+    int at = _dataCapture.containsAt(F("ALREADY CONNECTED"));
     if(at!=-1){
       // Already opened
       Serial.println(at);
       return true;
     }
-    at = _dataCapture.containsAt("Link type ERROR");
+    at = _dataCapture.containsAt(F("Link type ERROR"));
     if(at!=-1){
       // Probably not the correct mux
       Serial.println(at);
