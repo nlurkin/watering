@@ -40,13 +40,17 @@ void BME280Reader::setPublicationServer(ControlServer *server){
   if(server==nullptr)
     return;
   // Create publications and add them
-  _pub_temperature = new Publication<double>("bme1_temperature");
+  char temp[20], press[20], hum[20];
+  strcpy_P(temp, PSTR("bme1_temperature"));
+  strcpy_P(press, PSTR("bme1_pressure"));
+  strcpy_P(hum, PSTR("bme1_humidity"));
+  _pub_temperature = new Publication<double>(temp);
   _pub_temperature->updateValue(_bme.readTemperature());
   _controlServer->addPublication(_pub_temperature);
-  _pub_pressure    = new Publication<double>("bme1_pressure");
+  _pub_pressure    = new Publication<double>(press);
   _pub_pressure->updateValue(_bme.readPressure());
   _controlServer->addPublication(_pub_pressure);
-  _pub_humidity    = new Publication<double>("bme1_humidity");
+  _pub_humidity    = new Publication<double>(hum);
   _pub_humidity->updateValue(_bme.readHumidity());
   _controlServer->addPublication(_pub_humidity);
 }
