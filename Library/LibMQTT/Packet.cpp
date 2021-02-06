@@ -6,6 +6,7 @@
  */
 
 #include "Packet.h"
+#include "FlashHelpers.h"
 
 namespace MQTT {
 Packet::Packet() {
@@ -94,6 +95,19 @@ bool Packet::addVarHeader(const char *h) {
   return true;
 }
 
+bool Packet::addVarHeader(const __FlashStringHelper *h) {
+  PGM_P p = PSTRF(h);
+  uint8_t n_bytes = strlen_P(p);
+  if(n_bytes+2 > 128-_var_header._n_bytes)
+    return false;
+  _var_header._bytes[_var_header._n_bytes++] = 0;
+  _var_header._bytes[_var_header._n_bytes++] = n_bytes;
+  for(uint8_t i=0; i<n_bytes; ++i){
+    _var_header._bytes[_var_header._n_bytes++] = pgm_read_byte(p + i);
+  }
+  return true;
+}
+
 bool Packet::addPayload(uint8_t p) {
   if(_payload._n_bytes>=128)
     return false;
@@ -109,6 +123,19 @@ bool Packet::addPayload(const char *p) {
   _payload._bytes[_payload._n_bytes++] = n_bytes;
   for(uint8_t i=0; i<n_bytes; ++i){
     _payload._bytes[_payload._n_bytes++] = p[i];
+  }
+  return true;
+}
+
+bool Packet::addPayload(const __FlashStringHelper *p) {
+  PGM_P h = PSTRF(p);
+  uint8_t n_bytes = strlen_P(h);
+  if(n_bytes+2 > 128-_payload._n_bytes)
+    return false;
+  _payload._bytes[_payload._n_bytes++] = 0;
+  _payload._bytes[_payload._n_bytes++] = n_bytes;
+  for(uint8_t i=0; i<n_bytes; ++i){
+    _payload._bytes[_payload._n_bytes++] = pgm_read_byte(h + i);
   }
   return true;
 }

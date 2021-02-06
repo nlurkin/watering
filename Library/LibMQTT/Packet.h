@@ -52,8 +52,10 @@ public:
   void computeRLength();
   bool addVarHeader(uint8_t h);
   bool addVarHeader(const char *h);
+  bool addVarHeader(const __FlashStringHelper *h);
   bool addPayload(uint8_t p);
   bool addPayload(const char *p);
+  bool addPayload(const __FlashStringHelper *p);
 
   uint32_t fillBuffer(char* buffer);
   uint32_t getTotalLen();

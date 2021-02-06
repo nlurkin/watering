@@ -130,7 +130,7 @@ bool MQTTClient::send_connect(uint8_t conn) {
   MQTT::Packet packet;
   packet.setCtrlType(MQTT::CONNECT);
 
-  packet.addVarHeader("MQTT");     //Protocol name
+  packet.addVarHeader(F("MQTT"));     //Protocol name
   packet.addVarHeader(0x04);       //Protocol version
   if(_username)
     packet.addVarHeader(MQTT::USERNAME | MQTT::PASSWORD); //Connect flags
@@ -142,7 +142,7 @@ bool MQTTClient::send_connect(uint8_t conn) {
   if(_name)
     packet.addPayload(_name);
   else
-    packet.addPayload("arduino");
+    packet.addPayload(F("arduino"));
 
   if(_username){
     packet.addPayload(_username);
