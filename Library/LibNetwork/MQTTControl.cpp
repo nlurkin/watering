@@ -8,6 +8,7 @@
 #include "MQTTControl.h"
 #include "Packet.h"
 #include "PublicationBase.h"
+#include "FlashHelpers.h"
 
 MQTTControl::MQTTControl(ESP8266Wifi &wifi, const char *name) :
  _mqtt_owned(true),
@@ -49,6 +50,10 @@ void MQTTControl::setDestination(const char *address, uint16_t port) {
   _mqtt->setDestination(address, port);
 }
 
+void MQTTControl::setDestination(const __FlashStringHelper * address, uint16_t port) {
+  _mqtt->setDestination(FPSTR(address), port);
+}
+
 void MQTTControl::begin() {
   _mqtt->begin();
   _mqtt->connect();
@@ -59,12 +64,10 @@ bool MQTTControl::updatePublications(uint8_t nPubReady, PublicationBase *readyPu
   char pubname[PublicationBase::MAX_NAME_LENGTH*2];
 
   for(uint8_t iPub=0; iPub<nPubReady; ++iPub){
-      Serial.print("Updating publication ");
       readyPub[iPub]->to_string(buff1);
       strcpy(pubname, _name);
       pubname[strlen(_name)] = '/';
       strcpy(pubname + (strlen(_name)+1), readyPub[iPub]->getName());
-      Serial.println(pubname);
       _mqtt->publish(pubname, buff1);
       readyPub[iPub]->updated(false);
       delay(10);

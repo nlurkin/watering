@@ -7,6 +7,7 @@
 
 #include <MQTTClient.h>
 #include "Packet.h"
+#include "FlashHelpers.h"
 
 MQTTClient::MQTTClient(ESP8266Wifi &wifi, const char* name) :
   _connection(-1),
@@ -41,11 +42,24 @@ void MQTTClient::setDestination(const char *address, uint16_t port) {
   _dest_port = port;
 }
 
+void MQTTClient::setDestination(const __FlashStringHelper *address, uint16_t port) {
+  _dest_address = new char[strlen_P(PSTRF(address))+1];
+  strcpy_P(_dest_address, PSTRF(address));
+  _dest_port = port;
+}
+
 void MQTTClient::setUserPass(const char *username, const char *password) {
   _username = new char[strlen(username)+1];
   strcpy(_username, username);
   _password = new char[strlen(password)+1];
   strcpy(_password, password);
+}
+
+void MQTTClient::setUserPass(const __FlashStringHelper *username, const __FlashStringHelper *password) {
+  _username = new char[strlen_P(PSTRF(username))+1];
+  strcpy_P(_username, PSTRF(username));
+  _password = new char[strlen_P(PSTRF(password))+1];
+  strcpy_P(_password, PSTRF(password));
 }
 
 bool MQTTClient::connect() {
