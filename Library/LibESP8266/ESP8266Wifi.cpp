@@ -79,7 +79,7 @@ bool ESP8266Wifi::sendSomething(const char *cmd) const {
   if(cmd[0]=='&')
     return _client.sendData(cmd+1);
   else if(cmd[0]=='+' && cmd[1]=='+' && cmd[1]=='+')
-    return Serial1.print("+++");
+    return _client.getATSerial()->print(F("+++"));
   else
     return _client.sendCommand(cmd);
 }
