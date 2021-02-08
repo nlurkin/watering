@@ -48,7 +48,7 @@ private:
   uint8_t _sum;
   uint8_t _data_end_nibble;
   uint16_t _sensor_id;
-  uint16_t _temperature;
+  int16_t  _temperature;
   uint16_t _rel_hum;
   uint8_t _data_offset[PAEND];
   DATA_BLOCK _nibble_dict[20];
