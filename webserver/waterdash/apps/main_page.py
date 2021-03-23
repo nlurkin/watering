@@ -46,6 +46,12 @@ def make_highlights():
 def make_details():
     mcards = []
 
+    latest = mongoClient.get_latest_sensor_value("bme1_humidity")
+    mcards.append((dbc.CardImg(src = "assets/humidity_in.png", style = {"width": "50px"}), dbc.CardBody(f"{latest}%")))
+
+    latest = mongoClient.get_latest_sensor_value("428F_94_hum")
+    mcards.append((dbc.CardImg(src = "assets/humidity_out.png", style = {"width": "50px"}), dbc.CardBody(f"{latest}%")))
+
     return dbc.Row(dbc.CardDeck([dbc.Col(c) for c in mcards], className = "weather"))
 
 
