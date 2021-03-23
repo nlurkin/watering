@@ -50,6 +50,9 @@ void setup() {
 
   mqtt.setUserPass(FPSTR(mqttUser), FPSTR(mqttPwd));
 
+  while(!wifi.checkCommunication(false))
+    delay(10000);
+  _m_welcome.communication(true);
   char p_ssid[30], p_pwd[30];
   strcpy_P(p_ssid, ssid);
   strcpy_P(p_pwd, pwd);
@@ -90,6 +93,10 @@ bool watchdog() {
       //Seems we really lost the wifi...
       watchdog_ok = false;
       if(reset_failure>10) {// Wifi reconnect failed many times. Try a full RESET of the ESP
+        _m_welcome.communication(false);
+        while(!wifi.checkCommunication(false))
+          delay(10000);
+        _m_welcome.communication(true);
         watchdog_ok = wifi.init(ssid, pwd, true, false);
         reset_failure = 0;
         if(watchdog_ok)
