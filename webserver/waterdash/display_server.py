@@ -12,7 +12,7 @@ import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 from dash.dependencies import Input, Output, ALL
 from waterapp import app
-from apps import dashboard, add_sensor, add_dashboard, publications, config_menu
+from apps import dashboard, add_sensor, add_dashboard, publications, config_menu, main_page
 from data.config import VALID_USERNAME_PASSWORD_PAIRS, app_prefix
 
 auth = dash_auth.BasicAuth(
@@ -57,7 +57,7 @@ def display_page(pathname):
     if pathname is None:
         return dash.no_update
     if pathname == app_prefix + "/":
-        return dash.no_update
+        return main_page.get_layout()
     if pathname == app_prefix + "/config":
         return config_menu.get_layout()
     elif pathname == app_prefix + "/add/sensor":
