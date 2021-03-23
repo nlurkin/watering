@@ -100,7 +100,6 @@ def generate_layout(dashboard_name):
 
 
 def get_and_merge_data(sensor_name, sd, ed):
-    day = to_utc().strftime("%Y-%m-%d")
     value_doc = mongoClient.get_all_sensor_values(sensor_name, dateutil.parser.parse(sd).strftime("%Y-%m-%d"), dateutil.parser.parse(ed).strftime("%Y-%m-%d"))
     sensor_doc = mongoClient.get_sensor_by_name(sensor_name)
     values = []
