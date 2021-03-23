@@ -9,7 +9,7 @@
 
 MenuWelcome::MenuWelcome(LiquidCrystal& ref) :
   SubMenu(ref),
-  _sym_connected("  -"),
+  _sym_connected("  o"),
   _project_name{"Atmosphere"}
 {
   init();
@@ -35,4 +35,11 @@ void MenuWelcome::connected(bool val) {
     strcpy_P(_sym_connected, PSTR("  +"));
   else
     strcpy_P(_sym_connected, PSTR("  -"));
+}
+
+void MenuWelcome::communication(bool val) {
+  if(val)
+    strcpy_P(_sym_connected, PSTR("  -"));
+  else
+    strcpy_P(_sym_connected, PSTR("  o"));
 }
