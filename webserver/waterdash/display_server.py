@@ -10,10 +10,9 @@ import dash_auth
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
-from dash.dependencies import Input, Output
-from waterapp import app, server
-from apps import dashboard, add_sensor, add_dashboard, publications
-from waterapp import mongoClient
+from dash.dependencies import Input, Output, ALL
+from waterapp import app
+from apps import dashboard, add_sensor, add_dashboard, publications, config_menu
 from data.config import VALID_USERNAME_PASSWORD_PAIRS, app_prefix
 
 auth = dash_auth.BasicAuth(
@@ -29,32 +28,27 @@ index_layout = html.Div(
         children = [
         dcc.Location(id = 'url', refresh = False),
         dbc.Row(html.H2("Watering dashboard", className = "title"), className = "black"),
-        dcc.Link("Home", href = app_prefix + "/"),
+        dbc.Nav(
+            [
+                dbc.NavItem(dbc.NavLink("Home", id = {"type":"nav", "id":""}, href = app_prefix + "/")),
+                dbc.NavItem(dbc.NavLink("Configuration", id = {"type":"nav", "id":"config"}, href = app_prefix + "/config")),
+            ],
+            pills = True
+            ),
         html.Div(id = "page-content")
         ]
     )
 
 
-def get_dashboard_list():
-    elements = [
-        html.H3("Add new elements"),
-        dbc.Row([dbc.Col(dcc.Link('New dashboard', href = app_prefix + '/add/dashboard'), width = 1),
-                 dbc.Col(dcc.Link('Update dashboard', href = app_prefix + '/update/dashboard'), width = 1)]),
-        dbc.Row([dbc.Col(dcc.Link('New sensor', href = app_prefix + '/add/sensor'), width = 1),
-                 dbc.Col(dcc.Link('Update sensor', href = app_prefix + '/update/sensor'), width = 1),
-                 dbc.Col(dcc.Link('List sensors', href = app_prefix + '/list/sensor'), width = 1),
-                 dbc.Col(dcc.Link('List publications', href = app_prefix + '/list/publications'), width = 1)]),
-        html.H3("Available dashboards"), ]
-
-    db_list = mongoClient.get_dashboards_dropdown()
-    for db in db_list:
-        elements.append(
-            dbc.Row(dbc.Col(dcc.Link(db["label"], href = f"{app_prefix}/dashboard/{db['label']}"))))
-
-    return elements
-
-
 app.layout = index_layout
+
+
+@app.callback([Output({"type": "nav", 'id': ALL}, 'active')],
+              [Input('url', 'pathname')],
+              [])
+def navbar_state(pathname):
+    active_link = ([pathname == f'/{i}' for i in ["", "config"]])
+    return (active_link,)
 
 
 @app.callback(Output('page-content', 'children'),
@@ -63,7 +57,9 @@ def display_page(pathname):
     if pathname is None:
         return dash.no_update
     if pathname == app_prefix + "/":
-        return get_dashboard_list()
+        return dash.no_update
+    if pathname == app_prefix + "/config":
+        return config_menu.get_layout()
     elif pathname == app_prefix + "/add/sensor":
         return add_sensor.get_layout(update = False)
     elif pathname == app_prefix + "/update/sensor":
