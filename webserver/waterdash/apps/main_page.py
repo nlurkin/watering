@@ -69,3 +69,20 @@ def get_layout():
             ], style = {"background-color": "#1E1E1E", "border-style":"solid"})
         ]
     return row
+
+
+@app.callback(Output("date_row", 'children'),
+              [Input('interval-component', 'n_intervals')],
+              [])
+def update_date(_):
+    date = from_utc().strftime("%b %d, %Y")
+    time = html.B(from_utc().strftime("%H:%M"), style = {"padding-left": "10px"})
+    return [html.Img(src = "assets/calendar_1.png", height = "23px"), date, time]
+
+
+@app.callback(Output({"type": "local_value", "sensor": MATCH}, 'children'),
+              [Input('interval-component', 'n_intervals')],
+              [State({"type": "local_value", "sensor": MATCH}, 'id'), ])
+def update_local_value(_, sensor_name):
+    val = mongoClient.get_latest_sensor_value(sensor_name["sensor"])
+    return val
