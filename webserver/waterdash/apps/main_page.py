@@ -18,15 +18,15 @@ import dateutil
 
 
 def make_location_summary():
-    indoor = dbc.Row(["\u00B0C"], className = "weather_row")
-    outdoor = dbc.Row(["\u00B0C"], className = "weather_row", style = {"font-size": "x-large"})
+    indoor = dbc.Row([html.Img(src = "assets/in_house.png", height = "30px"), "\u00B0C"], className = "weather_row")
+    outdoor = dbc.Row([html.Img(src = "assets/out_house.png", height = "30px"), "\u00B0C"], className = "weather_row", style = {"font-size": "x-large"})
 
     expected = dbc.Row("Clouds", className = "weather_row")
 
     date = from_utc().strftime("%b %d, %Y")
     time = html.B(from_utc().strftime("%H:%M"), style = {"padding-left": "10px"})
-    date = dbc.Row([date, time], id = "date_row", className = "weather_row", style = {"font-size": "smaller"})
-    location = dbc.Row(["Mont-Saint-Guibert, BE"], className = "weather_row", style = {"font-size": "smaller"})
+    date = dbc.Row([html.Img(src = "assets/calendar_1.png", height = "30px"), date, time], id = "date_row", className = "weather_row", style = {"font-size": "smaller"})
+    location = dbc.Row([html.Img(src = "assets/location.png", height = "30px"), "Mont-Saint-Guibert, BE"], className = "weather_row", style = {"font-size": "smaller"})
 
     return [html.Div([outdoor, indoor, expected, date, location], style = {"position": "absolute", "bottom": "0", "font-size": "large"})]
 
@@ -50,7 +50,7 @@ def make_details():
 def get_layout():
     row = [dcc.Interval(id = 'interval-component', interval = 1 * 1000, n_intervals = 0),
         dbc.Row([
-            dbc.Col(make_location_summary(), width = 2, style = {"min-height": "400px", "min-width": "250px"}),
+            dbc.Col(make_location_summary(), width = 2, style = {"background-image": "url('/assets/weather_bckg.jpg')", "min-height": "400px", "min-width": "250px"}),
             dbc.Col([
                 dbc.Row(dbc.Col([dbc.Row("Hourly Temperature"), dbc.Row(make_temperature_plot())])),
                 dbc.Row([

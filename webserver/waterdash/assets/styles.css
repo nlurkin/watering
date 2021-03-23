@@ -661,3 +661,18 @@ a {
 ::-webkit-scrollbar-thumb:hover {
   background: #d8d8d870 !important;
 }
+
+.weather_row {
+	background: none;
+}
+
+.weather_row img {
+	padding-right: 10px;
+}
+
+.card-deck.weather .col {
+	background-color: #3f86ba;
+	margin: 5px;
+	text-align: center;
+	padding: 40px 45px 15px 45px;
+}
