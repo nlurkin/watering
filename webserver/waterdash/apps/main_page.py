@@ -34,7 +34,15 @@ def make_location_summary():
 
 
 def make_temperature_plot():
-    sensor_element = []
+    sensor_element = [dbc.Card(dcc.Graph(
+        id = {"type": "other_sensor", "sensor": "428F_94_temp"},
+        # config = {'displayModeBar': False},
+        animate = True,
+        )), dbc.Card(dcc.Graph(
+        id = {"type": "other_sensor", "sensor": "bme1_temperature"},
+        # config = {'displayModeBar': False},
+        animate = True,
+        ))]
     return [dbc.Col(c) for c in sensor_element]
 
 
