@@ -18,8 +18,10 @@ import dateutil
 
 
 def make_location_summary():
-    indoor = dbc.Row([html.Img(src = "assets/in_house.png", height = "30px"), "\u00B0C"], className = "weather_row")
-    outdoor = dbc.Row([html.Img(src = "assets/out_house.png", height = "30px"), "\u00B0C"], className = "weather_row", style = {"font-size": "x-large"})
+    latest = mongoClient.get_latest_sensor_value("bme1_temperature")
+    indoor = dbc.Row([html.Img(src = "assets/in_house.png", height = "30px"), html.Div(latest, id = {"type":"local_value", "sensor":"bme1_temperature"}), "\u00B0C"], className = "weather_row")
+    latest = mongoClient.get_latest_sensor_value("428F_94_temp")
+    outdoor = dbc.Row([html.Img(src = "assets/out_house.png", height = "30px"), html.Div(latest, id = {"type":"local_value", "sensor":"428F_94_temp"}), "\u00B0C"], className = "weather_row", style = {"font-size": "x-large"})
 
     expected = dbc.Row("Clouds", className = "weather_row")
 
