@@ -94,3 +94,57 @@ def update_date(_):
 def update_local_value(_, sensor_name):
     val = mongoClient.get_latest_sensor_value(sensor_name["sensor"])
     return val
+
+
+def get_and_merge_data(sensor_name):
+    value_doc = mongoClient.get_all_sensor_values(sensor_name, to_utc().strftime("%Y-%m-%d"), to_utc().strftime("%Y-%m-%d"))
+    values = []
+    for doc in value_doc:
+        values.extend(doc["samples"])
+    if len(values) == 0:
+        value_doc = None
+    else:
+        value_doc = {'samples': values}
+
+    if value_doc is None:
+        df = pd.DataFrame({"val": []})
+    else:
+        if "samples" not in value_doc:
+            df = pd.DataFrame({"val": []})
+        else:
+            df = pd.DataFrame(value_doc["samples"])
+            df.index = pd.to_datetime(df['ts'], unit = "s", utc = True)
+        new_index = to_utc()
+        df = df.append(pd.DataFrame(index = [new_index], data = df.tail(1).values, columns = df.columns))
+
+    df = df.resample("1H").first()
+    return df
+
+
+@app.callback(Output({"type": "other_sensor", "sensor": MATCH}, 'figure'),
+              [Input('interval-component', 'n_intervals')],
+              [State({"type": "other_sensor", "sensor": MATCH}, 'id'), ])
+def update_float_metrics(_, sensor_name):
+    df = get_and_merge_data(sensor_name["sensor"])
+
+    figure = go.Figure().add_trace(go.Scatter(
+                    x = df.index,
+                    y = df["val"],
+                    mode = "lines+markers",
+                    name = "Read"
+                    )
+                )
+
+    title = {"bme1_temperature": "Indoors", "428F_94_temp": "Outdoors"}
+    figure.update_layout(
+        title = dict(text = title[sensor_name["sensor"]],
+                     x = 0.5,),
+        margin_t = 50,
+        margin_b = 10,
+        height = 200,
+        yaxis_title = "\u00B0C",
+        # xaxis = xaxis,
+        # template = "plotly_dark",
+    )
+
+    return figure
