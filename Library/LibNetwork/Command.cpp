@@ -33,7 +33,7 @@ void Command<bool>::from_string(char* buff){
 template <>
 char* Command<double>::def_string(char* buff){
   to_string_base(&buff);
-  strcpy(buff, "(D,1);");
+  strcpy_P(buff, PSTR("(D,1);"));
   buff += 6;
   return buff;
 }
@@ -41,7 +41,7 @@ char* Command<double>::def_string(char* buff){
 template <>
 char* Command<int>::def_string(char* buff){
   to_string_base(&buff);
-  strcpy(buff, "(I,1);");
+  strcpy_P(buff, PSTR("(I,1);"));
   buff += 6;
   return buff;
 }
@@ -49,7 +49,7 @@ char* Command<int>::def_string(char* buff){
 template <>
 char* Command<bool>::def_string(char* buff){
   to_string_base(&buff);
-  strcpy(buff, "(B,1);");
+  strcpy_P(buff, PSTR("(B,1);"));
   buff += 6;
   return buff;
 }

@@ -18,6 +18,7 @@ public:
   virtual ~MQTTControl();
 
   void setDestination(const char *address, uint16_t port);
+  void setDestination(const __FlashStringHelper * address, uint16_t port);
   void begin();
 
   virtual bool addCommand(PublicationBase* cmd);

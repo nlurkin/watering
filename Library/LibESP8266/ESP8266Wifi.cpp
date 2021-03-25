@@ -7,6 +7,7 @@
 
 #include "ESP8266Wifi.h"
 #include "DebugDef.h"
+#include "FlashHelpers.h"
 
 //\TODO add checkDataCapture possibly after each command
 
@@ -79,7 +80,7 @@ bool ESP8266Wifi::sendSomething(const char *cmd) const {
   if(cmd[0]=='&')
     return _client.sendData(cmd+1);
   else if(cmd[0]=='+' && cmd[1]=='+' && cmd[1]=='+')
-    return Serial1.print("+++");
+    return _client.getATSerial()->print(F("+++"));
   else
     return _client.sendCommand(cmd);
 }
@@ -148,7 +149,7 @@ bool ESP8266Wifi::checkDataCapture() {
     has_response = true;
   }
   if(close){
-    Serial.println("Closed connection");
+    Serial.println(F("Closed connection"));
     end_connection(close-2);
     has_response = true;
   }
@@ -289,7 +290,7 @@ bool ESP8266Wifi::restartBoard() const {
 bool ESP8266Wifi::fw_version() const {
     bool error = false;
   if(!_client.GMR()){
-      _logSerial->println("GMR Error");
+      _logSerial->println(F("GMR Error"));
       error = true;
   }
 
@@ -431,18 +432,18 @@ int8_t ESP8266Wifi::waitPayload(int8_t connlisten, char *buff, unsigned long tim
 }
 
 void ESP8266Wifi::printMacAddress() const {
-  Serial.print("MAC Address: ");
+  Serial.print(F("MAC Address: "));
   for(uint8_t i=0; i<6;++ i){
-      if(i>0) Serial.print("::");
+      if(i>0) Serial.print(F("::"));
     Serial.print(_mac_address[i], HEX);
   }
   Serial.println();
 }
 
 void ESP8266Wifi::printIPAddress() const {
-  Serial.print("IP Address: ");
+  Serial.print(F("IP Address: "));
   for(uint8_t i=0; i<4;++ i){
-    if(i>0) Serial.print(".");
+    if(i>0) Serial.print(F("."));
     Serial.print(_ip_address[i]);
   }
   Serial.println();
@@ -495,7 +496,7 @@ bool ESP8266Wifi::startsWith(const char *str, const char *search) {
 }
 
 bool ESP8266Wifi::startsWith(const char *str, const __FlashStringHelper* search) {
-  PGM_P p_search = reinterpret_cast<PGM_P>(search);
+  PGM_P p_search = PSTRF(search);
   unsigned char c;
   c = pgm_read_byte(p_search++);
   while( (*str!='\0') && (c!='\0') ){
@@ -518,7 +519,7 @@ bool ESP8266Wifi::endsWith(const char *str, const char *search) {
 
 bool ESP8266Wifi::endsWith(const char *str, const __FlashStringHelper* search) {
   const char *str_end = str + strlen(str)-1;
-  PGM_P p_search = reinterpret_cast<PGM_P>(search);
+  PGM_P p_search = PSTRF(search);
   PGM_P p_search_end = p_search + strlen_P(p_search)-1;
   unsigned char c;
   while( (str_end!=str) && (p_search_end+1!=p_search) ){

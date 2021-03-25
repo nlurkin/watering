@@ -6,6 +6,7 @@
  */
 
 #include "Packet.h"
+#include "FlashHelpers.h"
 
 namespace MQTT {
 Packet::Packet() {
@@ -94,6 +95,19 @@ bool Packet::addVarHeader(const char *h) {
   return true;
 }
 
+bool Packet::addVarHeader(const __FlashStringHelper *h) {
+  PGM_P p = PSTRF(h);
+  uint8_t n_bytes = strlen_P(p);
+  if(n_bytes+2 > 128-_var_header._n_bytes)
+    return false;
+  _var_header._bytes[_var_header._n_bytes++] = 0;
+  _var_header._bytes[_var_header._n_bytes++] = n_bytes;
+  for(uint8_t i=0; i<n_bytes; ++i){
+    _var_header._bytes[_var_header._n_bytes++] = pgm_read_byte(p + i);
+  }
+  return true;
+}
+
 bool Packet::addPayload(uint8_t p) {
   if(_payload._n_bytes>=128)
     return false;
@@ -109,6 +123,19 @@ bool Packet::addPayload(const char *p) {
   _payload._bytes[_payload._n_bytes++] = n_bytes;
   for(uint8_t i=0; i<n_bytes; ++i){
     _payload._bytes[_payload._n_bytes++] = p[i];
+  }
+  return true;
+}
+
+bool Packet::addPayload(const __FlashStringHelper *p) {
+  PGM_P h = PSTRF(p);
+  uint8_t n_bytes = strlen_P(h);
+  if(n_bytes+2 > 128-_payload._n_bytes)
+    return false;
+  _payload._bytes[_payload._n_bytes++] = 0;
+  _payload._bytes[_payload._n_bytes++] = n_bytes;
+  for(uint8_t i=0; i<n_bytes; ++i){
+    _payload._bytes[_payload._n_bytes++] = pgm_read_byte(h + i);
   }
   return true;
 }
@@ -130,29 +157,29 @@ uint32_t Packet::fillBuffer(char *buffer) {
 }
 
 void Packet::print() {
-  Serial.println("MQTT Packet");
-  Serial.println(" -- Fix header --");
+  Serial.println(F("MQTT Packet"));
+  Serial.println(F(" -- Fix header --"));
   Serial.print(_fixed_header._type);
-  Serial.print(" ");
+  Serial.print(F(" "));
   Serial.println(_fixed_header._ctrl_type);
-  Serial.print("RLen:");
+  Serial.print(F("RLen:"));
   Serial.print(getRemainLen());
-  Serial.print(" -> ");
+  Serial.print(F(" -> "));
   for(int i=0; i<4; ++i){
     Serial.print(_fixed_header._len[i]);
-    Serial.print(":");
+    Serial.print(F(":"));
   }
   Serial.println();
-  Serial.println(" -- Var header --");
+  Serial.println(F(" -- Var header --"));
   for(int i=0; i<_var_header._n_bytes; ++i){
     Serial.print(_var_header._bytes[i]);
-    Serial.print(" -> ");
+    Serial.print(F(" -> "));
     Serial.println((char)_var_header._bytes[i]);
   }
-  Serial.println(" -- Payload --");
+  Serial.println(F(" -- Payload --"));
   for(int i=0; i<_payload._n_bytes; ++i) {
     Serial.print(_payload._bytes[i]);
-    Serial.print(" -> ");
+    Serial.print(F(" -> "));
     Serial.println((char)_payload._bytes[i]);
   }
 }

@@ -179,3 +179,10 @@ class myMongoClient(object):
     def get_advertised_all_list(self):
         return list(self.advertised_all_db.find({}, {"_id": 0}))
 
+    def get_latest_sensor_value(self, sensor_name):
+        day = to_utc().strftime("%Y-%m-%d")
+        sensor_doc = self.get_sensor_values(sensor_name, day)
+        if sensor_doc is not None and len(sensor_doc["samples"])>0:
+            return sensor_doc["samples"][-1]["val"]
+        return "N/A"
+
