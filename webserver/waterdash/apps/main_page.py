@@ -61,6 +61,12 @@ def make_details():
     latest = mongoClient.get_latest_sensor_value("428F_94_hum")
     mcards.append((dbc.CardImg(src = "assets/humidity_out.png", style = {"width": "50px"}), dbc.CardBody(f"{latest} %")))
 
+    latest = mongoClient.get_latest_sensor_value("bme1_pressure")
+    values = get_and_merge_data("bme1_pressure")
+    values = values.asof(to_utc() - datetime.timedelta(hours = 6))["val"]
+    updown = "stable" if np.abs(latest - values) < 1 else ("up" if (latest - values > 0) else "down")
+    mcards.append((dbc.CardImg(src = f"assets/barometer_in_{updown}.png", style = {"width": "50px"}), dbc.CardBody(html.P(f"{latest} mm Hg"))))
+
     return dbc.Row(dbc.CardDeck([dbc.Col(c, width = 5) for c in mcards], className = "weather"))
 
 
