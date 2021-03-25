@@ -14,7 +14,7 @@ import pandas as pd
 import plotly.graph_objects as go
 from waterapp import mongoClient, app
 import datetime
-import dateutil
+import numpy as np
 
 
 def make_location_summary():
@@ -48,6 +48,26 @@ def make_temperature_plot():
 
 def make_highlights():
     mcards = []
+
+    values = get_and_merge_data("bme1_temperature")
+    vmax = values["val"].max()
+    vmin = values["val"].min()
+    mcards.append((dbc.CardImg(src = "assets/in_house.png", style = {"width": "50px"}), dbc.CardBody([html.P(f"Max: {vmax}\u00B0C"), html.P(f"Min: {vmin}\u00B0C")])))
+
+    values = get_and_merge_data("bme1_humidity")
+    vmax = values["val"].max()
+    vmin = values["val"].min()
+    mcards.append((dbc.CardImg(src = "assets/humidity_in.png", style = {"width": "50px"}), dbc.CardBody([html.P(f"Max: {vmax} %"), html.P(f"Min: {vmin} %")])))
+
+    values = get_and_merge_data("428F_94_temp")
+    vmax = values["val"].max()
+    vmin = values["val"].min()
+    mcards.append((dbc.CardImg(src = "assets/out_house.png", style = {"width": "50px"}), dbc.CardBody([html.P(f"Max: {vmax}\u00B0C"), html.P(f"Min: {vmin}\u00B0C")])))
+
+    values = get_and_merge_data("428F_94_hum")
+    vmax = values["val"].max()
+    vmin = values["val"].min()
+    mcards.append((dbc.CardImg(src = "assets/humidity_out.png", style = {"width": "50px"}), dbc.CardBody([html.P(f"Max: {vmax} %"), html.P(f"Min: {vmin} %")])))
 
     return dbc.Row(dbc.CardDeck([dbc.Col(c, width = 5) for c in mcards], className = "weather"))
 
