@@ -465,7 +465,7 @@ h1, h2, h3, h4, h5 {
   padding-left: 12px;
 }
 p {
-  font-family: "Open Sans Light";
+  /* font-family: "Open Sans Light"; */
   font-weight: 400;
   font-size: 14px;
   padding-left: 12px;
@@ -660,4 +660,41 @@ a {
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
   background: #d8d8d870 !important;
+}
+
+.weather_row {
+	background: none;
+}
+
+.weather_row img {
+	padding-right: 10px;
+}
+
+.card-deck.weather .col, .card-deck.weather .col-1,
+.card-deck.weather .col-2, .card-deck.weather .col-3,
+.card-deck.weather .col-4, .card-deck.weather .col-5,
+.card-deck.weather .col-6{
+	background-color: #3f86ba;
+	margin: 5px;
+	text-align: center;
+	font-size: medium;
+	/* min-width: 110px; */
+	/* padding: 40px 45px 15px 45px; */
+}
+
+.card-img {
+	margin-top: 15px;
+	margin-bottom: 5px;
+}
+
+.card-body {
+	padding: unset;
+	/* min-width: 120px;
+	min-height: 70px; */
+}
+
+.card-body p {
+	margin-top: 0px;
+	margin-bottom: 0px;
+	font-size: inherit;
 }

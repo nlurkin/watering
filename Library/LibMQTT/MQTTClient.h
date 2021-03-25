@@ -21,7 +21,9 @@ public:
   virtual ~MQTTClient();
 
   void setDestination(const char *address, uint16_t port);
+  void setDestination(const __FlashStringHelper *address, uint16_t port);
   void setUserPass(const char *username, const char *password);
+  void setUserPass(const __FlashStringHelper *username, const __FlashStringHelper *password);
   void begin();
 
   bool connect();

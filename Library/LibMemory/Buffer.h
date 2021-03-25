@@ -26,6 +26,7 @@ public:
   bool startsWith(const char *str) const;
   bool startsWith(const __FlashStringHelper *str) const;
   int  containsAt(const char *str) const;
+  int  containsAt(const __FlashStringHelper *str) const;
   void print() const;
 
   char   read();

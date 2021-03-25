@@ -7,6 +7,7 @@
 
 #include <MQTTClient.h>
 #include "Packet.h"
+#include "FlashHelpers.h"
 
 MQTTClient::MQTTClient(ESP8266Wifi &wifi, const char* name) :
   _connection(-1),
@@ -41,11 +42,24 @@ void MQTTClient::setDestination(const char *address, uint16_t port) {
   _dest_port = port;
 }
 
+void MQTTClient::setDestination(const __FlashStringHelper *address, uint16_t port) {
+  _dest_address = new char[strlen_P(PSTRF(address))+1];
+  strcpy_P(_dest_address, PSTRF(address));
+  _dest_port = port;
+}
+
 void MQTTClient::setUserPass(const char *username, const char *password) {
   _username = new char[strlen(username)+1];
   strcpy(_username, username);
   _password = new char[strlen(password)+1];
   strcpy(_password, password);
+}
+
+void MQTTClient::setUserPass(const __FlashStringHelper *username, const __FlashStringHelper *password) {
+  _username = new char[strlen_P(PSTRF(username))+1];
+  strcpy_P(_username, PSTRF(username));
+  _password = new char[strlen_P(PSTRF(password))+1];
+  strcpy_P(_password, PSTRF(password));
 }
 
 bool MQTTClient::connect() {
@@ -116,7 +130,7 @@ bool MQTTClient::send_connect(uint8_t conn) {
   MQTT::Packet packet;
   packet.setCtrlType(MQTT::CONNECT);
 
-  packet.addVarHeader("MQTT");     //Protocol name
+  packet.addVarHeader(F("MQTT"));     //Protocol name
   packet.addVarHeader(0x04);       //Protocol version
   if(_username)
     packet.addVarHeader(MQTT::USERNAME | MQTT::PASSWORD); //Connect flags
@@ -128,7 +142,7 @@ bool MQTTClient::send_connect(uint8_t conn) {
   if(_name)
     packet.addPayload(_name);
   else
-    packet.addPayload("arduino");
+    packet.addPayload(F("arduino"));
 
   if(_username){
     packet.addPayload(_username);

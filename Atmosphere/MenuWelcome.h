@@ -17,6 +17,7 @@ public:
   virtual void init();
 
   void connected(bool val);
+  void communication(bool val);
 
 private:
   char _sym_connected[4];

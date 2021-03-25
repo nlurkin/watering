@@ -8,8 +8,7 @@
 #include "ControlServer.h"
 #include "PublicationBase.h"
 #include "DebugDef.h"
-
-#define FPSTR(pstr_pointer) (reinterpret_cast<const __FlashStringHelper *>(pstr_pointer))
+#include "FlashHelpers.h"
 
 ControlServer::ControlServer() :
   _num_publications(0),
@@ -43,8 +42,6 @@ bool ControlServer::serve(bool force) {
   PublicationBase *updatedPublications[MAX_PUBLICATIONS];
   for(uint8_t iPub=0; iPub<_num_publications; ++iPub){
     if(_publications[iPub]->isUpdated() || force){
-      Serial.print("Publication ready: ");
-      Serial.println(iPub);
       updatedPublications[nPubReady++] = _publications[iPub];
     }
   }

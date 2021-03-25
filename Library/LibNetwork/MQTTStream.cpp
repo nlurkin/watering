@@ -57,5 +57,7 @@ void MQTTStream::flush() {
   char buff[NETWORK_TX_BUFFER_SIZE];
   _tx_buffer.get(buff, NETWORK_TX_BUFFER_SIZE);
   clear();
-  _mqtt->publish("arduino_console", buff);
+  char pub[16];
+  strcpy_P(pub, PSTR("arduino_console"));
+  _mqtt->publish(pub, buff);
 }

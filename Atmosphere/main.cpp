@@ -14,6 +14,7 @@
 #include "MQTTControl.h"
 #include "BME280Reader.h"
 #include "OregonSetup.h"
+#include "FlashHelpers.h"
 
 ESP8266Wifi wifi(&Serial2);
 MQTTClient mqtt(wifi, "arduino");
@@ -21,9 +22,11 @@ MQTTControl pubServer(mqtt, "arduino");
 
 OregonSetup oregon;
 
-const char ssid[] = {""};
-const char pwd[]  = {""};
-const char serverHost[] = {""};
+const char ssid[]       PROGMEM = {""};
+const char pwd[]        PROGMEM = {""};
+const char serverHost[] PROGMEM = {""};
+const char mqttUser[]   PROGMEM = {""};
+const char mqttPwd[]    PROGMEM = {""};
 
 LCDDisplay lcd(100);
 MenuWelcome _m_welcome(lcd.get_lcd_handle());
@@ -44,15 +47,22 @@ void setup() {
   lcd.add_menu(&_m_welcome);
   lcd.add_menu(&_m_bme);
 
-  mqtt.setUserPass("ardhome", "huY!rd89%");
 
-  wifi.init(ssid, pwd, true, false);
+  mqtt.setUserPass(FPSTR(mqttUser), FPSTR(mqttPwd));
+
+  while(!wifi.checkCommunication(false))
+    delay(10000);
+  _m_welcome.communication(true);
+  char p_ssid[30], p_pwd[30];
+  strcpy_P(p_ssid, ssid);
+  strcpy_P(p_pwd, pwd);
+  wifi.init(p_ssid, p_pwd, true, false);
 
   bme1.init(&_m_bme);
   oregon.init(19);
 
   Serial.println(F("Stating publication server"));
-  pubServer.setDestination(serverHost, 1883);
+  pubServer.setDestination(FPSTR(serverHost), 1883);
   pubServer.begin();
 
   bme1.setPublicationServer(&pubServer);
@@ -83,6 +93,10 @@ bool watchdog() {
       //Seems we really lost the wifi...
       watchdog_ok = false;
       if(reset_failure>10) {// Wifi reconnect failed many times. Try a full RESET of the ESP
+        _m_welcome.communication(false);
+        while(!wifi.checkCommunication(false))
+          delay(10000);
+        _m_welcome.communication(true);
         watchdog_ok = wifi.init(ssid, pwd, true, false);
         reset_failure = 0;
         if(watchdog_ok)

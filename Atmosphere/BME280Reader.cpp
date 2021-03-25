@@ -40,13 +40,17 @@ void BME280Reader::setPublicationServer(ControlServer *server){
   if(server==nullptr)
     return;
   // Create publications and add them
-  _pub_temperature = new Publication<double>("bme1_temperature");
+  char temp[20], press[20], hum[20];
+  strcpy_P(temp, PSTR("bme1_temperature"));
+  strcpy_P(press, PSTR("bme1_pressure"));
+  strcpy_P(hum, PSTR("bme1_humidity"));
+  _pub_temperature = new Publication<double>(temp);
   _pub_temperature->updateValue(_bme.readTemperature());
   _controlServer->addPublication(_pub_temperature);
-  _pub_pressure    = new Publication<double>("bme1_pressure");
+  _pub_pressure    = new Publication<double>(press);
   _pub_pressure->updateValue(_bme.readPressure());
   _controlServer->addPublication(_pub_pressure);
-  _pub_humidity    = new Publication<double>("bme1_humidity");
+  _pub_humidity    = new Publication<double>(hum);
   _pub_humidity->updateValue(_bme.readHumidity());
   _controlServer->addPublication(_pub_humidity);
 }
@@ -57,23 +61,23 @@ void BME280Reader::updateAll() {
   double humidity = _bme.readHumidity();
   double altitude = _bme.readAltitude(1019.66);
 
-  Serial.print(F("Temperature = "));
-  Serial.print(temperature);
-  Serial.println(" *C");
-
-  Serial.print(F("Pressure = "));
-  Serial.print(pressure); //displaying the Pressure in hPa, you can change the unit
-  Serial.println(" hPa");
-
-  Serial.print(F("Humidity = "));
-  Serial.print(humidity); //displaying the Pressure in hPa, you can change the unit
-  Serial.println(" %");
-
-  Serial.print(F("Approx altitude = "));
-  Serial.print(altitude); //The "1019.66" is the pressure(hPa) at sea level in day in your region
-  Serial.println(" m");                    //If you don't know it, modify it until you get your current altitude
-
-  Serial.println();
+  //Serial.print(F("Temperature = "));
+  //Serial.print(temperature);
+  //Serial.println(F(" *C"));
+  //
+  //Serial.print(F("Pressure = "));
+  //Serial.print(pressure); //displaying the Pressure in hPa, you can change the unit
+  //Serial.println(F(" hPa"));
+  //
+  //Serial.print(F("Humidity = "));
+  //Serial.print(humidity); //displaying the Pressure in hPa, you can change the unit
+  //Serial.println(F(" %"));
+  //
+  //Serial.print(F("Approx altitude = "));
+  //Serial.print(altitude); //The "1019.66" is the pressure(hPa) at sea level in day in your region
+  //Serial.println(F(" m"));                    //If you don't know it, modify it until you get your current altitude
+  //
+  //Serial.println();
   if(_m_bme)
     _m_bme->set_values(temperature, pressure, humidity, altitude);
 

@@ -6,8 +6,7 @@
  */
 
 #include "NetworkStream.h"
-
-#define FPSTR(pstr_pointer) (reinterpret_cast<const __FlashStringHelper *>(pstr_pointer))
+#include "FlashHelpers.h"
 
 NetworkStream::NetworkStream() :
   _rx_buffer(NETWORK_RX_BUFFER_SIZE),

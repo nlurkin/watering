@@ -7,6 +7,7 @@
 
 #include "ATClient.h"
 #include "DebugDef.h"
+#include "FlashHelpers.h"
 
 ATClient::ATClient(Stream* serial) :
   _set_default(false),
@@ -362,7 +363,7 @@ bool ATClient::CIPSTART(TCP_TYPE type, uint8_t ip[4], uint16_t port, int8_t link
   sendCommand(cmd);
   bool ans = checkAnswer(cmd);
   if(!ans){
-      int at = _dataCapture.containsAt("ALREADY CONNECTED");
+      int at = _dataCapture.containsAt(F("ALREADY CONNECTED"));
       Serial.println(at);
       return at!=-1;
   }
@@ -403,13 +404,13 @@ bool ATClient::CIPSTART(TCP_TYPE type, const char *address, uint16_t port, int8_
   sendCommand(cmd);
   bool ans = checkAnswer(cmd);
   if(!ans){
-    int at = _dataCapture.containsAt("ALREADY CONNECTED");
+    int at = _dataCapture.containsAt(F("ALREADY CONNECTED"));
     if(at!=-1){
       // Already opened
       Serial.println(at);
       return true;
     }
-    at = _dataCapture.containsAt("Link type ERROR");
+    at = _dataCapture.containsAt(F("Link type ERROR"));
     if(at!=-1){
       // Probably not the correct mux
       Serial.println(at);
@@ -781,7 +782,7 @@ bool ATClient::waitMessage(const char *message) {
 bool ATClient::waitMessage(const __FlashStringHelper* message) {
   bool got_message = false;
   bool got_first_char = false;
-  size_t str_len = strlen_P(reinterpret_cast<PGM_P>(message));
+  size_t str_len = strlen_P(PSTRF(message));
   unsigned long start_time = millis();
   size_t available = waitData(str_len);
 
@@ -793,7 +794,7 @@ bool ATClient::waitMessage(const __FlashStringHelper* message) {
   char buff[20];
   char c;
   size_t pos = 0;
-  PGM_P p_msg = reinterpret_cast<PGM_P>(message);
+  PGM_P p_msg = PSTRF(message);
   char c_msg = pgm_read_byte(p_msg);
 #endif
 

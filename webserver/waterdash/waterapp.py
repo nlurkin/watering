@@ -8,7 +8,8 @@ Created on 17 Jun 2020
 import dash
 import dash_bootstrap_components as dbc
 from mongodb import myMongoClient
-from data.config import mongo_creds, app_prefix
+from data.config import mongo_creds, app_prefix, owm_token, owm_city
+from owm import owm_wrapper
 
 # Initialise the app
 app = dash.Dash(__name__, external_stylesheets = [dbc.themes.BOOTSTRAP],
@@ -18,3 +19,5 @@ server = app.server
 
 mongoClient = myMongoClient(mongo_creds["server"], 27017, mongo_creds["username"], mongo_creds["password"])
 mongoClient.connect()
+
+owm = owm_wrapper(owm_token, owm_city)
