@@ -4,17 +4,19 @@ Created on 21 Mar 2021
 @author: Nicolas Lurkin
 '''
 
+import datetime
+
 from dash.dependencies import MATCH, Output, Input, State
 
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
 from mongodb import from_utc, to_utc
+import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
-from waterapp import mongoClient, app
-import datetime
-import numpy as np
+from waterapp import mongoClient, app, owm
+
 
 
 def make_location_summary():
@@ -23,7 +25,8 @@ def make_location_summary():
     latest = mongoClient.get_latest_sensor_value("428F_94_temp")
     outdoor = dbc.Row([html.Img(src = "assets/out_house.png", height = "30px"), html.Div(latest, id = {"type":"local_value", "sensor":"428F_94_temp"}), "\u00B0C"], className = "weather_row", style = {"font-size": "larger"})
 
-    expected = dbc.Row("Clouds", className = "weather_row")
+    obs = owm.get_latest_info()["obs"]
+    expected = dbc.Row([html.Img(src = obs.weather_icon_url(), style = {"margin-left": "-10px"}), obs.detailed_status], className = "weather_row")
 
     date = from_utc().strftime("%b %d, %Y")
     time = html.B(from_utc().strftime("%H:%M"), style = {"padding-left": "10px"})
@@ -86,6 +89,21 @@ def make_details():
     values = values.asof(to_utc() - datetime.timedelta(hours = 6))["val"]
     updown = "stable" if np.abs(latest - values) < 1 else ("up" if (latest - values > 0) else "down")
     mcards.append((dbc.CardImg(src = f"assets/barometer_in_{updown}.png", style = {"width": "50px"}), dbc.CardBody(html.P(f"{latest} mm Hg"))))
+
+    obs = owm.get_latest_info()["obs"]
+
+    feels = obs.temperature("celsius")["feels_like"]
+    mcards.append((dbc.CardImg(src = "assets/feel.png", style = {"width": "50px"}), dbc.CardBody(f"{feels}\u00B0C")))
+
+    wind = obs.wind()["speed"]
+    mcards.append((dbc.CardImg(src = "assets/wind.png", style = {"width": "50px"}), dbc.CardBody(f"{wind} km/h")))
+
+    rain = obs.rain
+    if len(rain) == 0:
+        rain = "N/A"
+    else:
+        rain = f"{rain['1h']} mm"
+    mcards.append((dbc.CardImg(src = "assets/rain_level.png", style = {"width": "50px"}), dbc.CardBody(f"{rain}")))
 
     return dbc.Row(dbc.CardDeck([dbc.Col(c, width = 5) for c in mcards], className = "weather"))
 
