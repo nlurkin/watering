@@ -109,7 +109,7 @@ def make_details():
 
 
 def get_layout():
-    row = [dcc.Interval(id = 'interval-component', interval = 1 * 1000, n_intervals = 0),
+    row = [dcc.Interval(id = 'interval-component', interval = 300 * 1000, n_intervals = 0),
         dbc.Row([
             dbc.Col(make_location_summary(), width = 2, style = {"background-image": "url('/assets/weather_bckg.jpg')", "min-height": "400px", "min-width": "290px"}),
             dbc.Col([
