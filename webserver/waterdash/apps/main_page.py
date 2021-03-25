@@ -182,6 +182,11 @@ def update_float_metrics(_, sensor_name):
     df = dfo.resample("1H").first()
     df.loc[dfo.iloc[-1].name] = dfo.iloc[-1]
 
+    if title[sensor_name["sensor"]] == "Outdoors":
+        hourly = owm.prepare_hourly_12h_forecast()
+        for h, w in hourly:
+            df.loc[h] = {"val": w.temperature("celsius")["temp"], "ts": h}
+
     figure = go.Figure().add_trace(go.Scatter(
                     x = df.index,
                     y = df["val"],
