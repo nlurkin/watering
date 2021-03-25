@@ -98,7 +98,9 @@ def update_local_value(_, sensor_name):
 
 
 def get_and_merge_data(sensor_name):
-    value_doc = mongoClient.get_all_sensor_values(sensor_name, to_utc().strftime("%Y-%m-%d"), to_utc().strftime("%Y-%m-%d"))
+    start_time = from_utc() - datetime.timedelta(days = 1)
+    end_time = from_utc()
+    value_doc = mongoClient.get_all_sensor_values(sensor_name, start_time.strftime("%Y-%m-%d"), end_time.strftime("%Y-%m-%d"))
     values = []
     for doc in value_doc:
         values.extend(doc["samples"])
@@ -118,7 +120,8 @@ def get_and_merge_data(sensor_name):
         new_index = to_utc()
         df = df.append(pd.DataFrame(index = [new_index], data = df.tail(1).values, columns = df.columns))
 
-    df = df.resample("1H").first()
+    df = df.loc[start_time:end_time]
+
     return df
 
 
@@ -126,7 +129,8 @@ def get_and_merge_data(sensor_name):
               [Input('interval-component', 'n_intervals')],
               [State({"type": "other_sensor", "sensor": MATCH}, 'id'), ])
 def update_float_metrics(_, sensor_name):
-    df = get_and_merge_data(sensor_name["sensor"])
+    dfo = get_and_merge_data(sensor_name["sensor"])
+    df = dfo.resample("1H").first()
 
     figure = go.Figure().add_trace(go.Scatter(
                     x = df.index,
