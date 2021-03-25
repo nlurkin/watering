@@ -131,6 +131,7 @@ def get_and_merge_data(sensor_name):
 def update_float_metrics(_, sensor_name):
     dfo = get_and_merge_data(sensor_name["sensor"])
     df = dfo.resample("1H").first()
+    df.loc[dfo.iloc[-1].name] = dfo.iloc[-1]
 
     figure = go.Figure().add_trace(go.Scatter(
                     x = df.index,
