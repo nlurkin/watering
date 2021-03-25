@@ -19,9 +19,9 @@ import dateutil
 
 def make_location_summary():
     latest = mongoClient.get_latest_sensor_value("bme1_temperature")
-    indoor = dbc.Row([html.Img(src = "assets/in_house.png", height = "30px"), html.Div(latest, id = {"type":"local_value", "sensor":"bme1_temperature"}), "\u00B0C"], className = "weather_row")
+    indoor = dbc.Row([html.Img(src = "assets/in_house.png", height = "30px"), html.Div(latest, id = {"type":"local_value", "sensor":"bme1_temperature"}), "\u00B0C"], className = "weather_row", style = {"font-size": "larger"})
     latest = mongoClient.get_latest_sensor_value("428F_94_temp")
-    outdoor = dbc.Row([html.Img(src = "assets/out_house.png", height = "30px"), html.Div(latest, id = {"type":"local_value", "sensor":"428F_94_temp"}), "\u00B0C"], className = "weather_row", style = {"font-size": "x-large"})
+    outdoor = dbc.Row([html.Img(src = "assets/out_house.png", height = "30px"), html.Div(latest, id = {"type":"local_value", "sensor":"428F_94_temp"}), "\u00B0C"], className = "weather_row", style = {"font-size": "larger"})
 
     expected = dbc.Row("Clouds", className = "weather_row")
 
@@ -30,7 +30,7 @@ def make_location_summary():
     date = dbc.Row([html.Img(src = "assets/calendar_1.png", height = "30px"), date, time], id = "date_row", className = "weather_row", style = {"font-size": "smaller"})
     location = dbc.Row([html.Img(src = "assets/location.png", height = "30px"), "Mont-Saint-Guibert, BE"], className = "weather_row", style = {"font-size": "smaller"})
 
-    return [html.Div([outdoor, indoor, expected, date, location], style = {"position": "absolute", "bottom": "0", "font-size": "large"})]
+    return [html.Div([outdoor, indoor, expected, date, location], style = {"position": "absolute", "bottom": "0", "font-size": "x-large"})]
 
 
 def make_temperature_plot():
@@ -49,29 +49,30 @@ def make_temperature_plot():
 def make_highlights():
     mcards = []
 
-    return dbc.Row(dbc.CardDeck([dbc.Col(c) for c in mcards], className = "weather"))
+    return dbc.Row(dbc.CardDeck([dbc.Col(c, width = 5) for c in mcards], className = "weather"))
+
 
 def make_details():
     mcards = []
 
     latest = mongoClient.get_latest_sensor_value("bme1_humidity")
-    mcards.append((dbc.CardImg(src = "assets/humidity_in.png", style = {"width": "50px"}), dbc.CardBody(f"{latest}%")))
+    mcards.append((dbc.CardImg(src = "assets/humidity_in.png", style = {"width": "50px"}), dbc.CardBody(f"{latest} %")))
 
     latest = mongoClient.get_latest_sensor_value("428F_94_hum")
-    mcards.append((dbc.CardImg(src = "assets/humidity_out.png", style = {"width": "50px"}), dbc.CardBody(f"{latest}%")))
+    mcards.append((dbc.CardImg(src = "assets/humidity_out.png", style = {"width": "50px"}), dbc.CardBody(f"{latest} %")))
 
-    return dbc.Row(dbc.CardDeck([dbc.Col(c) for c in mcards], className = "weather"))
+    return dbc.Row(dbc.CardDeck([dbc.Col(c, width = 5) for c in mcards], className = "weather"))
 
 
 def get_layout():
     row = [dcc.Interval(id = 'interval-component', interval = 1 * 1000, n_intervals = 0),
         dbc.Row([
-            dbc.Col(make_location_summary(), width = 2, style = {"background-image": "url('/assets/weather_bckg.jpg')", "min-height": "400px", "min-width": "250px"}),
+            dbc.Col(make_location_summary(), width = 2, style = {"background-image": "url('/assets/weather_bckg.jpg')", "min-height": "400px", "min-width": "290px"}),
             dbc.Col([
                 dbc.Row(dbc.Col([dbc.Row("Hourly Temperature"), dbc.Row(make_temperature_plot())])),
                 dbc.Row([
-                    dbc.Col([dbc.Row("Details"), dbc.Row(dbc.Col(make_details()))]),
-                    dbc.Col([dbc.Row("Todays's highlights"), dbc.Row(dbc.Col(make_highlights()))]),
+                    dbc.Col([dbc.Row("Details"), dbc.Row(dbc.Col(make_details()), justify = "start")]),
+                    dbc.Col([dbc.Row("24h highlights"), dbc.Row(dbc.Col(make_highlights()), justify = "start")]),
                     ])
                 ], style = {"Padding": "50px"})
             ], style = {"background-color": "#1E1E1E", "border-style":"solid"})
