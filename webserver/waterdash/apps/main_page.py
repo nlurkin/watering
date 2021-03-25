@@ -52,22 +52,22 @@ def make_temperature_plot():
 def make_highlights():
     mcards = []
 
-    values = get_and_merge_data("bme1_temperature")
+    values = get_and_merge_data("bme1_temperature", 24)
     vmax = values["val"].max()
     vmin = values["val"].min()
     mcards.append((dbc.CardImg(src = "assets/in_house.png", style = {"width": "50px"}), dbc.CardBody([html.P(f"Max: {vmax}\u00B0C"), html.P(f"Min: {vmin}\u00B0C")])))
 
-    values = get_and_merge_data("bme1_humidity")
+    values = get_and_merge_data("bme1_humidity", 24)
     vmax = values["val"].max()
     vmin = values["val"].min()
     mcards.append((dbc.CardImg(src = "assets/humidity_in.png", style = {"width": "50px"}), dbc.CardBody([html.P(f"Max: {vmax} %"), html.P(f"Min: {vmin} %")])))
 
-    values = get_and_merge_data("428F_94_temp")
+    values = get_and_merge_data("428F_94_temp", 24)
     vmax = values["val"].max()
     vmin = values["val"].min()
     mcards.append((dbc.CardImg(src = "assets/out_house.png", style = {"width": "50px"}), dbc.CardBody([html.P(f"Max: {vmax}\u00B0C"), html.P(f"Min: {vmin}\u00B0C")])))
 
-    values = get_and_merge_data("428F_94_hum")
+    values = get_and_merge_data("428F_94_hum", 24)
     vmax = values["val"].max()
     vmin = values["val"].min()
     mcards.append((dbc.CardImg(src = "assets/humidity_out.png", style = {"width": "50px"}), dbc.CardBody([html.P(f"Max: {vmax} %"), html.P(f"Min: {vmin} %")])))
@@ -85,7 +85,7 @@ def make_details():
     mcards.append((dbc.CardImg(src = "assets/humidity_out.png", style = {"width": "50px"}), dbc.CardBody(f"{latest} %")))
 
     latest = mongoClient.get_latest_sensor_value("bme1_pressure")
-    values = get_and_merge_data("bme1_pressure")
+    values = get_and_merge_data("bme1_pressure", 24)
     values = values.asof(to_utc() - datetime.timedelta(hours = 6))["val"]
     updown = "stable" if np.abs(latest - values) < 1 else ("up" if (latest - values > 0) else "down")
     mcards.append((dbc.CardImg(src = f"assets/barometer_in_{updown}.png", style = {"width": "50px"}), dbc.CardBody(html.P(f"{latest} mm Hg"))))
@@ -141,9 +141,9 @@ def update_local_value(_, sensor_name):
     return val
 
 
-def get_and_merge_data(sensor_name):
-    start_time = from_utc() - datetime.timedelta(days = 1)
-    end_time = from_utc()
+def get_and_merge_data(sensor_name, nhours):
+    start_time = to_utc() - datetime.timedelta(hours = nhours)
+    end_time = to_utc()
     value_doc = mongoClient.get_all_sensor_values(sensor_name, start_time.strftime("%Y-%m-%d"), end_time.strftime("%Y-%m-%d"))
     values = []
     for doc in value_doc:
@@ -173,7 +173,9 @@ def get_and_merge_data(sensor_name):
               [Input('interval-component', 'n_intervals')],
               [State({"type": "other_sensor", "sensor": MATCH}, 'id'), ])
 def update_float_metrics(_, sensor_name):
-    dfo = get_and_merge_data(sensor_name["sensor"])
+    title = {"bme1_temperature": "Indoors", "428F_94_temp": "Outdoors"}
+
+    dfo = get_and_merge_data(sensor_name["sensor"], 12)
     df = dfo.resample("1H").first()
     df.loc[dfo.iloc[-1].name] = dfo.iloc[-1]
 
@@ -185,7 +187,6 @@ def update_float_metrics(_, sensor_name):
                     )
                 )
 
-    title = {"bme1_temperature": "Indoors", "428F_94_temp": "Outdoors"}
     figure.update_layout(
         title = dict(text = title[sensor_name["sensor"]],
                      x = 0.5,),
