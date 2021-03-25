@@ -113,10 +113,10 @@ def get_layout():
         dbc.Row([
             dbc.Col(make_location_summary(), width = 2, style = {"background-image": "url('/assets/weather_bckg.jpg')", "min-height": "400px", "min-width": "290px"}),
             dbc.Col([
-                dbc.Row(dbc.Col([dbc.Row("Hourly Temperature"), dbc.Row(make_temperature_plot())])),
+                dbc.Row(dbc.Col([dbc.Row("Hourly Temperature", style = {"font-size": "large"}), dbc.Row(make_temperature_plot())])),
                 dbc.Row([
-                    dbc.Col([dbc.Row("Details"), dbc.Row(dbc.Col(make_details()), justify = "start")]),
-                    dbc.Col([dbc.Row("24h highlights"), dbc.Row(dbc.Col(make_highlights()), justify = "start")]),
+                    dbc.Col([dbc.Row("Details", style = {"font-size": "large"}), dbc.Row(dbc.Col(make_details()), justify = "start")]),
+                    dbc.Col([dbc.Row("24h highlights", style = {"font-size": "large"}), dbc.Row(dbc.Col(make_highlights()), justify = "start")]),
                     ])
                 ], style = {"Padding": "50px"})
             ], style = {"background-color": "#1E1E1E", "border-style":"solid"})
