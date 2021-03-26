@@ -182,11 +182,6 @@ def update_float_metrics(_, sensor_name):
     df = dfo.resample("1H").first()
     df.loc[dfo.iloc[-1].name] = dfo.iloc[-1]
 
-    if title[sensor_name["sensor"]] == "Outdoors":
-        hourly = owm.prepare_hourly_12h_forecast()
-        for h, w in hourly:
-            df.loc[h] = {"val": w.temperature("celsius")["temp"], "ts": h}
-
     figure = go.Figure().add_trace(go.Scatter(
                     x = df.index,
                     y = df["val"],
@@ -194,6 +189,18 @@ def update_float_metrics(_, sensor_name):
                     name = "Read"
                     )
                 )
+    if title[sensor_name["sensor"]] == "Outdoors":
+        hourly = owm.prepare_hourly_12h_forecast()
+        df_forecast = pd.DataFrame().reindex_like(df)
+        df_forecast.loc[dfo.iloc[-1].name] = dfo.iloc[-1]
+        for h, w in hourly:
+            df_forecast.loc[h] = {"val": w.temperature("celsius")["temp"], "ts": h}
+        figure = figure.add_trace(go.Scatter(
+                    x = df_forecast.index,
+                    y = df_forecast["val"],
+                    mode = "lines+markers",
+                    name = "Forecast"
+                    ))
 
     figure.update_layout(
         title = dict(text = title[sensor_name["sensor"]],
@@ -202,6 +209,7 @@ def update_float_metrics(_, sensor_name):
         margin_b = 10,
         height = 200,
         yaxis_title = "\u00B0C",
+        showlegend = False,
         # xaxis = xaxis,
         # template = "plotly_dark",
     )
