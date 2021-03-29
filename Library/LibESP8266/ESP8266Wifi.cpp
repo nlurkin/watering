@@ -35,14 +35,21 @@ ESP8266Wifi::~ESP8266Wifi() {
   }
 }
 
-bool ESP8266Wifi::init(const char* ssid, const char* password, bool doReset, bool debug) {
+bool ESP8266Wifi::checkCommunication(bool debug) {
+  uint8_t trials = 0;
   if(debug)
     Serial.println(F("Checking ESP8266 connection..."));
-  while (!checkBoardConnection())
-    delay(100);
+  while (!checkBoardConnection() && trials<10) {
+    delay(1000);
+    ++trials;
+  }
+  if(!checkBoardConnection()) return false;
   if(debug)
     Serial.println(F("Connection established"));
+  return true;
+}
 
+bool ESP8266Wifi::init(const char* ssid, const char* password, bool doReset, bool debug) {
   delay(100);
   if(doReset){
     restartBoard();
