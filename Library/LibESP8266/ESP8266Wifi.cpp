@@ -119,7 +119,7 @@ bool ESP8266Wifi::readAndPrint(unsigned int timeout) {
         new_connection(response);
       else if(endsWith(response, F("CLOSED\r")))
         end_connection(response);
-      else if(endsWith(response, F("WIFI DISCONNECT\r")))
+      else if(endsWith(response, F("WIFI DISCONNECT")))
         disconnect();
       len = _client.readUntil(response, read_size, '\n');
     }
@@ -146,7 +146,8 @@ bool ESP8266Wifi::checkDataCapture() {
   char * ipd = strstr_P(response, PSTR("+IPD"));
   char * connect = strstr_P(response, PSTR("CONNECT\r"));
   char * close = strstr_P(response, PSTR("CLOSED\r"));
-  char * wifi = strstr_P(response, PSTR("WIFI DISCONNECT\r"));
+  char * wifi1 = strstr_P(response, PSTR("WIFI DISCONNECT"));
+  char * wifi2 = strstr_P(response, PSTR("no ip"));
   if(ipd){
     read_payload(ipd, len-(ipd-response));
     has_response = true;
@@ -160,7 +161,7 @@ bool ESP8266Wifi::checkDataCapture() {
     end_connection(close-2);
     has_response = true;
   }
-  if(wifi){
+  if(wifi1 || wifi2){
     disconnect();
     has_response = true;
   }
@@ -319,6 +320,8 @@ int ESP8266Wifi::openConnection(const char *address, uint16_t port) {
   if(_client.getLastErrorType()==ATClient::LINK_TYPE){
     _client.CIPMUX(true);
   }
+  else
+    checkDataCapture();
   return -1;
 }
 
@@ -331,6 +334,8 @@ int ESP8266Wifi::openConnection(uint8_t ip[4], uint16_t port) {
   if(_client.getLastErrorType()==ATClient::LINK_TYPE){
     _client.CIPMUX(true);
   }
+  else
+    checkDataCapture();
   return -1;
 }
 
