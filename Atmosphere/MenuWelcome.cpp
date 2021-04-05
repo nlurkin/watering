@@ -35,6 +35,7 @@ void MenuWelcome::connected(bool val) {
     strcpy_P(_sym_connected, PSTR("  +"));
   else
     strcpy_P(_sym_connected, PSTR("  -"));
+  _menu.update(); //Immediate updated required
 }
 
 void MenuWelcome::communication(bool val) {
@@ -42,4 +43,5 @@ void MenuWelcome::communication(bool val) {
     strcpy_P(_sym_connected, PSTR("  -"));
   else
     strcpy_P(_sym_connected, PSTR("  o"));
+  _menu.update(); //Immediate updated required
 }
