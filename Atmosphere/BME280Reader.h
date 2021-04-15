@@ -24,8 +24,17 @@ public:
 
   void updateAll();
 
+  double getOffsetTemperature() const {
+    return _offset_temperature;
+  }
+
+  void setOffsetTemperature(double offset) {
+    _offset_temperature = offset;
+  }
+
 private:
   Adafruit_BME280      _bme;
+  double               _offset_temperature;
   MenuBME             *_m_bme;
   ControlServer       *_controlServer;
   Publication<double> *_pub_temperature;
