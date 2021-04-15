@@ -59,6 +59,7 @@ void setup() {
   wifi.init(p_ssid, p_pwd, true, false);
 
   bme1.init(&_m_bme);
+  bme1.setOffsetTemperature(-3.5); // Temperature is about 3.5 degrees above the real one.
   oregon.init(19);
 
   Serial.println(F("Stating publication server"));
@@ -97,13 +98,19 @@ bool watchdog() {
         while(!wifi.checkCommunication(false))
           delay(10000);
         _m_welcome.communication(true);
-        watchdog_ok = wifi.init(ssid, pwd, true, false);
+        char p_ssid[30], p_pwd[30];
+        strcpy_P(p_ssid, ssid);
+        strcpy_P(p_pwd, pwd);
+        watchdog_ok = wifi.init(p_ssid, p_pwd, true, false);
         reset_failure = 0;
         if(watchdog_ok)
           pubServer.begin();
       }
       else { // No RESET at this point, just try to reconnect
-        wifi.connectWifi(ssid, pwd);
+        char p_ssid[30], p_pwd[30];
+        strcpy_P(p_ssid, ssid);
+        strcpy_P(p_pwd, pwd);
+        wifi.connectWifi(p_ssid, p_pwd);
         delay(1000);
         watchdog_ok = wifi.checkWifiConnection();
         if(!watchdog_ok)

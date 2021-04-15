@@ -11,6 +11,7 @@
 
 BME280Reader::BME280Reader() :
   _m_bme(nullptr),
+  _offset_temperature(0),
   _controlServer(nullptr),
   _pub_temperature(nullptr),
   _pub_pressure(nullptr),
@@ -56,7 +57,7 @@ void BME280Reader::setPublicationServer(ControlServer *server){
 }
 
 void BME280Reader::updateAll() {
-  double temperature = _bme.readTemperature();
+  double temperature = _bme.readTemperature() + _offset_temperature;
   double pressure = _bme.readPressure()/100;
   double humidity = _bme.readHumidity();
   double altitude = _bme.readAltitude(1019.66);
