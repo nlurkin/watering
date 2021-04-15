@@ -59,6 +59,7 @@ void setup() {
   wifi.init(p_ssid, p_pwd, true, false);
 
   bme1.init(&_m_bme);
+  bme1.setOffsetTemperature(-3.5); // Temperature is about 3.5 degrees above the real one.
   oregon.init(19);
 
   Serial.println(F("Stating publication server"));
