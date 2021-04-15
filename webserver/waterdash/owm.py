@@ -34,7 +34,6 @@ class owm_wrapper():
         hours = []
         curr = from_utc()
         curr = curr.replace(minute = 0, second = 0)
-        print(curr)
         for _ in range(4):
             hours.append(timestamps.next_three_hours(curr))
             curr = hours[-1]

@@ -164,7 +164,7 @@ def get_and_merge_data(sensor_name, nhours):
         new_index = to_utc()
         df = df.append(pd.DataFrame(index = [new_index], data = df.tail(1).values, columns = df.columns))
 
-    df = df.loc[start_time:]
+    df = df.loc[start_time.strftime("%Y-%m-%d %H:%M"):]
 
     if len(df) > 0:
         df.index = df.index.tz_convert("Europe/Brussels")
