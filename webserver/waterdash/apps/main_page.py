@@ -189,12 +189,15 @@ def update_float_metrics(_, sensor_name):
                     name = "Read"
                     )
                 )
+    images = []
     if title[sensor_name["sensor"]] == "Outdoors":
         hourly = owm.prepare_hourly_12h_forecast()
         df_forecast = pd.DataFrame().reindex_like(df)
         df_forecast.loc[dfo.iloc[-1].name] = dfo.iloc[-1]
-        for h, w in hourly:
-            df_forecast.loc[h] = {"val": w.temperature("celsius")["temp"], "ts": h}
+        for i, (h, w) in enumerate(hourly):
+            temp = w.temperature("celsius")["temp"]
+            df_forecast.loc[h] = {"val": temp, "ts": h}
+            images.append((i, temp, w.weather_icon_url()))
         figure = figure.add_trace(go.Scatter(
                     x = df_forecast.index,
                     y = df_forecast["val"],
@@ -202,11 +205,27 @@ def update_float_metrics(_, sensor_name):
                     name = "Forecast"
                     ))
 
+    for x, y, img in images:
+        figure.add_layout_image(
+                go.layout.Image(
+                    source = img,
+                    xref = "paper",
+                    yref = "y",
+                    x = 0.625 + x / 9,
+                    y = y,
+                    sizex = 3,
+                    sizey = 3,
+                    xanchor = "center",
+                    yanchor = "middle"
+                    ))
+
     figure.update_layout(
         title = dict(text = title[sensor_name["sensor"]],
                      x = 0.5,),
-        margin_t = 50,
+        margin_t = 30,
         margin_b = 10,
+        margin_l = 0,
+        margin_r = 0,
         height = 200,
         yaxis_title = "\u00B0C",
         showlegend = False,
