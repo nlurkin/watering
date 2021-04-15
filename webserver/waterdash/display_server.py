@@ -11,7 +11,7 @@ import dash_html_components as html
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 from dash.dependencies import Input, Output, ALL
-from waterapp import app
+from waterapp import app, server
 from apps import dashboard, add_sensor, add_dashboard, publications, config_menu, main_page
 from data.config import VALID_USERNAME_PASSWORD_PAIRS, app_prefix
 
