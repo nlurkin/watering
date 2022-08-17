@@ -54,8 +54,11 @@ def check_conditions(owm):
     message = None
     lower_0 = [_ for _ in temps if _[0]<0]
     higher_30 = [_ for _ in temps if _[0]>30]
+    higher_20 = [_ for _ in temps if _[0]>20]
     if len(lower_0):
         message = f"WARNING: Temperatures below 0°C foreseen starting at {lower_0[0][1]}"
+    if len(higher_20):
+        message = f"WARNING: Temperatures above 20°C foreseen starting at {higher_20[0][1]}"
     if len(higher_30):
         message = f"WARNING: Temperatures above 30°C foreseen starting at {higher_30[0][1]}"
 
