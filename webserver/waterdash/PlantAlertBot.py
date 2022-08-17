@@ -28,18 +28,29 @@ def register(update: Update, context: CallbackContext):
     add_user(context, chat_id)
     context.bot.send_message(chat_id=update.effective_chat.id, text="Thank you for registering")
 
+def am_i_registered(update: Update, context: CallbackContext):
+    chat_id = update.effective_chat.id
+    if chat_id in context.bot_data["RegisteredUsers"]:
+        context.bot.send_message(chat_id=update.effective_chat.id, text="I'm not forgetting about you!")
+    else:
+        context.bot.send_message(chat_id=update.effective_chat.id, text="Sorry, who are you?")
+
+
 def init_bot():
     my_persistence = PicklePersistence(filename='PlantAlertBot')
     updater = Updater(token=telegram_token, persistence=my_persistence)
 
     dispatcher = updater.dispatcher
 
-    start_handler = CommandHandler('start', start)
-    dispatcher.add_handler(start_handler)
+    handler = CommandHandler('start', start)
+    dispatcher.add_handler(handler)
 
+    handler = CommandHandler('register', register)
+    dispatcher.add_handler(handler)
 
-    register_handler = CommandHandler('register', register)
-    dispatcher.add_handler(register_handler)
+    handler = CommandHandler('amiregistered', am_i_registered)
+    dispatcher.add_handler(handler)
+
     if not "RegisteredUsers" in dispatcher.bot_data:
         dispatcher.bot_data["RegisteredUsers"] = []
 
