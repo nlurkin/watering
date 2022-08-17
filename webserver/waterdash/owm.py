@@ -29,7 +29,7 @@ class owm_wrapper():
             self.__do_update()
 
         return self.owm_object
-    
+
     def prepare_hourly_12h_forecast(self):
         hours = []
         curr = from_utc()
@@ -37,5 +37,5 @@ class owm_wrapper():
         for _ in range(4):
             hours.append(timestamps.next_three_hours(curr))
             curr = hours[-1]
-         
+
         return [(h, self.owm_object["forecast"].get_weather_at(h)) for h in hours]
