@@ -4,7 +4,7 @@ import logging
 import sys
 import sched
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from telegram import Update
 from telegram.ext import (CallbackContext, CommandHandler, PicklePersistence,
@@ -82,8 +82,8 @@ def scheduled_run(s, owm, updater, dispatcher):
         inform_clients(updater, dispatcher, message)
 
     next_run = datetime.now()
-    curr_hour = int(next_run.hour/8 + 1)*8
-    next_run = next_run.replace(hour=curr_hour, minute=0, second=0)
+    curr_hour = int(next_run.hour/8)*8
+    next_run = next_run.replace(hour=curr_hour, minute=0, second=0) + timedelta(hours=8)
 
     s.enterabs(next_run.timestamp(), 0, lambda : scheduled_run(s, owm, updater, dispatcher))
 
@@ -96,8 +96,8 @@ def main():
 
     # Init next run (next multiple of 8h)
     next_run = datetime.now()
-    curr_hour = int(next_run.hour/8 + 1)*8
-    next_run = next_run.replace(hour=curr_hour, minute=0, second=0)
+    curr_hour = int(next_run.hour/8)*8
+    next_run = next_run.replace(hour=curr_hour, minute=0, second=0) + timedelta(hours=8)
 
     s = sched.scheduler(time.time, time.sleep)
     s.enterabs(next_run.timestamp(), 0, lambda : scheduled_run(s, owm, updater, dispatcher))
