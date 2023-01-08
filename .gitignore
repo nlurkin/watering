@@ -9,3 +9,5 @@ __pycache__/
 dbdata/
 *.pyc
 /esspressif/
+.vscode/
+.pio
