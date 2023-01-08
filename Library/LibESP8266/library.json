@@ -1,0 +1,21 @@
+{
+  "name": "LibESP8266",
+  "version": "1.0.0",
+  "description": "LibESP8266",
+  "keywords": "whatever",
+  "authors":
+  [
+    {
+      "name": "Nicolas Lurkin",
+      "email": "nicolas.lurkin@gmail.com",
+      "maintainer": true
+    }
+  ],
+  "dependencies": {
+    "LibMemory": "@^1.0.0",
+    "Debugging": "@^1.0.0"
+  },
+  "license": "MIT",
+  "frameworks": "*",
+  "platforms": "*"
+}
