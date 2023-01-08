@@ -9,3 +9,4 @@ __pycache__/
 dbdata/
 *.pyc
 /esspressif/
+.ipynb_checkpoints/
