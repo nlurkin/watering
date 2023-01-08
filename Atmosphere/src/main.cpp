@@ -146,5 +146,6 @@ void loop() {
     forceUpdate = true;
     heartbeat_millis = millis();
   }
+  //pubServer.listen(); //Cannot do that: blocks and oregon not received
   pubServer.serve(forceUpdate);
 }
