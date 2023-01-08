@@ -11,3 +11,4 @@ dbdata/
 /esspressif/
 .vscode/
 .pio
+.ipynb_checkpoints/
