@@ -57,15 +57,17 @@ def init_bot():
     return dispatcher, updater
 
 def check_value_alerts(values, low_levels, high_levels, val_name, unit):
+    min_val = min([_[0] for _ in values])
+    max_val = max([_[0] for _ in values])
     for l in low_levels:
         alerts = [_ for _ in values if _[0]<l]
         if len(alerts)>0:
-            return f"WARNING: {val_name} below {l}{unit} foreseen starting at {alerts[0][1]}"
+            return f"WARNING: {val_name} below {l}{unit} foreseen starting at {alerts[0][1]}, with a minimum of {min_val}"
 
     for l in high_levels:
         alerts = [_ for _ in values if _[0]>l]
         if len(alerts)>0:
-            return f"WARNING: {val_name} above {l}{unit} foreseen starting at {alerts[0][1]}"
+            return f"WARNING: {val_name} above {l}{unit} foreseen starting at {alerts[0][1]}, with a maximum of {max_val}"
 
     return None
 
