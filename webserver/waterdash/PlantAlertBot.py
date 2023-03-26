@@ -61,18 +61,21 @@ def check_conditions(owm):
     hourly = owm.prepare_hourly_12h_forecast()
 
     temps = [(_[1].temperature("celsius")["temp"],_[0]) for _ in hourly]
-
     message = None
     lower_0 = [_ for _ in temps if _[0]<0]
+    lower_5 = [_ for _ in temps if _[0]<5]
     higher_30 = [_ for _ in temps if _[0]>30]
     higher_20 = [_ for _ in temps if _[0]>20]
+    min_t = min([_[0] for _ in temps])
+    max_t = max([_[0] for _ in temps])
+    if len(lower_5):
+        message = f"WARNING: Temperatures below 5°C foreseen starting at {lower_5[0][1]}, with a minimum of {min_t}"
     if len(lower_0):
-        message = f"WARNING: Temperatures below 0°C foreseen starting at {lower_0[0][1]}"
+        message = f"WARNING: Temperatures below 0°C foreseen starting at {lower_0[0][1]}, with a minimum of {min_t}"
     if len(higher_20):
-        message = f"WARNING: Temperatures above 20°C foreseen starting at {higher_20[0][1]}"
+        message = f"WARNING: Temperatures above 20°C foreseen starting at {higher_20[0][1]}, with a maximum of {max_t}"
     if len(higher_30):
-        message = f"WARNING: Temperatures above 30°C foreseen starting at {higher_30[0][1]}"
-
+        message = f"WARNING: Temperatures above 30°C foreseen starting at {higher_30[0][1]}, with a maximum of {max_t}"
     return message
 
 def inform_clients(updater, dispatcher, message):
