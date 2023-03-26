@@ -56,11 +56,29 @@ def init_bot():
 
     return dispatcher, updater
 
+def check_value_alerts(values, low_levels, high_levels, val_name, unit):
+    for l in low_levels:
+        alerts = [_ for _ in values if _[0]<l]
+        if len(alerts)>0:
+            return f"WARNING: {val_name} below {l}{unit} foreseen starting at {alerts[0][1]}"
+
+    for l in high_levels:
+        alerts = [_ for _ in values if _[0]>l]
+        if len(alerts)>0:
+            return f"WARNING: {val_name} above {l}{unit} foreseen starting at {alerts[0][1]}"
+
+    return None
+
+
 def check_conditions(owm):
     owm.get_latest_info()
     hourly = owm.prepare_hourly_12h_forecast()
+    message_list = []
 
     temps = [(_[1].temperature("celsius")["temp"],_[0]) for _ in hourly]
+    message = check_value_alerts(temps, [0], [30, 20], "Temperature", "°C")
+    if message is not None:
+        message_list.append(message)
 
     message = None
     lower_0 = [_ for _ in temps if _[0]<0]
@@ -73,15 +91,15 @@ def check_conditions(owm):
     if len(higher_30):
         message = f"WARNING: Temperatures above 30°C foreseen starting at {higher_30[0][1]}"
 
-    return message
+    return message_list
 
 def inform_clients(updater, dispatcher, message):
     for chat in dispatcher.bot_data["RegisteredUsers"]:
         updater.bot.send_message(chat_id=chat, text=message)
 
 def scheduled_run(s, owm, updater, dispatcher):
-    message = check_conditions(owm)
-    if message is not None:
+    message_list = check_conditions(owm)
+    for message in message_list:
         inform_clients(updater, dispatcher, message)
 
     next_run = datetime.now()
