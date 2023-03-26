@@ -22,8 +22,8 @@ from waterapp import mongoClient, app, owm
 def make_location_summary():
     latest = mongoClient.get_latest_sensor_value("bme1_temperature")
     indoor = dbc.Row([html.Img(src = "assets/in_house.png", height = "30px"), html.Div(latest, id = {"type":"local_value", "sensor":"bme1_temperature"}), "\u00B0C"], className = "weather_row", style = {"font-size": "larger"})
-    latest = mongoClient.get_latest_sensor_value("428F_94_temp")
-    outdoor = dbc.Row([html.Img(src = "assets/out_house.png", height = "30px"), html.Div(latest, id = {"type":"local_value", "sensor":"428F_94_temp"}), "\u00B0C"], className = "weather_row", style = {"font-size": "larger"})
+    latest = mongoClient.get_latest_sensor_value("428F_B3_temp")
+    outdoor = dbc.Row([html.Img(src = "assets/out_house.png", height = "30px"), html.Div(latest, id = {"type":"local_value", "sensor":"428F_B3_temp"}), "\u00B0C"], className = "weather_row", style = {"font-size": "larger"})
 
     obs = owm.get_latest_info()["obs"]
     expected = dbc.Row([html.Img(src = obs.weather_icon_url(), style = {"margin-left": "-10px"}), obs.detailed_status], className = "weather_row")
@@ -38,7 +38,7 @@ def make_location_summary():
 
 def make_temperature_plot():
     sensor_element = [dbc.Card(dcc.Graph(
-        id = {"type": "other_sensor", "sensor": "428F_94_temp"},
+        id = {"type": "other_sensor", "sensor": "428F_B3_temp"},
         # config = {'displayModeBar': False},
         animate = True,
         )), dbc.Card(dcc.Graph(
@@ -62,12 +62,12 @@ def make_highlights():
     vmin = values["val"].min()
     mcards.append((dbc.CardImg(src = "assets/humidity_in.png", style = {"width": "50px"}), dbc.CardBody([html.P(f"Max: {vmax} %"), html.P(f"Min: {vmin} %")])))
 
-    values = get_and_merge_data("428F_94_temp", 24)
+    values = get_and_merge_data("428F_B3_temp", 24)
     vmax = values["val"].max()
     vmin = values["val"].min()
     mcards.append((dbc.CardImg(src = "assets/out_house.png", style = {"width": "50px"}), dbc.CardBody([html.P(f"Max: {vmax}\u00B0C"), html.P(f"Min: {vmin}\u00B0C")])))
 
-    values = get_and_merge_data("428F_94_hum", 24)
+    values = get_and_merge_data("428F_B3_hum", 24)
     vmax = values["val"].max()
     vmin = values["val"].min()
     mcards.append((dbc.CardImg(src = "assets/humidity_out.png", style = {"width": "50px"}), dbc.CardBody([html.P(f"Max: {vmax} %"), html.P(f"Min: {vmin} %")])))
@@ -81,7 +81,7 @@ def make_details():
     latest = mongoClient.get_latest_sensor_value("bme1_humidity")
     mcards.append((dbc.CardImg(src = "assets/humidity_in.png", style = {"width": "50px"}), dbc.CardBody(f"{latest} %")))
 
-    latest = mongoClient.get_latest_sensor_value("428F_94_hum")
+    latest = mongoClient.get_latest_sensor_value("428F_B3_hum")
     mcards.append((dbc.CardImg(src = "assets/humidity_out.png", style = {"width": "50px"}), dbc.CardBody(f"{latest} %")))
 
     latest = mongoClient.get_latest_sensor_value("bme1_pressure")
@@ -176,7 +176,7 @@ def get_and_merge_data(sensor_name, nhours):
               [Input('interval-component', 'n_intervals')],
               [State({"type": "other_sensor", "sensor": MATCH}, 'id'), ])
 def update_float_metrics(_, sensor_name):
-    title = {"bme1_temperature": "Indoors", "428F_94_temp": "Outdoors"}
+    title = {"bme1_temperature": "Indoors", "428F_B3_temp": "Outdoors"}
 
     dfo = get_and_merge_data(sensor_name["sensor"], 12)
     df = dfo.resample("1H").first()
