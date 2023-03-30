@@ -16,7 +16,7 @@ import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 from waterapp import mongoClient, app, owm
-
+from pyowm.utils import timestamps
 
 
 def make_location_summary():
@@ -48,6 +48,24 @@ def make_temperature_plot():
         ))]
     return [dbc.Col(c) for c in sensor_element]
 
+def make_forecast():
+    mcards = []
+
+    forecaster = owm.get_latest_info()["forecast"]
+    forecaster.forecast.actualize()
+    # Now remove everything from more than 24h in the future
+    next24h = timestamps.tomorrow()
+    actualized_weathers = filter(lambda x: x.reference_time(timeformat='date') < next24h, forecaster.forecast.weathers)
+    forecaster.forecast.weathers = list(actualized_weathers)
+
+    vmin = forecaster.most_cold().temperature("celsius")["temp"]
+    vmax = forecaster.most_hot().temperature("celsius")["temp"]
+    mcards.append((dbc.CardImg(src = "assets/out_house.png", style = {"width": "50px"}), dbc.CardBody([html.P(f"Max: {vmax}\u00B0C"), html.P(f"Min: {vmin}\u00B0C")])))
+
+    vmax = forecaster.most_windy().wind()["speed"]
+    mcards.append((dbc.CardImg(src = "assets/wind.png", style = {"width": "50px"}), dbc.CardBody([html.P(f"Max: {vmax} km/h")])))
+
+    return dbc.Row(dbc.CardDeck([dbc.Col(c, width = 5) for c in mcards], className = "weather"))
 
 def make_highlights():
     mcards = []
@@ -117,6 +135,7 @@ def get_layout():
                 dbc.Row([
                     dbc.Col([dbc.Row("Details", style = {"font-size": "large"}), dbc.Row(dbc.Col(make_details()), justify = "start")]),
                     dbc.Col([dbc.Row("24h highlights", style = {"font-size": "large"}), dbc.Row(dbc.Col(make_highlights()), justify = "start")]),
+                    dbc.Col([dbc.Row("24h forecast", style = {"font-size": "large"}), dbc.Row(dbc.Col(make_forecast()), justify = "start")]),
                     ])
                 ], style = {"Padding": "50px"})
             ], style = {"background-color": "#1E1E1E", "border-style":"solid"})
