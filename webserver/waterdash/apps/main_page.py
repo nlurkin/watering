@@ -63,7 +63,7 @@ def make_forecast():
     mcards.append((dbc.CardImg(src = "assets/out_house.png", style = {"width": "50px"}), dbc.CardBody([html.P(f"Max: {vmax}\u00B0C"), html.P(f"Min: {vmin}\u00B0C")])))
 
     vmax = forecaster.most_windy().wind()["speed"]
-    vgusts = forecaster.most_windy().wind()["gusts"]
+    vgusts = forecaster.most_windy().wind()["gust"]
     mcards.append((dbc.CardImg(src = "assets/wind.png", style = {"width": "50px"}), dbc.CardBody([html.P(f"Max: {vmax} km/h"), html.P(f"Gusts: {vgusts} km/h")])))
 
     return dbc.Row(dbc.CardDeck([dbc.Col(c, width = 5) for c in mcards], className = "weather"))
