@@ -114,7 +114,7 @@ def make_details():
     feels = obs.temperature("celsius")["feels_like"]
     mcards.append((dbc.CardImg(src = "assets/feel.png", style = {"width": "50px"}), dbc.CardBody(f"{feels}\u00B0C")))
 
-    wind = obs.wind()["speed"]
+    wind = obs.wind()["speed"]*3.6 # In km/h
     mcards.append((dbc.CardImg(src = "assets/wind.png", style = {"width": "50px"}), dbc.CardBody(f"{wind} km/h")))
 
     rain = obs.rain
