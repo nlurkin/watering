@@ -64,7 +64,7 @@ def make_forecast():
 
     vmax = forecaster.most_windy().wind()["speed"]*3.6 # In km/h
     vgusts = forecaster.most_windy().wind()["gust"]*3.6  # In km/h
-    mcards.append((dbc.CardImg(src = "assets/wind.png", style = {"width": "50px"}), dbc.CardBody([html.P(f"Max: {vmax} km/h"), html.P(f"Gusts: {vgusts} km/h")])))
+    mcards.append((dbc.CardImg(src = "assets/wind.png", style = {"width": "50px"}), dbc.CardBody([html.P(f"Max: {vmax:.0f} km/h"), html.P(f"Gusts: {vgusts:.0f} km/h")])))
 
     return dbc.Row(dbc.CardDeck([dbc.Col(c, width = 5) for c in mcards], className = "weather"))
 
@@ -115,7 +115,7 @@ def make_details():
     mcards.append((dbc.CardImg(src = "assets/feel.png", style = {"width": "50px"}), dbc.CardBody(f"{feels}\u00B0C")))
 
     wind = obs.wind()["speed"]*3.6 # In km/h
-    mcards.append((dbc.CardImg(src = "assets/wind.png", style = {"width": "50px"}), dbc.CardBody(f"{wind} km/h")))
+    mcards.append((dbc.CardImg(src = "assets/wind.png", style = {"width": "50px"}), dbc.CardBody(f"{wind:.0f} km/h")))
 
     rain = obs.rain
     if len(rain) == 0:
