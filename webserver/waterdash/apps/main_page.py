@@ -134,9 +134,13 @@ def get_layout():
             dbc.Col([
                 dbc.Row(dbc.Col([dbc.Row("Hourly Temperature", style = {"font-size": "large"}), dbc.Row(make_temperature_plot())])),
                 dbc.Row([
-                    dbc.Col([dbc.Row("Details", style = {"font-size": "large"}), dbc.Row(dbc.Col(make_details()), justify = "start")]),
-                    dbc.Col([dbc.Row("24h highlights", style = {"font-size": "large"}), dbc.Row(dbc.Col(make_highlights()), justify = "start")]),
-                    dbc.Col([dbc.Row("24h forecast", style = {"font-size": "large"}), dbc.Row(dbc.Col(make_forecast()), justify = "start")]),
+                    dbc.Col([
+                            dbc.Row("Details", style = {"font-size": "large"}), dbc.Row(dbc.Col(make_details()), justify = "start"),
+                            ]),
+                    dbc.Col([
+                            dbc.Row("24h highlights", style = {"font-size": "large"}), dbc.Row(dbc.Col(make_highlights()), justify = "start"),
+                            dbc.Row("24h forecast",   style = {"font-size": "large"}), dbc.Row(dbc.Col(make_forecast()),   justify = "start")
+                            ]),
                     ])
                 ], style = {"Padding": "50px"})
             ], style = {"background-color": "#1E1E1E", "border-style":"solid"})
