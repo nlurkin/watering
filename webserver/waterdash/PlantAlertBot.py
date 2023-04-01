@@ -82,7 +82,7 @@ def check_conditions(owm):
     if message is not None:
         message_list.append(message)
 
-    gusts = [(_[1].wind()["gust"], _[0]) for _ in hourly]
+    gusts = [(_[1].wind()["gust"]*3.6, _[0]) for _ in hourly] # In km/h
     message = check_value_alerts(gusts, [], [30, 60], "Wind gusts", "kph")
     if message is not None:
         message_list.append(message)
