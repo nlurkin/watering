@@ -133,7 +133,7 @@ def make_details():
 def get_layout():
     row = [dcc.Interval(id = 'interval-component', interval = 300 * 1000, n_intervals = 0),
         dbc.Row([
-            dbc.Col(make_location_summary(), width = 2, style = {"background-image": "url('/arduihome/assets/weather_bckg.jpg')", "min-height": "400px", "min-width": "290px"}),
+            dbc.Col(make_location_summary(), width = 2, style = {"background-image": "url('assets/weather_bckg.jpg')", "min-height": "400px", "max-height": "730px", "min-width": "290px"}),
             dbc.Col([
                 dbc.Row(dbc.Col([dbc.Row("Hourly Temperature", style = {"font-size": "large"}), dbc.Row(make_temperature_plot())])),
                 dbc.Row([
