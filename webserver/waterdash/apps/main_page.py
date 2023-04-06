@@ -115,7 +115,10 @@ def make_details():
     mcards.append((dbc.CardImg(src = "assets/feel.png", style = {"width": "50px"}), dbc.CardBody(f"{feels}\u00B0C")))
 
     wind = obs.wind()["speed"]*3.6 # In km/h
-    mcards.append((dbc.CardImg(src = "assets/wind.png", style = {"width": "50px"}), dbc.CardBody(f"{wind:.0f} km/h")))
+    gust = "N/A"
+    if "gust" in obs.wind():
+        gust = f"{obs.wind()['gust']*3.6:.0f} km/h" # In km/h
+    mcards.append((dbc.CardImg(src = "assets/wind.png", style = {"width": "50px"}), dbc.CardBody([html.P(f"{wind:.0f} km/h"), html.P(f"Gusts: {gust}")])))
 
     rain = obs.rain
     if len(rain) == 0:
