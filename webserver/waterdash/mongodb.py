@@ -6,27 +6,26 @@ Created on 18-Jun-2020
 
 import pymongo
 from bson.objectid import ObjectId
-from tzlocal import get_localzone
 from datetime import datetime
+from typing import Union
 import pytz
-tz = get_localzone()
 
 
-def to_utc(dt = None):
+def to_utc(dt: Union[datetime, None] = None):
     if dt is None:
-        return tz.localize(datetime.now()).astimezone(pytz.utc)
-    return tz.localize(dt).astimezone(pytz.utc)
+        dt = datetime.now()
+    return dt.astimezone(pytz.utc)
 
 
-def from_utc(dt = None, timezone = "Europe/Brussels"):
+def from_utc(dt: Union[datetime, None] = None, timezone="Europe/Brussels"):
     if dt is None:
-        dt = tz.localize(datetime.now()).astimezone(pytz.utc)
+        dt = datetime.now()
     return dt.astimezone(pytz.timezone(timezone))
 
 
 class myMongoClient(object):
 
-    def __init__(self, hostname, port, username = None, password = None):
+    def __init__(self, hostname, port, username=None, password=None):
         self.hostname = hostname
         self.port = port
         self.client = None
@@ -69,7 +68,8 @@ class myMongoClient(object):
             return None
 
     def update_sensor_by_id(self, sensor_id, updated_data):
-        self.sensors_db.update_one({"_id": ObjectId(sensor_id)}, {"$set": updated_data})
+        self.sensors_db.update_one({"_id": ObjectId(sensor_id)}, {
+                                   "$set": updated_data})
 
     def get_dashboard_by_id(self, dashboard_id):
         if isinstance(dashboard_id, list):
@@ -88,23 +88,26 @@ class myMongoClient(object):
             return None
 
     def update_dashboard_by_id(self, dashboard_id, updated_data):
-        self.dashboard_db.update_one({"_id": ObjectId(dashboard_id)}, {"$set": updated_data})
+        self.dashboard_db.update_one(
+            {"_id": ObjectId(dashboard_id)}, {"$set": updated_data})
 
     def get_sensors_dropdown(self):
-        return [{"label":sensor["sensor"], "value":str(sensor["_id"])} for sensor in self.sensors_db.find({}, {"sensor":1, "_id": 1})]
+        return [{"label": sensor["sensor"], "value": str(sensor["_id"])} for sensor in self.sensors_db.find({}, {"sensor": 1, "_id": 1})]
 
     def get_dashboards_dropdown(self):
-        return [{"label": db["name"], "value": str(db["_id"])} for db in self.dashboard_db.find({}, {"name":1, "_id": 1})]
+        return [{"label": db["name"], "value": str(db["_id"])} for db in self.dashboard_db.find({}, {"name": 1, "_id": 1})]
 
     def get_sensor_values(self, sensor_name, day):
         return self.client["sensors"][sensor_name].find_one({"day": {"$lte": day}},
-                                                            {"samples": 1, "setpoint": 1, "_id": 0},
-                                                            sort = [("day", pymongo.DESCENDING), ("last", pymongo.DESCENDING)])
+                                                            {"samples": 1,
+                                                                "setpoint": 1, "_id": 0},
+                                                            sort=[("day", pymongo.DESCENDING), ("last", pymongo.DESCENDING)])
 
     def get_all_sensor_values(self, sensor_name, d1, d2):
         return self.client["sensors"][sensor_name].find({"day": {"$gte": d1, "$lte": d2}},
-                                                            {"samples": 1, "setpoint": 1, "_id": 0, "first": 1},
-                                                            sort = [("day", pymongo.ASCENDING), ("first", pymongo.ASCENDING)])
+                                                        {"samples": 1, "setpoint": 1,
+                                                            "_id": 0, "first": 1},
+                                                        sort=[("day", pymongo.ASCENDING), ("first", pymongo.ASCENDING)])
 
     def get_sensors_list(self):
         return list(self.sensors_db.find({}))
@@ -120,12 +123,12 @@ class myMongoClient(object):
 
         sample = {"val": val, "ts": ts}
         sensor_coll.update_one({"sensorid": str(sensor_doc["_id"]), "nsamples": {"$lt": 200}, "day": day},
-                              {"$push": { "samples": sample},
-                               "$min": { "first": ts},
-                               "$max": { "last": ts},
-                               "$inc": { "nsamples": 1}
-                               },
-                              upsert = True)
+                               {"$push": {"samples": sample},
+                               "$min": {"first": ts},
+                                "$max": {"last": ts},
+                                "$inc": {"nsamples": 1}
+                                },
+                               upsert=True)
 
     def update_controller_values(self, sensor_doc, sensor_name, val):
         sensor_coll = self.client["sensors"][sensor_name]
@@ -136,17 +139,18 @@ class myMongoClient(object):
 
         sample = {"val": val, "ts": ts}
         sensor_coll.update_one({"sensorid": str(sensor_doc["_id"]), "nsamples": {"$lt": 200}, "day": day},
-                              {"$push": { "setpoint": sample},
-                               "$min": { "first": ts},
-                               "$max": { "last": ts},
-                               "$setOnInsert": { "nsamples": 0}
-                               },
-                              upsert = True)
+                               {"$push": {"setpoint": sample},
+                               "$min": {"first": ts},
+                                "$max": {"last": ts},
+                                "$setOnInsert": {"nsamples": 0}
+                                },
+                               upsert=True)
 
     def get_controller_values(self, sensor_name, day):
         doc = self.client["sensors"][sensor_name].find_one({"day": {"$lte": day}, "setpoint": {"$exists": True}},
-                                                            {"setpoint": 1, "_id": 0},
-                                                            sort = [("day", pymongo.DESCENDING), ("last", pymongo.DESCENDING)])
+                                                           {"setpoint": 1,
+                                                               "_id": 0},
+                                                           sort=[("day", pymongo.DESCENDING), ("last", pymongo.DESCENDING)])
         if doc:
             return doc["setpoint"]
         return None
@@ -182,7 +186,6 @@ class myMongoClient(object):
     def get_latest_sensor_value(self, sensor_name):
         day = to_utc().strftime("%Y-%m-%d")
         sensor_doc = self.get_sensor_values(sensor_name, day)
-        if sensor_doc is not None and len(sensor_doc["samples"])>0:
+        if sensor_doc is not None and len(sensor_doc["samples"]) > 0:
             return sensor_doc["samples"][-1]["val"]
         return "N/A"
-
