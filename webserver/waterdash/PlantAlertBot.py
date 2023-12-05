@@ -7,6 +7,7 @@ import time
 from datetime import datetime, timedelta
 
 from telegram import Update
+import telegram
 from telegram.ext import (CallbackContext, CommandHandler, PicklePersistence,
                           Updater)
 from owm import owm_wrapper
@@ -35,6 +36,9 @@ def am_i_registered(update: Update, context: CallbackContext):
     else:
         context.bot.send_message(chat_id=update.effective_chat.id, text="Sorry, who are you?")
 
+def net_error_handler(update: Update, context: CallbackContext):
+    print("Error occured")
+    print(context.error)
 
 def init_bot():
     my_persistence = PicklePersistence(filename='PlantAlertBot')
@@ -50,6 +54,8 @@ def init_bot():
 
     handler = CommandHandler('amiregistered', am_i_registered)
     dispatcher.add_handler(handler)
+
+    dispatcher.add_error_handler(net_error_handler)
 
     if not "RegisteredUsers" in dispatcher.bot_data:
         dispatcher.bot_data["RegisteredUsers"] = []
@@ -104,11 +110,7 @@ def scheduled_run(s, owm, updater, dispatcher):
 
     s.enterabs(next_run.timestamp(), 0, lambda : scheduled_run(s, owm, updater, dispatcher))
 
-def main():
-    owm = owm_wrapper(owm_token, owm_city)
-
-    dispatcher, updater = init_bot()
-
+def run_main_loop(updater, dispatcher, owm):
     updater.start_polling()
 
     # Init next run (next multiple of 8h)
@@ -123,6 +125,18 @@ def main():
             s.run()
         except KeyboardInterrupt:
             break
+
+
+def main():
+    owm = owm_wrapper(owm_token, owm_city)
+
+    dispatcher, updater = init_bot()
+
+    try:
+        run_main_loop(updater, dispatcher, owm)
+    except telegram.error.NetworkError as e:
+        print("Network error caught. Restarting bot")
+        updater.stop()
 
     return 0
 
