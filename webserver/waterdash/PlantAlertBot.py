@@ -142,9 +142,9 @@ async def scheduled_run(context):
 def init_owm_job(job_queue: JobQueue):
     from mongodb import from_utc, to_utc
     owm = owm_wrapper(owm_token, owm_city)
-    for i in range(0, 10, 1):
+    for h in [0, 8, 16]:
         job_queue.run_daily(scheduled_run, time=time(
-            23, i, 0, tzinfo=pytz.timezone('Europe/Brussels')), data={'owm': owm})
+            h, 0, 0, tzinfo=pytz.timezone('Europe/Brussels')), data={'owm': owm})
 
 
 def main():
