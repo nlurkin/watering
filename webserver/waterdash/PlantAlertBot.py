@@ -119,7 +119,7 @@ def check_conditions(owm):
     message_list = []
 
     temps = [(_[1].temperature("celsius")["temp"], _[0]) for _ in hourly]
-    message = check_value_alerts(temps, [5], [30, 20], "Temperature", "°C")
+    message = check_value_alerts(temps, [0], [30, 20], "Temperature", "°C")
     if message is not None:
         message_list.append(message)
 
