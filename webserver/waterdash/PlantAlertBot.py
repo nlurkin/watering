@@ -14,7 +14,7 @@ from data.config import owm_city, owm_token, telegram_token
 from owm import owm_wrapper
 
 logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.WARNING)
 
 
 ###########################
