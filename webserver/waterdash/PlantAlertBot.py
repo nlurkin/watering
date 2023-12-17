@@ -99,8 +99,9 @@ def check_value_alerts(values, low_levels, high_levels, val_name, unit):
     max_val = max([_[0] for _ in values])
     for l in low_levels:
         alerts = [_ for _ in values if _[0] < l]
-        bxl_time = alerts[0][1].astimezone(pytz.timezone('Europe/Brussels'))
         if len(alerts) > 0:
+            bxl_time = alerts[0][1].astimezone(
+                pytz.timezone('Europe/Brussels'))
             return f"WARNING: {val_name} below {l}{unit} foreseen starting at {bxl_time}, with a minimum of {min_val}"
 
     for l in high_levels:
