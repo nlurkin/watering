@@ -1,0 +1,9 @@
+version: "3.8"
+services:
+  plantbot:
+    build:
+      context: .
+      dockerfile: plantbot/Dockerfile
+    volumes:
+      - $PWD/data:/app/data
+    tty: true
