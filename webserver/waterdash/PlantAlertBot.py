@@ -71,9 +71,10 @@ async def inform_clients(context: CallbackContext, message: str):
 # Initialization
 ################
 def init_bot():
-    my_persistence = PicklePersistence(filepath='PlantAlertBot')
-    application = ApplicationBuilder().token(
-        telegram_token).persistence(my_persistence).build()
+    my_persistence = PicklePersistence(filepath="data/PlantAlertBot")
+    application = (
+        ApplicationBuilder().token(telegram_token).persistence(my_persistence).build()
+    )
 
     handler = CommandHandler('start', start)
     application.add_handler(handler)
