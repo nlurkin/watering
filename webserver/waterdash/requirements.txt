@@ -1,0 +1,6 @@
+paho-mqtt==2.1.0
+pymongo==4.7.2
+pytz==2024.1
+python-telegram-bot[job-queue]==21.1.1
+pyowm=3.3.0
+setuptools==69.5.1
