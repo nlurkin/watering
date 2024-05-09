@@ -26,12 +26,13 @@ def from_utc(dt: Union[datetime, None] = None, timezone="Europe/Brussels"):
 
 class myMongoClient(object):
 
-    def __init__(self, hostname, port, username=None, password=None):
+    def __init__(self, hostname, port, app_name, username=None, password=None):
         self.hostname = hostname
         self.port = port
         self.client = None
         self.dbuser = username
         self.dbpasswd = password
+        self.app_name = app_name
 
         self.sensors_db = None
         self.advertised_cur_db = None
@@ -39,10 +40,9 @@ class myMongoClient(object):
         self.dashboard_db = None
 
     def connect(self):
-        self.client = pymongo.MongoClient(self.hostname, self.port)
+        uri = f"mongodb+srv://{self.dbuser}:{self.dbpasswd}@{self.hostname}/?retryWrites=true&w=majority&appName={self.app_name}"
 
-        if self.dbuser is not None:
-            self.client["perm"].authenticate(self.dbuser, self.dbpasswd)
+        self.client = pymongo.MongoClient(uri)
 
         self.sensors_db = self.client["sensors"]["definition"]
         self.dashboard_db = self.client["dashboard"]["dashboard_config"]
