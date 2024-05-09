@@ -7,14 +7,20 @@ from datetime import time
 
 import pytz
 from telegram import Update
-from telegram.ext import (ApplicationBuilder, CallbackContext, CommandHandler,
-                          JobQueue, PicklePersistence)
+from telegram.ext import (
+    ApplicationBuilder,
+    CallbackContext,
+    CommandHandler,
+    JobQueue,
+    PicklePersistence,
+)
 
 from data.config import owm_city, owm_token, telegram_token
 from owm import owm_wrapper
 
 logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.WARNING)
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
+)
 
 
 ###########################
@@ -45,7 +51,8 @@ async def register(update: Update, context: CallbackContext):
     logging.info(f"Received register command for chat ID {chat_id}")
     add_user(context, chat_id)
     await context.bot.send_message(
-        chat_id=update.effective_chat.id, text="Thank you for registering")
+        chat_id=update.effective_chat.id, text="Thank you for registering"
+    )
 
 
 async def am_i_registered(update: Update, context: CallbackContext):
@@ -54,10 +61,12 @@ async def am_i_registered(update: Update, context: CallbackContext):
     logging.info(f"Received amiregistered command for chat ID {chat_id}")
     if chat_id in context.bot_data["RegisteredUsers"]:
         await context.bot.send_message(
-            chat_id=update.effective_chat.id, text="I'm not forgetting about you!")
+            chat_id=update.effective_chat.id, text="I'm not forgetting about you!"
+        )
     else:
         await context.bot.send_message(
-            chat_id=update.effective_chat.id, text="Sorry, who are you?")
+            chat_id=update.effective_chat.id, text="Sorry, who are you?"
+        )
 
 
 async def inform_clients(context: CallbackContext, message: str):
@@ -76,13 +85,13 @@ def init_bot():
         ApplicationBuilder().token(telegram_token).persistence(my_persistence).build()
     )
 
-    handler = CommandHandler('start', start)
+    handler = CommandHandler("start", start)
     application.add_handler(handler)
 
-    handler = CommandHandler('register', register)
+    handler = CommandHandler("register", register)
     application.add_handler(handler)
 
-    handler = CommandHandler('amiregistered', am_i_registered)
+    handler = CommandHandler("amiregistered", am_i_registered)
     application.add_handler(handler)
 
     return application
@@ -107,15 +116,13 @@ def check_value_alerts(values, low_levels, high_levels, val_name, unit):
     for l in low_levels:
         alerts = [_ for _ in values if _[0] < l]
         if len(alerts) > 0:
-            bxl_time = alerts[0][1].astimezone(
-                pytz.timezone('Europe/Brussels'))
+            bxl_time = alerts[0][1].astimezone(pytz.timezone("Europe/Brussels"))
             return f"WARNING: {val_name} below {l}{unit} foreseen starting at {bxl_time}, with a minimum of {min_val}"
 
     for l in high_levels:
         alerts = [_ for _ in values if _[0] > l]
         if len(alerts) > 0:
-            bxl_time = alerts[0][1].astimezone(
-                pytz.timezone('Europe/Brussels'))
+            bxl_time = alerts[0][1].astimezone(pytz.timezone("Europe/Brussels"))
             return f"WARNING: {val_name} above {l}{unit} foreseen starting at {bxl_time}, with a maximum of {max_val}"
 
     return None
@@ -131,7 +138,7 @@ def check_conditions(owm):
     if message is not None:
         message_list.append(message)
 
-    gusts = [(_[1].wind()["gust"]*3.6, _[0]) for _ in hourly]  # In km/h
+    gusts = [(_[1].wind()["gust"] * 3.6, _[0]) for _ in hourly]  # In km/h
     message = check_value_alerts(gusts, [], [60, 80], "Wind gusts", "kph")
     if message is not None:
         message_list.append(message)
@@ -140,7 +147,7 @@ def check_conditions(owm):
 
 
 async def scheduled_run(context):
-    owm = context.job.data['owm']
+    owm = context.job.data["owm"]
 
     message_list = check_conditions(owm)
     for message in message_list:
@@ -149,10 +156,14 @@ async def scheduled_run(context):
 
 def init_owm_job(job_queue: JobQueue):
     from mongodb import from_utc, to_utc
+
     owm = owm_wrapper(owm_token, owm_city)
     for h in [0, 8, 16]:
-        job_queue.run_daily(scheduled_run, time=time(
-            h, 0, 0, tzinfo=pytz.timezone('Europe/Brussels')), data={'owm': owm})
+        job_queue.run_daily(
+            scheduled_run,
+            time=time(h, 0, 0, tzinfo=pytz.timezone("Europe/Brussels")),
+            data={"owm": owm},
+        )
 
 
 def main():
