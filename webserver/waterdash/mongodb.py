@@ -10,6 +10,9 @@ from typing import Union
 import pymongo
 import pytz
 from bson.objectid import ObjectId
+from tzlocal import get_localzone
+
+tz = get_localzone()
 
 
 def to_utc(dt: Union[datetime, None] = None):
