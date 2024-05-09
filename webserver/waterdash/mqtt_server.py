@@ -1,18 +1,21 @@
 #!/bin/env python
-'''
+"""
 Created on 19-Jun-2020
 
 @author: Nicolas Lurkin
-'''
+"""
 
 # TODO fix timezones
 # TODO merge mongoDB documents when reading: maybe use first>now-24h or now-requested_range instead of using day
 
-import paho.mqtt.client as mqtt
-from mongodb import myMongoClient, to_utc
+import logging
 import re
 import time
+
+import paho.mqtt.client as mqtt
+
 from data.config import broker_creds, mongo_creds
+from mongodb import myMongoClient, to_utc
 
 db = None
 client = None
@@ -40,7 +43,14 @@ def on_message(client, userdata, msg):
         else:
             api_sensor(sensor, msg.payload)
     else:
-        print("Unknown topic: " + msg.topic + " " + str(msg.payload) + " " + msg.payload.decode("UTF8"))
+        print(
+            "Unknown topic: "
+            + msg.topic
+            + " "
+            + str(msg.payload)
+            + " "
+            + msg.payload.decode("UTF8")
+        )
 
 
 def on_log(client, userdata, level, buff):
@@ -50,29 +60,37 @@ def on_log(client, userdata, level, buff):
 def get_db():
     global db
     if db is None:
-        print("Connecting to DB", end = '')
-        db = myMongoClient(mongo_creds["server"], 27017, mongo_creds["username"], mongo_creds["password"])
+        print("Connecting to DB", end="")
+        db = myMongoClient(
+            mongo_creds["server"],
+            27017,
+            mongo_creds["app_name"],
+            mongo_creds["username"],
+            mongo_creds["password"],
+        )
         print("..")
         db.connect()
         print("Connected")
 
     return db
 
+
 def get_client():
     global client
-    
+
     if client is None:
         client = mqtt.Client()
         client.on_connect = on_connect
         client.on_message = on_message
         client.on_log = on_log
-        
+
         client.username_pw_set(broker_creds["username"], broker_creds["password"])
 
         client.connect(broker_creds["server"], 1883, 60)
         client.loop_start()
-        
+
     return client
+
 
 def teardown_db():
     global db
@@ -80,10 +98,11 @@ def teardown_db():
     if db is not None:
         db.close()
         db = None
-        
+
+
 def teardown_client():
     global client
-    
+
     if client is not None:
         client.disconnect()
         client = None
@@ -118,9 +137,16 @@ def check_control():
             continue
         last_sp = ctrl_values["setpoint"][-1]
 
-        if not "samples" in ctrl_values or ctrl_values["samples"][-1]["val"] != last_sp["val"]:
+        if (
+            not "samples" in ctrl_values
+            or ctrl_values["samples"][-1]["val"] != last_sp["val"]
+        ):
             client = get_client()
-            client.publish(f"arduino/cmd/{controller['sensor']}", payload = f"{last_sp['val']}".encode("ASCII"), retain = True)
+            client.publish(
+                f"arduino/cmd/{controller['sensor']}",
+                payload=f"{last_sp['val']}".encode("ASCII"),
+                retain=True,
+            )
 
 
 def control_loop():
@@ -131,7 +157,7 @@ def control_loop():
 
 
 def get_dtype(charID):
-    if charID == 'B':
+    if charID == "B":
         return "bool"
     elif charID == "D":
         return "float"
@@ -149,11 +175,16 @@ def advertise(data):
         m = re.findall("(.*):\(([DIB]),([01])\)", sensor)
         if len(m) > 0:
             m = m[0]
-            data_dict = {"sensor": m[0], "data-type": get_dtype(m[1]), "controller": True if m[2] == "1" else False}
+            data_dict = {
+                "sensor": m[0],
+                "data-type": get_dtype(m[1]),
+                "controller": True if m[2] == "1" else False,
+            }
             db.add_advertised_current(data_dict, m[0])
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
+    logging.info("Starting MQTT server")
     get_db().clear_advertised_current()
 
     try:
@@ -162,4 +193,3 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         teardown_db()
         teardown_client()
-
