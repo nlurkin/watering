@@ -34,11 +34,15 @@ def add_user(context, chat_id):
 # Bot commands
 ##############
 async def start(update: Update, context: CallbackContext):
-    await context.bot.send_message(chat_id=update.effective_chat.id, text="I'm a bot, please talk to me!")
+    logging.info(f"Received start command for chat ID {update.effective_chat.id}")
+    await context.bot.send_message(
+        chat_id=update.effective_chat.id, text="I'm a bot, please talk to me!"
+    )
 
 
 async def register(update: Update, context: CallbackContext):
     chat_id = update.effective_chat.id
+    logging.info(f"Received register command for chat ID {chat_id}")
     add_user(context, chat_id)
     await context.bot.send_message(
         chat_id=update.effective_chat.id, text="Thank you for registering")
@@ -47,6 +51,7 @@ async def register(update: Update, context: CallbackContext):
 async def am_i_registered(update: Update, context: CallbackContext):
     ensure_registered_users(context)
     chat_id = update.effective_chat.id
+    logging.info(f"Received amiregistered command for chat ID {chat_id}")
     if chat_id in context.bot_data["RegisteredUsers"]:
         await context.bot.send_message(
             chat_id=update.effective_chat.id, text="I'm not forgetting about you!")
@@ -57,6 +62,7 @@ async def am_i_registered(update: Update, context: CallbackContext):
 
 async def inform_clients(context: CallbackContext, message: str):
     ensure_registered_users(context)
+    logging.info(f"Informing registered users of new message: {message}")
     for chat in context.bot_data["RegisteredUsers"]:
         await context.bot.send_message(chat_id=chat, text=message)
 
