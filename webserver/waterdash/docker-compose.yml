@@ -8,6 +8,18 @@ services:
     volumes:
       - $PWD/data:/app/data
     tty: true
+
+  mqtt:
+    build:
+      context: .
+      dockerfile: mosquitto/Dockerfile
+    restart: on-failure:10
+    volumes:
+      - $PWD:/app
+    tty: true
+    depends_on:
+      - mosquitto
+
   mosquitto:
     image: eclipse-mosquitto:2.0
     restart: always
