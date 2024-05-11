@@ -22,7 +22,7 @@ def make_location_summary():
     latest = mongoClient.get_latest_sensor_value("bme1_temperature")
     indoor = dbc.Row(
         [
-            html.Img(src="assets/in_house.png", height="30px"),
+            html.Img(src="assets/in_house.png", className="weather-img-logo"),
             html.Div(latest, id={"type": "local_value", "sensor": "bme1_temperature"}),
             "\u00B0C",
         ],
@@ -32,7 +32,7 @@ def make_location_summary():
     latest = mongoClient.get_latest_sensor_value("428F_B3_temp")
     outdoor = dbc.Row(
         [
-            html.Img(src="assets/out_house.png", height="30px"),
+            html.Img(src="assets/out_house.png", className="weather-img-logo"),
             html.Div(latest, id={"type": "local_value", "sensor": "428F_B3_temp"}),
             "\u00B0C",
         ],
@@ -43,7 +43,10 @@ def make_location_summary():
     obs = owm.get_latest_info()["obs"]
     expected = dbc.Row(
         [
-            html.Img(src=obs.weather_icon_url(), style={"margin-left": "-10px"}),
+            html.Img(
+                src=obs.weather_icon_url(),
+                className="weather-img-logo",
+            ),
             obs.detailed_status,
         ],
         className="weather_row",
@@ -51,14 +54,25 @@ def make_location_summary():
 
     date = from_utc().strftime("%b %d, %Y")
     time = html.B(from_utc().strftime("%H:%M"), style={"padding-left": "10px"})
-    date = dbc.Row(
-        [html.Img(src="assets/calendar_1.png", height="30px"), date, time],
+    date = html.Div(
+        [
+            html.Img(
+                src="assets/calendar_1.png",
+                className="weather-img-logo",
+                style={"padding-left": "10px"},
+            ),
+            date,
+            time,
+        ],
         id="date_row",
         className="weather_row",
-        style={"font-size": "smaller"},
+        style={"font-size": "smaller", "margin": "5px"},
     )
     location = dbc.Row(
-        [html.Img(src="assets/location.png", height="30px"), "Mont-Saint-Guibert, BE"],
+        [
+            html.Img(src="assets/location.png", className="weather-img-logo"),
+            "Mont-Saint-Guibert, BE",
+        ],
         className="weather_row",
         style={"font-size": "smaller"},
     )
@@ -66,7 +80,7 @@ def make_location_summary():
     return [
         html.Div(
             [outdoor, indoor, expected, date, location],
-            style={"position": "absolute", "bottom": "0", "font-size": "x-large"},
+            style={"position": "relative", "top": "250px", "font-size": "x-large"},
         )
     ]
 
@@ -126,7 +140,8 @@ def make_forecast():
         )
     )
 
-    return dbc.Row(dbc.CardDeck([dbc.Col(c, width = 5) for c in mcards], className = "weather"))
+    return dbc.Row(html.Div([dbc.Col(c, width=5) for c in mcards], className="weather"))
+
 
 def make_highlights():
     mcards = []
@@ -175,7 +190,7 @@ def make_highlights():
         )
     )
 
-    return dbc.Row(dbc.CardDeck([dbc.Col(c, width = 5) for c in mcards], className = "weather"))
+    return dbc.Row(html.Div([dbc.Col(c, width=5) for c in mcards], className="weather"))
 
 
 def make_details():
@@ -247,7 +262,7 @@ def make_details():
         )
     )
 
-    return dbc.Row(dbc.CardDeck([dbc.Col(c, width = 5) for c in mcards], className = "weather"))
+    return dbc.Row(html.Div([dbc.Col(c, width=5) for c in mcards], className="weather"))
 
 
 def get_layout():
@@ -325,7 +340,15 @@ def get_layout():
 def update_date(_):
     date = from_utc().strftime("%b %d, %Y")
     time = html.B(from_utc().strftime("%H:%M"), style={"padding-left": "10px"})
-    return [html.Img(src="assets/calendar_1.png", height="23px"), date, time]
+    return [
+        html.Img(
+            src="assets/calendar_1.png",
+            style={"height": "23px", "padding-left": "10px"},
+            className="weather-img-logo",
+        ),
+        date,
+        time,
+    ]
 
 
 @app.callback(
@@ -391,7 +414,7 @@ def update_float_metrics(_, sensor_name):
     title = {"bme1_temperature": "Indoors", "428F_B3_temp": "Outdoors"}
 
     dfo = get_and_merge_data(sensor_name["sensor"], 12)
-    df = dfo.resample("1H").first()
+    df = dfo.resample("1h").first()
     df.loc[dfo.iloc[-1].name] = dfo.iloc[-1]
 
     figure = go.Figure().add_trace(
