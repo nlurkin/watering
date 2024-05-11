@@ -136,7 +136,7 @@ class myMongoClient(object):
 
     def update_sensor_values(self, sensor_doc, sensor_name, val):
         sensor_coll = self.client["sensors"][sensor_name]
-        dt = tz.localize(datetime.now())
+        dt = datetime.now(tz)
         ts = dt.timestamp()
         day = dt.strftime("%Y-%m-%d")
 
