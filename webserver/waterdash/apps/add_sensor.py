@@ -98,14 +98,13 @@ def build_mod_layout(update):
     return [
         html.Div(
             [
-                dbc.FormGroup(
+                dbc.Row(
                     [
                         dbc.Label("Sensor name", html_for="add_sensor_name", width=2),
                         dbc.Col(field_to_use, width=2),
                     ],
-                    row=True,
                 ),
-                dbc.FormGroup(
+                dbc.Row(
                     [
                         dbc.Label(
                             "Sensor display name",
@@ -121,9 +120,8 @@ def build_mod_layout(update):
                             width=2,
                         ),
                     ],
-                    row=True,
                 ),
-                dbc.FormGroup(
+                dbc.Row(
                     [
                         dbc.Label(
                             "Sensor data type", html_for="add_sensor_type", width=2
@@ -143,9 +141,8 @@ def build_mod_layout(update):
                             width=2,
                         ),
                     ],
-                    row=True,
                 ),
-                dbc.FormGroup(
+                dbc.Row(
                     [
                         dbc.Label("", html_for="add_sensor_controller", width=2),
                         dbc.Col(
@@ -159,9 +156,8 @@ def build_mod_layout(update):
                             width=2,
                         ),
                     ],
-                    row=True,
                 ),
-                dbc.FormGroup(
+                dbc.Row(
                     [
                         dbc.Col(width=2),
                         dbc.Col(
@@ -171,7 +167,6 @@ def build_mod_layout(update):
                             width=2,
                         ),
                     ],
-                    row=True,
                 ),
             ],
             className="form",

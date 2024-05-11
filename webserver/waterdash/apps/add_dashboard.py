@@ -48,7 +48,7 @@ def get_layout(update):
     return [
         html.Div(
             [
-                dbc.FormGroup(
+                dbc.Row(
                     [
                         dbc.Label(
                             "Dashboard name", html_for="add_dashboard_name", width=2
@@ -69,9 +69,8 @@ def get_layout(update):
                             className="mytooltip",
                         ),
                     ],
-                    row=True,
                 ),
-                dbc.FormGroup(
+                dbc.Row(
                     dbc.Row(
                         children=[
                             dbc.Col(
@@ -85,7 +84,7 @@ def get_layout(update):
                         ]
                     )
                 ),
-                dbc.FormGroup(
+                dbc.Row(
                     dbc.Row(
                         [
                             dbc.Col(

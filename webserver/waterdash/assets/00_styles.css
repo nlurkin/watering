@@ -630,21 +630,21 @@ a {
   border: 0.5px solid #dbdbdb44;
 }
 
-.has-value.Select--single > .Select-control .Select-value .Select-value-label,
+/* .has-value.Select--single > .Select-control .Select-value .Select-value-label,
 .has-value.is-pseudo-focused.Select--single
   > .Select-control
   .Select-value
-  .Select-value-label {
-  color: white;
+  .Select-value-label { */
+/* color: white;
   background: #1e1e1e;
-  background-color: #1e1e1e;
-}
+  background-color: #1e1e1e; */
+/* } */
 ._dash-app-content {
   overflow-x: hidden;
   overflow-y: hidden;
   position: relative;
 }
-.has-value.Select--single > .Select-control .Select-value .Select-value-label,
+/* .has-value.Select--single > .Select-control .Select-value .Select-value-label,
 .has-value.is-pseudo-focused.Select--single
   > .Select-control
   .Select-value
@@ -652,7 +652,7 @@ a {
   color: #d8d8d8;
   font-weight: 400;
   font-size: 14px;
-}
+} */
 
 .Input.DateInput_1 {
   background-color: #1e1e1e;

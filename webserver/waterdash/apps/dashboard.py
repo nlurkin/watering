@@ -88,7 +88,7 @@ def generate_dashboard_column(col_description):
 
 def build_controls():
     now = from_utc()
-    switches = dbc.FormGroup(
+    switches = dbc.Row(
         [
             dbc.Label("Controls"),
             dbc.Checklist(
@@ -101,7 +101,7 @@ def build_controls():
             ),
         ],
     )
-    date_range = dbc.FormGroup(
+    date_range = dbc.Row(
         [
             dbc.Label("Data range"),
             dcc.DatePickerRange(
@@ -113,7 +113,7 @@ def build_controls():
             ),
         ],
     )
-    update_interval = dbc.FormGroup(
+    update_interval = dbc.Row(
         [
             dbc.Label("Refresh rate [s]"),
             dcc.Input(type="number", id="refresh_rate", value=10, debounce=True),
