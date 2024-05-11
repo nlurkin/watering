@@ -29,3 +29,14 @@ services:
     volumes:
       - $PWD/mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
       - $PWD/data/passwd:/mosquitto/passwd
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: dashboard/Dockerfile
+    restart: on-failure:10
+    volumes:
+      - $PWD:/app
+    tty: true
+    ports:
+      - "8000:8000"
