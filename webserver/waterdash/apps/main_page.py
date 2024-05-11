@@ -140,7 +140,11 @@ def make_forecast():
         )
     )
 
-    return dbc.Row(html.Div([dbc.Col(c, width=5) for c in mcards], className="weather"))
+    return dbc.Row(
+        html.Div(
+            [dbc.Col(c, width=5) for c in mcards], className="weather  card-deck row"
+        )
+    )
 
 
 def make_highlights():
@@ -190,7 +194,11 @@ def make_highlights():
         )
     )
 
-    return dbc.Row(html.Div([dbc.Col(c, width=5) for c in mcards], className="weather"))
+    return dbc.Row(
+        html.Div(
+            [dbc.Col(c, width=5) for c in mcards], className="weather card-deck row"
+        )
+    )
 
 
 def make_details():
@@ -262,7 +270,11 @@ def make_details():
         )
     )
 
-    return dbc.Row(html.Div([dbc.Col(c, width=5) for c in mcards], className="weather"))
+    return dbc.Row(
+        html.Div(
+            [dbc.Col(c, width=5) for c in mcards], className="weather card-deck row"
+        )
+    )
 
 
 def get_layout():
