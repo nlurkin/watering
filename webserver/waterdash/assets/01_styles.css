@@ -1,0 +1,32 @@
+.weather-img-logo {
+  width: auto;
+  height: 30px;
+}
+
+.weather_row {
+  background: none;
+  flex-wrap: nowrap;
+
+  div {
+    width: auto;
+  }
+}
+
+.weather_row img {
+  padding-right: 10px;
+}
+
+.card-deck.weather .col,
+.card-deck.weather .col-1,
+.card-deck.weather .col-2,
+.card-deck.weather .col-3,
+.card-deck.weather .col-4,
+.card-deck.weather .col-5,
+.card-deck.weather .col-6 {
+  background-color: #3f86ba;
+  margin: 5px;
+  text-align: center;
+  font-size: medium;
+  /* min-width: 110px; */
+  /* padding: 40px 45px 15px 45px; */
+}

@@ -10,3 +10,4 @@ dbdata/
 *.pyc
 /esspressif/
 .ipynb_checkpoints/
+data/config.py
