@@ -29,11 +29,11 @@ def make_location_summary():
         className="weather_row",
         style={"font-size": "larger"},
     )
-    latest = mongoClient.get_latest_sensor_value("428F_B3_temp")
+    latest = mongoClient.get_latest_sensor_value("428F_EC_temp")
     outdoor = dbc.Row(
         [
             html.Img(src="assets/out_house.png", className="weather-img-logo"),
-            html.Div(latest, id={"type": "local_value", "sensor": "428F_B3_temp"}),
+            html.Div(latest, id={"type": "local_value", "sensor": "428F_EC_temp"}),
             "\u00B0C",
         ],
         className="weather_row",
@@ -89,7 +89,7 @@ def make_temperature_plot():
     sensor_element = [
         dbc.Card(
             dcc.Graph(
-                id={"type": "other_sensor", "sensor": "428F_B3_temp"},
+                id={"type": "other_sensor", "sensor": "428F_EC_temp"},
                 # config = {'displayModeBar': False},
                 animate=True,
             )
@@ -172,7 +172,7 @@ def make_highlights():
         )
     )
 
-    values = get_and_merge_data("428F_B3_temp", 24)
+    values = get_and_merge_data("428F_EC_temp", 24)
     vmax = values["val"].max()
     vmin = values["val"].min()
     mcards.append(
@@ -184,7 +184,7 @@ def make_highlights():
         )
     )
 
-    values = get_and_merge_data("428F_B3_hum", 24)
+    values = get_and_merge_data("428F_EC_hum", 24)
     vmax = values["val"].max()
     vmin = values["val"].min()
     mcards.append(
@@ -212,7 +212,7 @@ def make_details():
         )
     )
 
-    latest = mongoClient.get_latest_sensor_value("428F_B3_hum")
+    latest = mongoClient.get_latest_sensor_value("428F_EC_hum")
     mcards.append(
         (
             dbc.CardImg(src="assets/humidity_out.png", style={"width": "50px"}),
@@ -423,7 +423,7 @@ def get_and_merge_data(sensor_name, nhours):
     ],
 )
 def update_float_metrics(_, sensor_name):
-    title = {"bme1_temperature": "Indoors", "428F_B3_temp": "Outdoors"}
+    title = {"bme1_temperature": "Indoors", "428F_EC_temp": "Outdoors"}
 
     dfo = get_and_merge_data(sensor_name["sensor"], 12)
     df = dfo.resample("1h").first()
