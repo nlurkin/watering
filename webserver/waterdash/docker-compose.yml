@@ -4,7 +4,7 @@ services:
     build:
       context: .
       dockerfile: plantbot/Dockerfile
-    restart: on-failure:10
+    restart: always
     volumes:
       - $PWD/data:/app/data
     tty: true
@@ -13,7 +13,7 @@ services:
     build:
       context: .
       dockerfile: mosquitto/Dockerfile
-    restart: on-failure:10
+    restart: always
     volumes:
       - $PWD:/app
     tty: true
@@ -34,7 +34,7 @@ services:
     build:
       context: .
       dockerfile: dashboard/Dockerfile
-    restart: on-failure:10
+    restart: always
     volumes:
       - $PWD:/app
     tty: true
