@@ -222,12 +222,15 @@ def make_details():
 
     latest = mongoClient.get_latest_sensor_value("bme1_pressure")
     values = get_and_merge_data("bme1_pressure", 24)
-    values = values.asof(to_utc() - datetime.timedelta(hours=6))["val"]
-    updown = (
-        "stable"
-        if np.abs(latest - values) < 1
-        else ("up" if (latest - values > 0) else "down")
-    )
+    if len(values)>0:
+        values = values.asof(to_utc() - datetime.timedelta(hours=6))["val"]
+        updown = (
+            "stable"
+            if np.abs(latest - values) < 1
+            else ("up" if (latest - values > 0) else "down")
+        )
+    else:
+        updown = "???"
     mcards.append(
         (
             dbc.CardImg(
