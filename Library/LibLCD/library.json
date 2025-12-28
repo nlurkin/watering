@@ -1,0 +1,22 @@
+{
+  "name": "LibLCD",
+  "version": "1.0.0",
+  "description": "LibLCD",
+  "keywords": "whatever",
+  "authors":
+  [
+    {
+      "name": "Nicolas Lurkin",
+      "email": "nicolas.lurkin@gmail.com",
+      "maintainer": true
+    }
+  ],
+  "dependencies": {
+    "arduino-libraries/LiquidCrystal": "@^1.0.7",
+    "vase7u/LiquidMenu": "@^1.6.0",
+    "LibMenus@^1.0.0": "@^1.0.0"
+  },
+  "license": "MIT",
+  "frameworks": "*",
+  "platforms": "*"
+}

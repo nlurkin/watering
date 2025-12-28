@@ -7,7 +7,7 @@
 
 #include <Arduino.h>
 
-#include "LCDDisplay.h"
+#include <LCDDisplay.h>
 #include "MenuWelcome.h"
 #include "MenuBME.h"
 #include "ESP8266Wifi.h"
@@ -44,6 +44,8 @@ void setup() {
   Serial.begin(115200);
   Serial2.begin(115200);
 
+  Serial.println(F("Starting application"));
+
   lcd.add_menu(&_m_welcome);
   lcd.add_menu(&_m_bme);
 
@@ -62,7 +64,7 @@ void setup() {
   bme1.setOffsetTemperature(-3.5); // Temperature is about 3.5 degrees above the real one.
   oregon.init(19);
 
-  Serial.println(F("Stating publication server"));
+  Serial.println(F("Starting publication server"));
   pubServer.setDestination(FPSTR(serverHost), 1883);
   pubServer.begin();
 
@@ -146,5 +148,6 @@ void loop() {
     forceUpdate = true;
     heartbeat_millis = millis();
   }
+  //pubServer.listen(); //Cannot do that: blocks and oregon not received
   pubServer.serve(forceUpdate);
 }

@@ -1,0 +1,17 @@
+{
+  "name": "Debugging",
+  "version": "1.0.0",
+  "description": "Debugging",
+  "keywords": "whatever",
+  "authors":
+  [
+    {
+      "name": "Nicolas Lurkin",
+      "email": "nicolas.lurkin@gmail.com",
+      "maintainer": true
+    }
+  ],
+  "license": "MIT",
+  "frameworks": "*",
+  "platforms": "*"
+}

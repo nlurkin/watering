@@ -9,5 +9,7 @@ __pycache__/
 dbdata/
 *.pyc
 /esspressif/
+.vscode/
+.pio
 .ipynb_checkpoints/
 data/config.py

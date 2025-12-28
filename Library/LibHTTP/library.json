@@ -1,0 +1,21 @@
+{
+  "name": "LibHTTP",
+  "version": "1.0.0",
+  "description": "LibHTTP",
+  "keywords": "whatever",
+  "authors":
+  [
+    {
+      "name": "Nicolas Lurkin",
+      "email": "nicolas.lurkin@gmail.com",
+      "maintainer": true
+    }
+  ],
+  "dependencies": {
+    "LibESP8266": "@^1.0.0"
+  },
+
+  "license": "MIT",
+  "frameworks": "*",
+  "platforms": "*"
+}
