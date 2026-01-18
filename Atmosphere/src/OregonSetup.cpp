@@ -42,8 +42,10 @@ void OregonSetup::updateAll() {
     return;
 
   OregonDecoder sensor = _oregon->get_data();
-  if(!sensor.checksum())
+  if(!sensor.checksum()){
+    // Serial.println(F("OregonSetup: invalid checksum"));
     return; // At least some data are invalid. Skip this one
+  }
 
   uint8_t rolling_id = sensor.get_rolling_code();
   int8_t index = isSensorKnown(rolling_id);
